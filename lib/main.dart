@@ -1,9 +1,24 @@
+import 'package:driver_monitoring/presentation/controllers/settings_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'core/constants/app_color_scheme.dart';
 import 'core/routes/app_router.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async{
+ WidgetsFlutterBinding.ensureInitialized();
+
+  // ✅ Blochează aplicația pe Portrait Mode
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp, // Numai portret normal
+  ]);
+
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => SettingsController()..loadSettings(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

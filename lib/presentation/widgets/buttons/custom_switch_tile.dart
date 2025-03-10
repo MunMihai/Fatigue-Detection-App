@@ -1,0 +1,49 @@
+import 'package:driver_monitoring/core/constants/app_text_styles.dart';
+import 'package:driver_monitoring/core/utils/color_scheme_extensions.dart';
+import 'package:flutter/material.dart';
+
+class CustomSwitchTile extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final bool value;               // valoarea vine din afară
+  final ValueChanged<bool> onChanged;
+
+  const CustomSwitchTile({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.value,          // necesar să ai valoarea curentă
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: AppTextStyles.h4
+              ),
+              //AppSpaceses.verticalTiny,
+              Text(
+                subtitle,
+                style: AppTextStyles.subtitle
+              ),
+            ],
+          ),
+          Switch(
+            value: value,                        
+            activeColor: Theme.of(context).colorScheme.primaryButton,
+            thumbColor: const WidgetStatePropertyAll<Color>(Colors.white),
+            inactiveTrackColor: Theme.of(context).colorScheme.primary,
+            trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
+            onChanged: onChanged,                
+          ),
+        ],
+    );
+  }
+}

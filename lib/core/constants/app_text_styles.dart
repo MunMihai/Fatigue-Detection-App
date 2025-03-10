@@ -38,4 +38,16 @@ class AppTextStyles {
     fontWeight: FontWeight.w500,
     color: Colors.white,
   );
+
+  static final TextStyle subtitle = GoogleFonts.manrope(
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+    color: Color(0xFF748089),
+  );
+
+  static final TextStyle timer = GoogleFonts.manrope(
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+    color: Colors.white,
+  );
 }

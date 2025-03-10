@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class ReportsSection extends StatelessWidget{
+  const ReportsSection({super.key});
+
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +15,7 @@ class ReportsSection extends StatelessWidget{
       children: [
         Text('Reports', style: AppTextStyles.h2 ),
         AppSpaceses.verticalMedium,
-        ArrowButton(title: 'View driving session reports', onPressed: ()=>context.go('/reports'))
+        ArrowButton(title: 'View driving session reports', onPressed: ()=>context.push('/reports'))
       ],
     );
   }

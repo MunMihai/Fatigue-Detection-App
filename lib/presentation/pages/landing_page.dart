@@ -5,8 +5,8 @@ import 'package:driver_monitoring/core/utils/color_scheme_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class SplashScreen extends StatelessWidget {
-  const SplashScreen({super.key});
+class LandingPage extends StatelessWidget {
+  const LandingPage({super.key});
   
 
   @override
