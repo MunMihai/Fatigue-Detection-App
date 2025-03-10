@@ -17,9 +17,25 @@ class AppTextStyles {
     fontWeight: FontWeight.w900,
     color: Colors.white,
   );
+  static final TextStyle h4 = GoogleFonts.manrope(
+    fontSize: 20,
+    fontWeight: FontWeight.bold,
+    color: Colors.white,
+  );
   static final TextStyle regular_24 = GoogleFonts.manrope(
     fontSize: 24,
     fontWeight: FontWeight.w400,
+    color: Colors.white,
+  );
+  static final TextStyle medium_12 = GoogleFonts.manrope(
+    fontSize: 12,
+    fontWeight: FontWeight.w500,
+    color: Colors.white,
+  );
+
+  static final TextStyle michroma = GoogleFonts.michroma(
+    fontSize: 24,
+    fontWeight: FontWeight.w500,
     color: Colors.white,
   );
 }
