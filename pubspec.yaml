@@ -58,6 +58,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   google_fonts: ^6.2.1
   provider: ^6.1.2
+  collection:
+  logger: 
+  intl: 
 
 dev_dependencies:
   flutter_test:
@@ -83,7 +86,9 @@ flutter:
     - assets/icons/
     - assets/gifs/
     - assets/images/
-    - assets/mock/
+    - assets/mock/local/mock_session_reports.json
+    - assets/mock/local/mock_alerts.json
+
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

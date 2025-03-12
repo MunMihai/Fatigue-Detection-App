@@ -50,4 +50,10 @@ class AppTextStyles {
     fontWeight: FontWeight.bold,
     color: Colors.white,
   );
+  static final TextStyle filterText = GoogleFonts.poppins(
+    fontSize: 24,
+    fontWeight: FontWeight.w400,
+    fontStyle: FontStyle.italic,
+    color: Colors.white,
+  );
 }

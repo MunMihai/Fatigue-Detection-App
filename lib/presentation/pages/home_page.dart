@@ -1,6 +1,6 @@
 import 'package:driver_monitoring/core/constants/app_spaceses.dart';
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
-import 'package:driver_monitoring/presentation/controllers/settings_controller.dart';
+import 'package:driver_monitoring/presentation/providers/settings_provider.dart';
 import 'package:driver_monitoring/presentation/widgets/app_bar.dart';
 import 'package:driver_monitoring/presentation/widgets/buttomNavigationBar/buttom_navigation_bar_idle.dart';
 import 'package:driver_monitoring/presentation/widgets/buttons/arrow_button.dart';
@@ -41,9 +41,9 @@ class HomePage extends StatelessWidget {
                   title: 'START MONITORING',
                   onPressed: () => context.go('/activeMonitoring/main')),
               AppSpaceses.verticalLarge,
-              Consumer<SettingsController>(
-                  builder: (context, settingsController, _) =>
-                      settingsController.isReportsSectionEnabled
+              Consumer<SettingsProvider>(
+                  builder: (context, settingsProvider, _) =>
+                      settingsProvider.isReportsSectionEnabled
                           ? ReportsSection()
                           : SizedBox()),
             ],

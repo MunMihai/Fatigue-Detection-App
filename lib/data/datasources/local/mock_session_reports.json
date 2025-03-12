@@ -1,0 +1,129 @@
+[
+    {
+      "id": "1",
+      "date": "May 20, 2025",
+      "startTime": "12:20",
+      "duration": "2h 30min",
+      "fatigueLevel": "Normal",
+      "camera": "BluetoothCam_1",
+      "retentionMonths": 12
+    },
+    {
+      "id": "2",
+      "date": "May 19, 2025",
+      "startTime": "10:00",
+      "duration": "1h 45min",
+      "fatigueLevel": "Moderate",
+      "camera": "Front Camera",
+      "retentionMonths": 6
+    },
+    {
+      "id": "3",
+      "date": "May 17, 2025",
+      "startTime": "15:15",
+      "duration": "3h 10min",
+      "fatigueLevel": "Good",
+      "camera": "BluetoothCam_1",
+      "retentionMonths": 24
+    },
+    {
+      "id": "4",
+      "date": "May 15, 2025",
+      "startTime": "09:00",
+      "duration": "2h 00min",
+      "fatigueLevel": "High",
+      "camera": "Front Camera",
+      "retentionMonths": 3
+    },
+    {
+      "id": "5",
+      "date": "May 14, 2025",
+      "startTime": "14:00",
+      "duration": "1h 30min",
+      "fatigueLevel": "Normal",
+      "camera": "BluetoothCam_1",
+      "retentionMonths": 6
+    },
+    {
+      "id": "6",
+      "date": "May 13, 2025",
+      "startTime": "08:00",
+      "duration": "2h 15min",
+      "fatigueLevel": "Moderate",
+      "camera": "Front Camera",
+      "retentionMonths": 12
+    },
+    {
+      "id": "7",
+      "date": "May 12, 2025",
+      "startTime": "16:45",
+      "duration": "3h 00min",
+      "fatigueLevel": "Good",
+      "camera": "BluetoothCam_1",
+      "retentionMonths": 24
+    },
+    {
+      "id": "8",
+      "date": "May 11, 2025",
+      "startTime": "13:30",
+      "duration": "1h 50min",
+      "fatigueLevel": "Normal",
+      "camera": "Front Camera",
+      "retentionMonths": 3
+    },
+    {
+      "id": "9",
+      "date": "May 10, 2025",
+      "startTime": "11:00",
+      "duration": "4h 00min",
+      "fatigueLevel": "High",
+      "camera": "BluetoothCam_1",
+      "retentionMonths": 24
+    },
+    {
+      "id": "10",
+      "date": "May 09, 2025",
+      "startTime": "09:15",
+      "duration": "2h 20min",
+      "fatigueLevel": "Moderate",
+      "camera": "Front Camera",
+      "retentionMonths": 12
+    },
+    {
+      "id": "11",
+      "date": "May 08, 2025",
+      "startTime": "07:45",
+      "duration": "3h 05min",
+      "fatigueLevel": "Good",
+      "camera": "BluetoothCam_1",
+      "retentionMonths": 12
+    },
+    {
+      "id": "12",
+      "date": "May 07, 2025",
+      "startTime": "18:00",
+      "duration": "1h 40min",
+      "fatigueLevel": "High",
+      "camera": "Front Camera",
+      "retentionMonths": 6
+    },
+    {
+      "id": "13",
+      "date": "May 06, 2025",
+      "startTime": "15:30",
+      "duration": "2h 50min",
+      "fatigueLevel": "Normal",
+      "camera": "BluetoothCam_1",
+      "retentionMonths": 24
+    },
+    {
+      "id": "14",
+      "date": "May 05, 2025",
+      "startTime": "12:10",
+      "duration": "1h 25min",
+      "fatigueLevel": "Moderate",
+      "camera": "Front Camera",
+      "retentionMonths": 3
+    }
+  ]
+  

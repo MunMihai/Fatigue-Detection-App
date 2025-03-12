@@ -12,4 +12,9 @@ class AppSpaceses {
   static const SizedBox verticalMedium  = SizedBox(height: mediumSpace);
   static const SizedBox verticalSmall  = SizedBox(height: smallSpace);
   static const SizedBox verticalTiny  = SizedBox(height: tinySpace);
-}
+
+  static const SizedBox horizontalLarge = SizedBox(width: largeSpace);
+  static const SizedBox horizontalExtraLarge = SizedBox(width: largeSpace * 2);
+  static const SizedBox horizontalMedium  = SizedBox(width: mediumSpace);
+  static const SizedBox horizontalSmall  = SizedBox(width: smallSpace);
+  static const SizedBox horizontalTiny  = SizedBox(width: tinySpace);}

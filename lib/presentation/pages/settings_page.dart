@@ -1,6 +1,6 @@
 import 'package:driver_monitoring/core/constants/app_spaceses.dart';
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
-import 'package:driver_monitoring/presentation/controllers/settings_controller.dart';
+import 'package:driver_monitoring/presentation/providers/settings_provider.dart';
 import 'package:driver_monitoring/presentation/widgets/app_bar.dart';
 import 'package:driver_monitoring/presentation/widgets/buttomNavigationBar/buttom_navigation_bar_idle.dart';
 import 'package:driver_monitoring/presentation/widgets/buttons/custom_switch_tile.dart';
@@ -15,7 +15,7 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = context.watch<SettingsController>();
+    final settingsProvider = context.watch<SettingsProvider>();
 
     return Scaffold(
       appBar: CustomAppBar(
@@ -36,14 +36,14 @@ class SettingsPage extends StatelessWidget {
             CustomSwitchTile(
               title: 'Enable Counter',
               subtitle: 'Toggle on/off',
-              value: controller.isCounterEnabled,
-              onChanged: controller.toggleCounter,
+              value: settingsProvider.isCounterEnabled,
+              onChanged: settingsProvider.toggleCounter,
             ),
-            if (controller.isCounterEnabled)
+            if (settingsProvider.isCounterEnabled)
               TimePicker(
-                hours: controller.savedHours,
-                minutes: controller.savedMinutes,
-                onChanged: controller.updateTime,
+                hours: settingsProvider.savedHours,
+                minutes: settingsProvider.savedMinutes,
+                onChanged: settingsProvider.updateTime,
               ),
             AppSpaceses.verticalLarge,
             Text('Reports Configuration', style: AppTextStyles.h2),
@@ -51,13 +51,13 @@ class SettingsPage extends StatelessWidget {
             CustomSwitchTile(
               title: 'Show Reports Section',
               subtitle: 'Toggle to show/hide',
-              value: controller.isReportsSectionEnabled,
-              onChanged: controller.toggleReportsSection,
+              value: settingsProvider.isReportsSectionEnabled,
+              onChanged: settingsProvider.toggleReportsSection,
             ),
             ReportsRetentionPicker(
-                months: controller.retentionMonths,
-                onIncrement: controller.incrementRetentionMonths,
-                onDecrement: controller.decrementRetentionMonths)
+                months: settingsProvider.retentionMonths,
+                onIncrement: settingsProvider.incrementRetentionMonths,
+                onDecrement: settingsProvider.decrementRetentionMonths)
           ],
         ),
       ),

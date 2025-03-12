@@ -10,6 +10,6 @@ extension MyColorScheme on ColorScheme{
   Color get stroke => const Color(0xFF0C1217);
   Color get inactiveIcon => const Color(0xFF90A4AE);
   Color get activeIcon => Colors.white;
-
+  Color get searchBar => const Color(0xFF62676B);
 
 }

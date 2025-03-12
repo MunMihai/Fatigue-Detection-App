@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SettingsController extends ChangeNotifier {
+class SettingsProvider extends ChangeNotifier {
   late SharedPreferencesAsync _prefs;
 
   bool _isCounterEnabled = false;
