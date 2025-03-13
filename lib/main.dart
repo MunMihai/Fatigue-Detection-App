@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 
 import 'core/config/providers_setup.dart'; 
 import 'core/constants/app_color_scheme.dart';
 import 'core/routes/app_router.dart';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -14,12 +12,12 @@ void main() async {
   ]);
 
   runApp(
-    MultiProvider(
-      providers: getAppProviders(), 
-      child: const MyApp(),
+    const AppProvidersWrapper(
+      child: MyApp(),
     ),
   );
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

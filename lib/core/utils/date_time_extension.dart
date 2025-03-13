@@ -2,7 +2,7 @@ import 'package:intl/intl.dart';
 
 extension DateTimeFormat on DateTime {
   String toFormattedDate() {
-    final formatter = DateFormat('MMM dd, yyyy');
+    final formatter = DateFormat('MMMM dd, yyyy');
     return formatter.format(this);
   }
 

@@ -48,6 +48,7 @@ dependencies:
 
   # 🔹 UI & Grafică
   fl_chart: ^0.70.2  # Grafice pentru rapoarte
+  syncfusion_flutter_charts: ^28.2.11
   lottie: ^3.3.1  # Animații pentru splash screen
   
   # 🔹 Service Locator pentru Dependency Injection

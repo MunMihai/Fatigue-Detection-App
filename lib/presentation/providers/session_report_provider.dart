@@ -1,11 +1,11 @@
-import 'package:driver_monitoring/core/utils/date_time_extension.dart';
-import 'package:flutter/material.dart';
 import 'package:driver_monitoring/core/utils/app_logger.dart';
+import 'package:driver_monitoring/core/utils/date_time_extension.dart';
 import 'package:driver_monitoring/domain/entities/session_report.dart';
-import 'package:driver_monitoring/domain/usecases/get_reports_usecase.dart';
 import 'package:driver_monitoring/domain/usecases/add_report_usecase.dart';
-import 'package:driver_monitoring/domain/usecases/update_report_usecase.dart';
 import 'package:driver_monitoring/domain/usecases/delete_report_usecase.dart';
+import 'package:driver_monitoring/domain/usecases/get_reports_usecase.dart';
+import 'package:driver_monitoring/domain/usecases/update_report_usecase.dart';
+import 'package:flutter/widgets.dart';
 
 class SessionReportProvider with ChangeNotifier {
   final GetReportsUseCase getReportsUseCase;
@@ -19,6 +19,10 @@ class SessionReportProvider with ChangeNotifier {
   String _searchQuery = '';
   bool _sortAsc = false;
 
+  // ✅ Nou flag care indică dacă s-au descărcat rapoartele
+  bool _hasFetchedReports = false;
+  bool get hasFetchedReports => _hasFetchedReports;
+
   List<SessionReport> get reports => _reports;
   bool get isLoading => _isLoading;
   String get searchQuery => _searchQuery;
@@ -31,20 +35,33 @@ class SessionReportProvider with ChangeNotifier {
     required this.deleteReportUseCase,
   });
 
+  /// ✅ Fetch + flag de control
   Future<void> fetchReports() async {
+    if (_hasFetchedReports) return; // 🔥 Dacă am mai făcut fetch, nu mai apelăm încă o dată
+
     _isLoading = true;
     notifyListeners();
 
     try {
       _reports = await getReportsUseCase();
+      _hasFetchedReports = true; // ✅ Marcam că am făcut fetch
       appLogger.i('Reports fetched successfully');
     } catch (e, stackTrace) {
       appLogger.e('Error fetching reports', error: e, stackTrace: stackTrace);
       _reports = [];
+      _hasFetchedReports = false;
     }
 
     _isLoading = false;
     notifyListeners();
+  }
+
+  /// ✅ Resetează lista de rapoarte și flag-ul de fetch
+  void clearReports() {
+    _reports = [];
+    _hasFetchedReports = false; // Resetăm pentru a putea refetch-ui dacă e cazul
+    notifyListeners();
+    appLogger.d('Reports cleared');
   }
 
   Future<void> addReport(SessionReport report) async {
@@ -53,6 +70,7 @@ class SessionReportProvider with ChangeNotifier {
 
     try {
       await addReportUseCase(report);
+      _hasFetchedReports = false; // ⚠️ Resetăm flag-ul pentru a refetch-ui după adăugare
       await fetchReports();
       appLogger.i('Report added: ${report.id}');
     } catch (e, stackTrace) {
@@ -69,6 +87,7 @@ class SessionReportProvider with ChangeNotifier {
 
     try {
       await updateReportUseCase(report);
+      _hasFetchedReports = false; // ⚠️ Resetăm flag-ul pentru a refetch-ui după update
       await fetchReports();
       appLogger.i('Report updated: ${report.id}');
     } catch (e, stackTrace) {
@@ -85,6 +104,7 @@ class SessionReportProvider with ChangeNotifier {
 
     try {
       await deleteReportUseCase(id);
+      _hasFetchedReports = false; // ⚠️ Resetăm flag-ul pentru a refetch-ui după delete
       await fetchReports();
       appLogger.i('Report deleted: $id');
     } catch (e, stackTrace) {
@@ -117,7 +137,7 @@ class SessionReportProvider with ChangeNotifier {
     var filtered = _reports.where((session) {
       final query = _searchQuery.toLowerCase();
       return session.timestamp.toIso8601String().contains(query) ||
-          session.timestamp.toFormattedDate().contains(query) ||
+          session.timestamp.toFormattedDate().toString().contains(query) ||
           session.fatigueLevelLabel.toLowerCase().contains(query);
     }).toList();
 
@@ -129,6 +149,7 @@ class SessionReportProvider with ChangeNotifier {
   }
 
   Future<void> refreshReports() async {
+    _hasFetchedReports = false; // ✅ Resetăm flag-ul și refacem fetch-ul
     await fetchReports();
   }
 }

@@ -1,128 +1,128 @@
 [
   {
     "id": "1",
-    "timestamp": "2025-05-20T12:20:00.000Z",
-    "durationMinutes": 150,
-    "averageSeverity": 0.0167,
+    "timestamp": "2025-04-05T00:00:00.000Z",
+    "durationMinutes": 90,
+    "averageSeverity": 0.0147,
     "camera": "BluetoothCam_1",
-    "retentionMonths": 12,
+    "retentionMonths": 3,
     "alerts": []
   },
   {
     "id": "2",
-    "timestamp": "2025-05-19T10:00:00.000Z",
-    "durationMinutes": 105,
-    "averageSeverity": 0.0333,
+    "timestamp": "2025-05-06T00:00:00.000Z",
+    "durationMinutes": 200,
+    "averageSeverity": 0.0071,
     "camera": "Front Camera",
     "retentionMonths": 6,
     "alerts": []
   },
   {
     "id": "3",
-    "timestamp": "2025-05-17T15:15:00.000Z",
-    "durationMinutes": 190,
-    "averageSeverity": 0.01,
-    "camera": "BluetoothCam_1",
-    "retentionMonths": 24,
-    "alerts": []
-  },
-  {
-    "id": "4",
-    "timestamp": "2025-05-15T09:00:00.000Z",
-    "durationMinutes": 120,
-    "averageSeverity": 0.0333,
+    "timestamp": "2025-05-07T00:00:00.000Z",
+    "durationMinutes": 160,
+    "averageSeverity": 0.0572,
     "camera": "Front Camera",
     "retentionMonths": 3,
     "alerts": []
   },
   {
+    "id": "4",
+    "timestamp": "2025-05-08T00:00:00.000Z",
+    "durationMinutes": 120,
+    "averageSeverity": 0.0767,
+    "camera": "BluetoothCam_1",
+    "retentionMonths": 24,
+    "alerts": []
+  },
+  {
     "id": "5",
-    "timestamp": "2025-05-14T14:00:00.000Z",
-    "durationMinutes": 90,
-    "averageSeverity": 0.0167,
+    "timestamp": "2025-05-09T00:00:00.000Z",
+    "durationMinutes": 180,
+    "averageSeverity": 0.0491,
+    "camera": "BluetoothCam_1",
+    "retentionMonths": 12,
+    "alerts": []
+  },
+  {
+    "id": "6",
+    "timestamp": "2025-05-10T00:00:00.000Z",
+    "durationMinutes": 200,
+    "averageSeverity": 0.038,
+    "camera": "BluetoothCam_1",
+    "retentionMonths": 24,
+    "alerts": []
+  },
+  {
+    "id": "7",
+    "timestamp": "2025-05-11T00:00:00.000Z",
+    "durationMinutes": 200,
+    "averageSeverity": 0.0372,
+    "camera": "Front Camera",
+    "retentionMonths": 12,
+    "alerts": []
+  },
+  {
+    "id": "8",
+    "timestamp": "2025-05-12T00:00:00.000Z",
+    "durationMinutes": 180,
+    "averageSeverity": 0.0543,
+    "camera": "BluetoothCam_1",
+    "retentionMonths": 24,
+    "alerts": []
+  },
+  {
+    "id": "9",
+    "timestamp": "2025-05-13T00:00:00.000Z",
+    "durationMinutes": 240,
+    "averageSeverity": 1,
     "camera": "BluetoothCam_1",
     "retentionMonths": 6,
     "alerts": []
   },
   {
-    "id": "6",
-    "timestamp": "2025-05-13T08:00:00.000Z",
-    "durationMinutes": 135,
-    "averageSeverity": 0.0333,
-    "camera": "Front Camera",
-    "retentionMonths": 12,
-    "alerts": []
-  },
-  {
-    "id": "7",
-    "timestamp": "2025-05-12T16:45:00.000Z",
-    "durationMinutes": 180,
-    "averageSeverity": 0.01,
-    "camera": "BluetoothCam_1",
-    "retentionMonths": 24,
-    "alerts": []
-  },
-  {
-    "id": "8",
-    "timestamp": "2025-05-11T13:30:00.000Z",
-    "durationMinutes": 110,
-    "averageSeverity": 0.0167,
-    "camera": "Front Camera",
-    "retentionMonths": 3,
-    "alerts": []
-  },
-  {
-    "id": "9",
-    "timestamp": "2025-05-10T11:00:00.000Z",
-    "durationMinutes": 240,
-    "averageSeverity": 0.0333,
-    "camera": "BluetoothCam_1",
-    "retentionMonths": 24,
-    "alerts": []
-  },
-  {
     "id": "10",
-    "timestamp": "2025-05-09T09:15:00.000Z",
-    "durationMinutes": 140,
-    "averageSeverity": 0.0333,
+    "timestamp": "2025-05-14T00:00:00.000Z",
+    "durationMinutes": 200,
+    "averageSeverity": 0.0041,
     "camera": "Front Camera",
-    "retentionMonths": 12,
+    "retentionMonths": 6,
     "alerts": []
   },
   {
     "id": "11",
-    "timestamp": "2025-05-08T07:45:00.000Z",
-    "durationMinutes": 185,
-    "averageSeverity": 0.01,
-    "camera": "BluetoothCam_1",
-    "retentionMonths": 12,
+    "timestamp": "2025-05-15T00:00:00.000Z",
+    "durationMinutes": 180,
+    "averageSeverity": 0.0384,
+    "camera": "Front Camera",
+    "retentionMonths": 6,
     "alerts": []
   },
   {
     "id": "12",
-    "timestamp": "2025-05-07T18:00:00.000Z",
-    "durationMinutes": 100,
-    "averageSeverity": 0.0333,
-    "camera": "Front Camera",
+    "timestamp": "2025-05-16T00:00:00.000Z",
+    "durationMinutes": 120,
+    "averageSeverity": 0.0381,
+    "camera": "BluetoothCam_1",
     "retentionMonths": 6,
     "alerts": []
   },
   {
     "id": "13",
-    "timestamp": "2025-05-06T15:30:00.000Z",
-    "durationMinutes": 170,
-    "averageSeverity": 0.0167,
+    "timestamp": "2025-05-17T00:00:00.000Z",
+    "durationMinutes": 160,
+    "averageSeverity": 0.0904,
     "camera": "BluetoothCam_1",
-    "retentionMonths": 24,
+    "retentionMonths": 6,
     "alerts": []
   },
   {
     "id": "14",
-    "timestamp": "2025-05-05T12:10:00.000Z",
-    "durationMinutes": 85,
-    "averageSeverity": 0.0333,
-    "camera": "Front Camera",
-    "retentionMonths": 3,
+    "timestamp": "2025-05-18T00:00:00.000Z",
+    "durationMinutes": 200,
+    "averageSeverity": 0.0321,
+    "camera": "BluetoothCam_1",
+    "retentionMonths": 6,
     "alerts": []
   }
 ]

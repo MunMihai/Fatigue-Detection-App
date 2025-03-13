@@ -33,7 +33,7 @@ class BottomNavBarIDLE extends StatelessWidget {
                 break;
 
               case 1:
-                if (!isReportsEnabled) return; // Blocăm tap-ul
+                if (!isReportsEnabled) return; 
                 context.push('/reports');
                 break;
 

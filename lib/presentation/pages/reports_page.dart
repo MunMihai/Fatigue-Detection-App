@@ -27,7 +27,8 @@ class ReportsPage extends StatelessWidget {
         child: Consumer<SessionReportProvider>(
           builder: (context, reportProvider, child) {
             final reports = reportProvider.reports;
-            final isLoading = reportProvider.isLoading; // dacă ai adăugat loading
+            final isLoading =
+                reportProvider.isLoading; // dacă ai adăugat loading
 
             if (isLoading) {
               return const Center(child: CircularProgressIndicator());
@@ -39,12 +40,8 @@ class ReportsPage extends StatelessWidget {
 
             return Column(
               children: [
-                AppSpaceses.verticalLarge,
-
+                AppSpaceses.verticalMedium,
                 SessionsReportsChart(reports: reports),
-
-                AppSpaceses.verticalLarge,
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -55,14 +52,14 @@ class ReportsPage extends StatelessWidget {
                     ),
                   ],
                 ),
-
                 AppSpaceses.verticalMedium,
-
                 Expanded(
                   child: ListView.builder(
-                    itemCount: reports.length > 5 ? 5 : reports.length,
+                    itemCount: reports.length >= 5 ? 5 : reports.length,
                     itemBuilder: (context, index) {
-                      final session = reports[index];
+                      final reversedReports =
+                          reports.reversed.toList(); // inversăm lista
+                      final session = reversedReports[index]; // luăm ultimele 5
                       return SessionCard(sessionReport: session);
                     },
                   ),

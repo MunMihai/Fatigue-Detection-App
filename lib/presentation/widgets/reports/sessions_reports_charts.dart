@@ -1,25 +1,100 @@
+import 'dart:math';
+import 'package:driver_monitoring/core/constants/app_text_styles.dart';
+import 'package:driver_monitoring/domain/enum/fatigue_level.dart';
 import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:intl/intl.dart';
 import 'package:driver_monitoring/domain/entities/session_report.dart';
 
 class SessionsReportsChart extends StatelessWidget {
-  final List<SessionReport> reports; // 👈 Adăugat parametrul
+  final List<SessionReport> reports;
 
   const SessionsReportsChart({
     super.key,
-    required this.reports, // 👈 obligatoriu acum!
+    required this.reports,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Poți folosi rapoartele aici pentru a genera chart-ul
-    return Container(
-      height: 200,
-      color: Colors.blueGrey,
-      child: Center(
-        child: Text(
-          'Total Sessions: ${reports.length}', // 👈 doar ca exemplu!
-          style: TextStyle(color: Colors.white),
+    // ✅ Sortăm rapoartele cronologic (crescător)
+    final sortedReports = [...reports]..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+
+    final int totalReports = sortedReports.length;
+
+    // ✅ Zoom settings pentru ultimele 10 elemente
+    final double zoomFactor = totalReports > 10 ? 10 / totalReports : 1.0;
+    final double zoomPosition = totalReports > 10
+        ? (totalReports - 10) / totalReports
+        : 0.0;
+
+    return SizedBox(
+      child: SfCartesianChart(
+        title: ChartTitle(
+          text: 'Fatigue Scores',
+          textStyle: AppTextStyles.h3,
+          alignment: ChartAlignment.near
         ),
+        primaryXAxis: CategoryAxis(
+          labelRotation: -30,
+          labelStyle: AppTextStyles.medium_12,
+
+          initialZoomFactor: zoomFactor,
+          initialZoomPosition: zoomPosition,
+          
+          rangePadding: ChartRangePadding.none,
+        ),
+        primaryYAxis: NumericAxis(
+          minimum: 0,
+          maximum: 0.1,
+          interval: 0.01,
+          isVisible: false,
+        ),
+        tooltipBehavior: TooltipBehavior(enable: true),
+        zoomPanBehavior: ZoomPanBehavior(
+          enablePinching: true,
+          enablePanning: true,
+          zoomMode: ZoomMode.x,
+          enableDoubleTapZooming: true,
+        ),
+        legend: Legend(isVisible: false),
+        series: <CartesianSeries>[
+          ColumnSeries<SessionReport, String>(
+            dataSource: sortedReports,
+            xValueMapper: (SessionReport report, _) =>
+                DateFormat('MMM dd, yyyy').format(report.timestamp), // afișăm data ca string
+            yValueMapper: (SessionReport report, _) =>
+                min(report.averageSeverity, 0.1),
+            name: '', // Fără nume pentru legendă
+            dataLabelSettings: DataLabelSettings(
+              isVisible: true,
+              labelAlignment: ChartDataLabelAlignment.middle,
+              textStyle: AppTextStyles.medium_12.copyWith(color: Colors.white),
+            ),
+            dataLabelMapper: (SessionReport report, _) {
+              final fatigueLevel =
+                  FatigueLevelExtension.fromScore(report.averageSeverity);
+              return fatigueLevel.label;
+            },
+            pointColorMapper: (SessionReport report, _) {
+              final fatigueLevel =
+                  FatigueLevelExtension.fromScore(report.averageSeverity);
+
+              switch (fatigueLevel) {
+                case FatigueLevel.normal:
+                  return Colors.green;
+                case FatigueLevel.good:
+                  return Colors.lightGreen;
+                case FatigueLevel.moderate:
+                  return Colors.orange;
+                case FatigueLevel.high:
+                  return Colors.deepOrange;
+                case FatigueLevel.extreme:
+                  return Theme.of(context).colorScheme.error;
+              }
+            },
+            markerSettings: const MarkerSettings(isVisible: false),
+          ),
+        ],
       ),
     );
   }
