@@ -120,7 +120,7 @@
     "id": "14",
     "timestamp": "2025-05-18T00:00:00.000Z",
     "durationMinutes": 200,
-    "averageSeverity": 0.0321,
+    "averageSeverity": 0,
     "camera": "BluetoothCam_1",
     "retentionMonths": 6,
     "alerts": []

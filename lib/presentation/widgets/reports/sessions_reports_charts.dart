@@ -17,30 +17,27 @@ class SessionsReportsChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // ✅ Sortăm rapoartele cronologic (crescător)
-    final sortedReports = [...reports]..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    final sortedReports = [...reports]
+      ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
     final int totalReports = sortedReports.length;
 
     // ✅ Zoom settings pentru ultimele 10 elemente
     final double zoomFactor = totalReports > 10 ? 10 / totalReports : 1.0;
-    final double zoomPosition = totalReports > 10
-        ? (totalReports - 10) / totalReports
-        : 0.0;
+    final double zoomPosition =
+        totalReports > 10 ? (totalReports - 10) / totalReports : 0.0;
 
     return SizedBox(
       child: SfCartesianChart(
         title: ChartTitle(
-          text: 'Fatigue Scores',
-          textStyle: AppTextStyles.h3,
-          alignment: ChartAlignment.near
-        ),
+            text: 'Fatigue Scores',
+            textStyle: AppTextStyles.h3,
+            alignment: ChartAlignment.near),
         primaryXAxis: CategoryAxis(
           labelRotation: -30,
           labelStyle: AppTextStyles.medium_12,
-
           initialZoomFactor: zoomFactor,
           initialZoomPosition: zoomPosition,
-          
           rangePadding: ChartRangePadding.none,
         ),
         primaryYAxis: NumericAxis(
@@ -61,7 +58,8 @@ class SessionsReportsChart extends StatelessWidget {
           ColumnSeries<SessionReport, String>(
             dataSource: sortedReports,
             xValueMapper: (SessionReport report, _) =>
-                DateFormat('MMM dd, yyyy').format(report.timestamp), // afișăm data ca string
+                DateFormat('MMM dd, yyyy')
+                    .format(report.timestamp), // afișăm data ca string
             yValueMapper: (SessionReport report, _) =>
                 min(report.averageSeverity, 0.1),
             name: '', // Fără nume pentru legendă
@@ -75,23 +73,13 @@ class SessionsReportsChart extends StatelessWidget {
                   FatigueLevelExtension.fromScore(report.averageSeverity);
               return fatigueLevel.label;
             },
+
             pointColorMapper: (SessionReport report, _) {
               final fatigueLevel =
                   FatigueLevelExtension.fromScore(report.averageSeverity);
-
-              switch (fatigueLevel) {
-                case FatigueLevel.normal:
-                  return Colors.green;
-                case FatigueLevel.good:
-                  return Colors.lightGreen;
-                case FatigueLevel.moderate:
-                  return Colors.orange;
-                case FatigueLevel.high:
-                  return Colors.deepOrange;
-                case FatigueLevel.extreme:
-                  return Theme.of(context).colorScheme.error;
-              }
+              return fatigueLevel.color(context); // ✅ Reutilizare directă!
             },
+
             markerSettings: const MarkerSettings(isVisible: false),
           ),
         ],
