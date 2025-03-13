@@ -1,4 +1,4 @@
-import 'package:driver_monitoring/domain/enum/fatigue_level.dart';
+import 'package:driver_monitoring/core/enum/fatigue_level.dart';
 
 class Alert {
   final String id;

@@ -1,3 +1,4 @@
+import 'package:driver_monitoring/presentation/providers/score_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -39,6 +40,7 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
         ChangeNotifierProvider<SettingsProvider>(
           create: (_) => SettingsProvider()..loadSettings(),
         ),
+        ChangeNotifierProvider(create: (_) => ScoreProvider()),
         ChangeNotifierProxyProvider<SettingsProvider, SessionReportProvider>(
           create: (_) => SessionReportProvider(
             getReportsUseCase: getReportsUseCase,
