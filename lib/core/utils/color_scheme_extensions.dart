@@ -11,5 +11,5 @@ extension MyColorScheme on ColorScheme{
   Color get inactiveIcon => const Color(0xFF90A4AE);
   Color get activeIcon => Colors.white;
   Color get searchBar => const Color(0xFF62676B);
-
+  Color get popupDialog => const Color(0xFF1B2B39);
 }

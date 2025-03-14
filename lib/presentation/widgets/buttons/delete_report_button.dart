@@ -35,6 +35,7 @@ class DeleteReportButton extends StatelessWidget {
     final confirmed = await showConfirmationDialog(
       context: context,
       message: 'Are you sure you want to delete this session?',
+      confirmText: 'Delete'
     );
 
     if (!context.mounted || !confirmed) return;

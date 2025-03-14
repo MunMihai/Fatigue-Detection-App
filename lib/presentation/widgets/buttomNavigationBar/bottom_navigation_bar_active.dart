@@ -1,5 +1,6 @@
 import 'package:driver_monitoring/core/services/session_manager.dart';
 import 'package:driver_monitoring/core/utils/color_scheme_extensions.dart';
+import 'package:driver_monitoring/core/utils/show_confiramtion_dialog.dart';
 import 'package:driver_monitoring/presentation/providers/session_report_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -33,25 +34,37 @@ class BottomNavBarActive extends StatelessWidget {
             final sessionManager = context.read<SessionManager>();
             final sessionReportProvider = context.read<SessionReportProvider>();
 
-            final finishedSession = sessionManager.stopSession();
+            // Confirm the action before stopping the session
+            final confirmed = await showConfirmationDialog(
+              context: context,
+              title: 'Stop Monitoring',
+              confirmText: 'STOP',
+              message: 'Are you sure you want to stop monitoring? Stopping monitoring will interrupt all alerts and stop recording the current session.',
+              showIcon: false
+            );
 
-            if (finishedSession != null) {
-              await sessionReportProvider.addReport(finishedSession);
+            if (confirmed) {
+              final finishedSession = sessionManager.stopSession();
 
-              if (!context.mounted) return;
+              if (finishedSession != null) {
+                await sessionReportProvider.addReport(finishedSession);
 
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Session saved successfully!')),
-              );
-            } else {
-              if (!context.mounted) return;
+                if (!context.mounted) return;
 
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('No active session to stop!')),
-              );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Session saved successfully!')),
+                );
+
+                // Navigate to the home page after session is saved
+                context.go('/');
+              } else {
+                if (!context.mounted) return;
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('No active session to stop!')),
+                );
+              }
             }
-
-            context.go('/');
             break;
 
           case 2:
