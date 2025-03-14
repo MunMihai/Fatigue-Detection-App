@@ -3,14 +3,19 @@ import 'package:flutter/material.dart';
 
 class ReportsRetentionPicker extends StatelessWidget {
   final int months;
-  final VoidCallback onIncrement;
-  final VoidCallback onDecrement;
+
+  final VoidCallback onIncrementByMonth;
+  final VoidCallback onDecrementByMonth;
+  final VoidCallback onIncrementByYear;
+  final VoidCallback onDecrementByYear;
 
   const ReportsRetentionPicker({
     super.key,
     required this.months,
-    required this.onIncrement,
-    required this.onDecrement,
+    required this.onIncrementByMonth,
+    required this.onDecrementByMonth,
+    required this.onIncrementByYear,
+    required this.onDecrementByYear,
   });
 
   @override
@@ -35,23 +40,15 @@ class ReportsRetentionPicker extends StatelessWidget {
                 IconButton(
                   icon: const Icon(Icons.arrow_drop_up),
                   iconSize: 30,
-                  onLongPress: () {
-                    for (int i = 0; i < 12; i++) {
-                      onIncrement();
-                    }
-                  },
-                  onPressed: onIncrement,
+                  onPressed: onIncrementByMonth,
+                  onLongPress: onIncrementByYear,
                 ),
                 Text('$months months', style: AppTextStyles.h4),
                 IconButton(
                   icon: const Icon(Icons.arrow_drop_down),
                   iconSize: 30,
-                  onLongPress: () {
-                    for (int i = 0; i < 12; i++) {
-                      onDecrement();
-                    }
-                  },
-                  onPressed: onDecrement,
+                  onPressed: onDecrementByMonth,
+                  onLongPress: onDecrementByYear,
                 ),
               ],
             ),

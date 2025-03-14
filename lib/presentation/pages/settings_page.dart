@@ -55,9 +55,12 @@ class SettingsPage extends StatelessWidget {
               onChanged: settingsProvider.toggleReportsSection,
             ),
             ReportsRetentionPicker(
-                months: settingsProvider.retentionMonths,
-                onIncrement: settingsProvider.incrementRetentionMonths,
-                onDecrement: settingsProvider.decrementRetentionMonths)
+              months: settingsProvider.retentionMonths,
+              onIncrementByMonth: settingsProvider.incrementRetentionMonths,
+              onDecrementByMonth: settingsProvider.decrementRetentionMonths,
+              onIncrementByYear: settingsProvider.incrementRetentionByYear,
+              onDecrementByYear: settingsProvider.decrementRetentionByYear,
+            )
           ],
         ),
       ),

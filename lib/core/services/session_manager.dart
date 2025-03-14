@@ -1,61 +1,37 @@
-import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:driver_monitoring/domain/entities/session_report.dart';
 import 'package:driver_monitoring/domain/entities/alert.dart';
 import 'package:driver_monitoring/presentation/providers/settings_provider.dart';
+import 'session_timer.dart';
+import 'pause_manager.dart';
+import 'alert_manager.dart';
 
 class SessionManager extends ChangeNotifier {
   final SettingsProvider settingsProvider;
+  final SessionTimer sessionTimer;
+  final PauseManager pauseManager;
+  final AlertManager alertManager;
 
   SessionReport? _currentSession;
-  final List<Alert> _alerts = [];
-
-  DateTime? _startTime;
-  DateTime? _pauseStart;
-  Duration _totalPauseDuration = Duration.zero;
-
-  bool _isPaused = false;
   int _breaksCount = 0;
 
-  Timer? _timer;
-  Timer? _pauseTimer;
+  SessionManager({
+    required this.settingsProvider,
+    required this.sessionTimer,
+    required this.pauseManager,
+    required this.alertManager,
+  });
 
-  SessionManager({required this.settingsProvider});
+  // Getters
+  bool get isActive => _currentSession != null;
+  int get breaksCount => _breaksCount;
 
   SessionReport? get currentSession => _currentSession;
-  List<Alert> get alerts => List.unmodifiable(_alerts);
-
-  bool get isActive => _currentSession != null;
-  bool get isPaused => _isPaused;
-
-  double get score => _calculateAverageSeverity();
-Duration get breakTime {
-  if (_pauseStart != null && _isPaused) {
-    final pauseDuration = DateTime.now().difference(_pauseStart!);
-    return _totalPauseDuration + pauseDuration;
-  } else {
-    return _totalPauseDuration;
-  }
-}  int get breaksCount => _breaksCount;
-
-  Duration get elapsedTime {
-    if (_startTime == null) return Duration.zero;
-    final now = DateTime.now();
-
-    final baseDuration = now.difference(_startTime!);
-
-    final totalDuration = baseDuration + _totalPauseDuration;
-
-    return totalDuration;
-  }
 
   void startSession() {
-    final now = DateTime.now();
-
     _currentSession = SessionReport(
-      id: 'session-${now.microsecondsSinceEpoch}',
-      timestamp: now,
+      id: 'session-${DateTime.now().microsecondsSinceEpoch}',
+      timestamp: DateTime.now(),
       durationMinutes: 0,
       averageSeverity: 0.0,
       camera: 'FrontCam',
@@ -63,125 +39,73 @@ Duration get breakTime {
       alerts: [],
     );
 
-    _alerts.clear();
-    _startTime = now;
-    _pauseStart = null;
-    _totalPauseDuration = Duration.zero;
     _breaksCount = 0;
-    _isPaused = false;
+    alertManager.clearAlerts();
+    pauseManager.reset();
 
-    _startTimer();  
+    sessionTimer.start(
+      countdownDuration: Duration(
+        hours: settingsProvider.savedHours,
+        minutes: settingsProvider.savedMinutes,
+      ),
+    );
+
+    sessionTimer.addListener(_onTimerTick);
 
     notifyListeners();
   }
 
-  SessionReport? stopSession() {
-    if (_currentSession == null) return null;
+SessionReport? stopSession() {
+    if (!isActive) return null;
 
-    if (_isPaused) stopPause();
+    sessionTimer.stop();
+    pauseManager.stopPause();
 
-    final duration = elapsedTime.inMinutes;
-
-    final finishedSession = _currentSession!.copyWith(
-      durationMinutes: duration,
-      alerts: List.unmodifiable(_alerts),
-      averageSeverity: _calculateAverageSeverity(),
+    final session = _currentSession!.copyWith(
+      durationMinutes: sessionTimer.elapsedTime.inMinutes,
+      alerts: alertManager.alerts,
+      averageSeverity: alertManager.averageSeverity,
     );
 
     _currentSession = null;
-    _alerts.clear();
-    _startTime = null;
-    _pauseStart = null;
-    _totalPauseDuration = Duration.zero;
-    _breaksCount = 0;
-    _isPaused = false;
-
-    _stopTimer();  
+    sessionTimer.reset();
 
     notifyListeners();
 
-    return finishedSession;
+    return session;
   }
 
   void startPause() {
-    if (!_isPaused && _currentSession != null) {
-      _pauseStart = DateTime.now();
-      _isPaused = true;
-      _breaksCount++;
-
-      _startPauseTimer();  
-
-      notifyListeners();
-    }
+    pauseManager.startPause();
+    _breaksCount++;
+    notifyListeners();
   }
 
   void stopPause() {
-    if (_isPaused && _pauseStart != null) {
-      final pauseDuration = DateTime.now().difference(_pauseStart!);
-      _totalPauseDuration += pauseDuration;
+    pauseManager.stopPause();
+    notifyListeners();
+  }
 
-      _pauseStart = null;
-      _isPaused = false;
-
-      _stopPauseTimer();  
-
-      notifyListeners();
+  void _onTimerTick() {
+    if (sessionTimer.countdownFinished) {
+      _handleCountdownFinished();
     }
+    notifyListeners();
   }
 
   void addAlert(Alert alert) {
-    if (_currentSession == null || _isPaused) return; // nu adăugăm alerte dacă e pauză
-
-    _alerts.add(alert);
-
-    _currentSession = _currentSession!.copyWith(
-      alerts: List.unmodifiable(_alerts),
-      averageSeverity: _calculateAverageSeverity(),
-    );
-
+    alertManager.addAlert(alert);
     notifyListeners();
   }
 
-  void resetSession() {
-    _currentSession = null;
-    _alerts.clear();
-    _startTime = null;
-    _pauseStart = null;
-    _totalPauseDuration = Duration.zero;
-    _breaksCount = 0;
-    _isPaused = false;
+  void _handleCountdownFinished() {
+    addAlert(Alert(
+      id: 'timeout-${DateTime.now().microsecondsSinceEpoch}',
+      timestamp: DateTime.now(),
+      severity: 1.0,
+      type: 'Session timer expired! Please take a break!',
+    ));
 
-    _stopTimer();
-
-    notifyListeners();
-  }
-
-  double _calculateAverageSeverity() {
-    if (_alerts.isEmpty) return 0.0;
-    final total = _alerts.fold(0.0, (sum, alert) => sum + alert.severity);
-    return total / _alerts.length;
-  }
-
-  void _startTimer() {
-    _timer = Timer.periodic(Duration(seconds: 1), (_) {
-      notifyListeners();  
-    });
-  }
-
-  // Oprește timer-ul
-  void _stopTimer() {
-    _timer?.cancel();
-    _timer = null;
-  }
-
-  void _startPauseTimer() {
-    _pauseTimer = Timer.periodic(Duration(seconds: 1), (_) {
-      notifyListeners();  // Actualizează UI-ul și timp de pauză
-    });
-  }
-
-  void _stopPauseTimer() {
-    _pauseTimer?.cancel();
-    _pauseTimer = null;
+    // Optional: stopSession();
   }
 }

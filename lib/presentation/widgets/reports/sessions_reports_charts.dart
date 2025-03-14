@@ -58,8 +58,7 @@ class SessionsReportsChart extends StatelessWidget {
           ColumnSeries<SessionReport, String>(
             dataSource: sortedReports,
             xValueMapper: (SessionReport report, _) =>
-                DateFormat('MMM dd, yyyy')
-                    .format(report.timestamp), // afișăm data ca string
+    DateFormat('HH:mm\nMMM dd, yyyy').format(report.timestamp),
             yValueMapper: (SessionReport report, _) =>
                 min(report.averageSeverity, 0.1),
             name: '', // Fără nume pentru legendă
@@ -77,7 +76,7 @@ class SessionsReportsChart extends StatelessWidget {
             pointColorMapper: (SessionReport report, _) {
               final fatigueLevel =
                   FatigueLevelExtension.fromScore(report.averageSeverity);
-              return fatigueLevel.color(context); // ✅ Reutilizare directă!
+              return fatigueLevel.color(context); 
             },
 
             markerSettings: const MarkerSettings(isVisible: false),

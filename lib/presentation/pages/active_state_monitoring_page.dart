@@ -18,11 +18,11 @@ class ActiveMonitoringMainPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<SessionManager>(
       builder: (context, sessionManager, child) {
-        final score = sessionManager.score;
+        final score = sessionManager.alertManager.averageSeverity;
         final isMonitoring = sessionManager.isActive;
-        final isPaused = sessionManager.isPaused;
-        final elapsedTime = sessionManager.elapsedTime;
-        final breakTime = sessionManager.breakTime;
+        final isPaused = sessionManager.pauseManager.isPaused;
+        final elapsedTime = sessionManager.sessionTimer.elapsedTime;
+        final breakTime = sessionManager.pauseManager.totalPause;
         final breaksCount = sessionManager.breaksCount;
 
         return Scaffold(

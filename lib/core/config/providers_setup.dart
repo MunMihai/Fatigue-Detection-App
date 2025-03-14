@@ -1,4 +1,7 @@
+import 'package:driver_monitoring/core/services/alert_manager.dart';
+import 'package:driver_monitoring/core/services/pause_manager.dart';
 import 'package:driver_monitoring/core/services/session_manager.dart';
+import 'package:driver_monitoring/core/services/session_timer.dart';
 import 'package:driver_monitoring/data/datasources/drift_sessin_report_local_datasource.dart';
 import 'package:driver_monitoring/data/datasources/local/database_provider.dart';
 import 'package:driver_monitoring/presentation/providers/score_provider.dart';
@@ -24,12 +27,12 @@ class AppProvidersWrapper extends StatefulWidget {
 }
 
 class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
-
   @override
   Widget build(BuildContext context) {
     /// 🗄️ Inițializare DB și repository
     final db = DatabaseProvider().database;
     final reportDataSource = DriftSessionReportLocalDataSource(db);
+    //final reportDataSource = MockSessionReportLocalDataSource();    //MockDatasource
     final sessionReportRepository =
         SessionReportRepositoryImpl(dataSource: reportDataSource);
 
@@ -50,9 +53,27 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
         ChangeNotifierProvider(create: (_) => ScoreProvider()),
 
         ChangeNotifierProxyProvider<SettingsProvider, SessionManager>(
-          create: (context) => SessionManager(
-              settingsProvider: context.read<SettingsProvider>()),
-          update: (_, settingsProvider, sessionManager) => sessionManager!,
+          create: (context) {
+            final settingsProvider = context.read<SettingsProvider>();
+
+            // ⚙️ Inițializăm componentele pe care SessionManager le orchestrează
+            final sessionTimer = SessionTimer();
+            final pauseManager = PauseManager();
+            final alertManager = AlertManager();
+
+            return SessionManager(
+              settingsProvider: settingsProvider,
+              sessionTimer: sessionTimer,
+              pauseManager: pauseManager,
+              alertManager: alertManager,
+            );
+          },
+
+          // update poate fi opțional în cazul tău dacă nu vrei să reactivezi SessionManager la schimbarea setărilor.
+          update: (_, settingsProvider, sessionManager) {
+            // Dacă SessionManager nu se schimbă pe parcurs, îl returnezi pur și simplu:
+            return sessionManager!;
+          },
         ),
 
         ChangeNotifierProxyProvider<SettingsProvider, SessionReportProvider>(
@@ -72,7 +93,6 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
                   updateReportUseCase: updateReportUseCase,
                   deleteReportUseCase: deleteReportUseCase,
                 );
-
 
             if (isEnabled && !nonNullReportProvider.hasFetchedReports) {
               nonNullReportProvider.fetchReports();
