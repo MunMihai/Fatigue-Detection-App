@@ -1,104 +1,106 @@
-import 'package:driver_monitoring/core/utils/color_scheme_extensions.dart';
-import 'package:driver_monitoring/presentation/widgets/app_bar.dart';
-import 'package:driver_monitoring/presentation/providers/session_report_provider.dart';
-import 'package:driver_monitoring/presentation/widgets/reports/session_card.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:driver_monitoring/core/constants/app_spaceses.dart';
-import 'package:driver_monitoring/core/constants/app_text_styles.dart';
+import 'package:driver_monitoring/domain/entities/session_report.dart';
+import 'package:driver_monitoring/presentation/providers/session_report_provider.dart';
 
-class AllSessionRportsPage extends StatelessWidget {
-  const AllSessionRportsPage({super.key});
+class AllSessionReportsPage extends StatefulWidget {
+  const AllSessionReportsPage({super.key});
+
+  @override
+  State<AllSessionReportsPage> createState() => _AllSessionReportsPageState();
+}
+
+class _AllSessionReportsPageState extends State<AllSessionReportsPage> {
+  String _searchQuery = '';
+  bool _sortAsc = false;
+
+  List<SessionReport> getFilteredAndSortedReports(
+    List<SessionReport> reports,
+    String searchQuery,
+    bool sortAsc,
+  ) {
+    var filtered = reports.where((session) {
+      final query = searchQuery.toLowerCase();
+      return session.timestamp.toIso8601String().contains(query) ||
+          session.fatigueLevelLabel.toLowerCase().contains(query);
+    }).toList();
+
+    filtered.sort((a, b) => sortAsc
+        ? a.timestamp.compareTo(b.timestamp)
+        : b.timestamp.compareTo(a.timestamp));
+
+    return filtered;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final reportProvider = context.watch<SessionReportProvider>();
-    final sessions = reportProvider.filteredAndSortedReports;
-    final isLoading = reportProvider.isLoading;
+    final provider = context.watch<SessionReportProvider>();
+
+    final reports = provider.reports;
+    final filteredAndSortedReports = getFilteredAndSortedReports(
+      reports,
+      _searchQuery,
+      _sortAsc,
+    );
 
     return Scaffold(
-      appBar: CustomAppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => context.pop(),
-        ),
-        title: 'All Sessions',
+      appBar: AppBar(
+        title: const Text('Session Reports'),
+        actions: [
+          IconButton(
+            icon: Icon(_sortAsc ? Icons.arrow_upward : Icons.arrow_downward),
+            onPressed: () {
+              setState(() {
+                _sortAsc = !_sortAsc;
+              });
+            },
+            tooltip: 'Sort by timestamp',
+          ),
+        ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25),
-        child: isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AppSpaceses.verticalLarge,
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Sort by', style: AppTextStyles.h2),
-                      GestureDetector(
-                        onTap: () {
-                          reportProvider.toggleSortOrder();
-                        },
-                        child: Row(
-                          children: [
-                            Text('Date', style: AppTextStyles.h4),
-                            Icon(
-                              reportProvider.sortAsc
-                                  ? Icons.arrow_upward
-                                  : Icons.arrow_downward,
-                              size: 22,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  AppSpaceses.verticalLarge,
-
-                  /// Search field
-                  TextField(
-                    onChanged: (value) {
-                      reportProvider.setSearchQuery(value);
-                    },
-                    style: AppTextStyles.filterText,
-                    decoration: InputDecoration(
-                      hintText: 'Filter by date or fatigue level...',
-                      filled: true,
-                      fillColor: Theme.of(context).colorScheme.searchBar,
-                      contentPadding: const EdgeInsets.all(8),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      prefixIcon: const Icon(Icons.search,
-                          color: Colors.black, size: 30),
-                    ),
-                  ),
-
-                  AppSpaceses.verticalMedium,
-
-                  /// Lista de sesiuni
-                  Expanded(
-                    child: RefreshIndicator(
-                      onRefresh: () async {
-                        await reportProvider.fetchReports();
-                      },
-                      child: sessions.isEmpty
-                          ? const Center(child: Text('No sessions found.'))
-                          : ListView.builder(
-                              itemCount: sessions.length,
-                              itemBuilder: (context, index) {
-                                final session = sessions[index];
-                                return SessionCard(sessionReport: session);
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: TextField(
+              decoration: const InputDecoration(
+                labelText: 'Search reports...',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.search),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+            ),
+          ),
+          Expanded(
+            child: provider.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : filteredAndSortedReports.isEmpty
+                    ? const Center(child: Text('No reports found.'))
+                    : ListView.builder(
+                        itemCount: filteredAndSortedReports.length,
+                        itemBuilder: (context, index) {
+                          final report = filteredAndSortedReports[index];
+                          return Card(
+                            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            child: ListTile(
+                              title: Text('Session ID: ${report.id}'),
+                              subtitle: Text(
+                                'Date: ${report.timestamp}\n'
+                                'Avg Severity: ${report.averageSeverity.toStringAsFixed(2)}',
+                              ),
+                              onTap: () {
+                                // Optional: navighează către detalii
                               },
                             ),
-                    ),
-                  ),
-                ],
-              ),
+                          );
+                        },
+                      ),
+          ),
+        ],
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:driver_monitoring/core/constants/app_spaceses.dart';
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
+import 'package:driver_monitoring/core/services/session_manager.dart';
 import 'package:driver_monitoring/presentation/providers/settings_provider.dart';
 import 'package:driver_monitoring/presentation/widgets/app_bar.dart';
 import 'package:driver_monitoring/presentation/widgets/buttomNavigationBar/buttom_navigation_bar_idle.dart';
@@ -39,7 +40,11 @@ class HomePage extends StatelessWidget {
               AppSpaceses.verticalLarge,
               MainMonitoringButton(
                   title: 'START MONITORING',
-                  onPressed: () => context.go('/activeMonitoring/main')),
+                  onPressed: () {
+                    final sessionManager = context.read<SessionManager>();
+                    sessionManager.startSession();
+                    context.go('/activeMonitoring/main');
+                  }),
               AppSpaceses.verticalLarge,
               Consumer<SettingsProvider>(
                   builder: (context, settingsProvider, _) =>

@@ -1,6 +1,9 @@
+import 'package:driver_monitoring/core/services/session_manager.dart';
 import 'package:driver_monitoring/core/utils/color_scheme_extensions.dart';
+import 'package:driver_monitoring/presentation/providers/session_report_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class BottomNavBarActive extends StatelessWidget {
   final int currentIndex;
@@ -18,7 +21,7 @@ class BottomNavBarActive extends StatelessWidget {
       unselectedItemColor: Theme.of(context).colorScheme.inactiveIcon,
       iconSize: 30,
       currentIndex: currentIndex,
-      onTap: (index) {
+      onTap: (index) async {
         if (index == currentIndex) return;
 
         switch (index) {
@@ -27,6 +30,27 @@ class BottomNavBarActive extends StatelessWidget {
             break;
 
           case 1:
+            final sessionManager = context.read<SessionManager>();
+            final sessionReportProvider = context.read<SessionReportProvider>();
+
+            final finishedSession = sessionManager.stopSession();
+
+            if (finishedSession != null) {
+              await sessionReportProvider.addReport(finishedSession);
+
+              if (!context.mounted) return;
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Session saved successfully!')),
+              );
+            } else {
+              if (!context.mounted) return;
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('No active session to stop!')),
+              );
+            }
+
             context.go('/');
             break;
 

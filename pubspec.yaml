@@ -39,7 +39,9 @@ dependencies:
 
   # 🔹 Persistență & Bază de date
   shared_preferences: ^2.2.1  # Salvare setări aplicație
-  sqflite: ^2.3.0  # Bază de date locală
+  drift: ^2.26.0  # Baza de date Drift
+  sqlite3_flutter_libs: ^0.5.31  # Necesități native pentru Drift
+  path: any
   path_provider: ^2.1.2  # Acces la sistemul de fișiere
 
   # 🔹 Conectivitate
@@ -59,9 +61,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   google_fonts: ^6.2.1
   provider: ^6.1.2
-  collection:
-  logger: 
-  intl: 
+  collection: any
+  logger: any
+  intl: any
 
 dev_dependencies:
   flutter_test:
@@ -70,6 +72,9 @@ dev_dependencies:
   # 🔹 Suport pentru JSON (parsing)
   build_runner: ^2.4.7
   json_serializable: ^6.7.1
+
+  # 🔹 Drift Dev pentru generarea de cod
+  drift_dev: ^2.21.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

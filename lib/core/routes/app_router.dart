@@ -35,7 +35,7 @@ class AppRouter {
     GoRoute(
       path: '/allSessions',
       pageBuilder: (context, state) => fadeSlideTransition(
-        child: const AllSessionRportsPage(),
+        child: const AllSessionReportsPage(),
         state: state,
       ),
     ),

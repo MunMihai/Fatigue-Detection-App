@@ -22,4 +22,25 @@ class SessionReport {
 
   FatigueLevel get fatigueLevel => FatigueLevelExtension.fromScore(averageSeverity);
   String get fatigueLevelLabel => fatigueLevel.label; 
+
+   SessionReport copyWith({
+    String? id,
+    DateTime? timestamp,
+    int? durationMinutes,
+    double? averageSeverity,
+    String? camera,
+    int? retentionMonths,
+    List<Alert>? alerts,
+  }) {
+    return SessionReport(
+      id: id ?? this.id,
+      timestamp: timestamp ?? this.timestamp,
+      durationMinutes: durationMinutes ?? this.durationMinutes,
+      averageSeverity: averageSeverity ?? this.averageSeverity,
+      camera: camera ?? this.camera,
+      retentionMonths: retentionMonths ?? this.retentionMonths,
+      alerts: alerts ?? this.alerts,
+    );
+  }
+
 }
