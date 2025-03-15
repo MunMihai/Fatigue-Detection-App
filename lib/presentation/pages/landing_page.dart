@@ -1,10 +1,14 @@
 import 'package:driver_monitoring/core/constants/app_gifs.dart';
 import 'package:driver_monitoring/core/constants/app_spaceses.dart';
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
+import 'package:driver_monitoring/core/services/camera_manager.dart';
+import 'package:driver_monitoring/core/services/permissions_service.dart';
 import 'package:driver_monitoring/core/utils/color_scheme_extensions.dart';
 import 'package:driver_monitoring/presentation/widgets/buttons/simple_button.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 
 class LandingPage extends StatelessWidget {
   const LandingPage({super.key});
@@ -52,7 +56,46 @@ class LandingPage extends StatelessWidget {
             ),
             AppSpaceses.verticalExtraLarge,
             PrimaryButton(
-                title: 'Start navigation', onPressed: () => context.go('/')),
+                title: 'Start navigation',
+                onPressed: () async {
+                  final permissionsService = context.read<PermissionsService>();
+                  final cameraManager = context.read<CameraManager>();
+
+                  final permissionStatus = await permissionsService
+                      .requestCameraPermissionWithStatus();
+
+                  if (!context.mounted) return;
+
+                  switch (permissionStatus) {
+                    case PermissionStatus.granted:
+                      await cameraManager.initializeCamera();
+                      if (!context.mounted) return;
+                      context.go('/');
+                      break;
+
+                    case PermissionStatus.permanentlyDenied:
+                      final opened = await openAppSettings();
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            opened
+                                ? 'Please enable camera permission in settings.'
+                                : 'Could not open app settings.',
+                          ),
+                        ),
+                      );
+                      break;
+
+                    default:
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content:
+                              Text('Camera permission is required to proceed.'),
+                        ),
+                      );
+                  }
+                }),
             AppSpaceses.verticalLarge,
             ElevatedButton(
                 onPressed: () => context.go('/fags'),

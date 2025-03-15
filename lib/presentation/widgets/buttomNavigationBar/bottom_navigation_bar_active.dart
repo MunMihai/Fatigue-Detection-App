@@ -44,7 +44,7 @@ class BottomNavBarActive extends StatelessWidget {
             );
 
             if (confirmed) {
-              final finishedSession = sessionManager.stopSession();
+              final finishedSession = await sessionManager.stopSession();
 
               if (finishedSession != null) {
                 await sessionReportProvider.addReport(finishedSession);

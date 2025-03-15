@@ -1,9 +1,13 @@
 import 'package:driver_monitoring/core/services/alert_manager.dart';
+import 'package:driver_monitoring/core/services/camera/front_camera_service.dart';
+import 'package:driver_monitoring/core/services/camera_manager.dart';
 import 'package:driver_monitoring/core/services/pause_manager.dart';
+import 'package:driver_monitoring/core/services/permissions_service.dart';
 import 'package:driver_monitoring/core/services/session_manager.dart';
 import 'package:driver_monitoring/core/services/session_timer.dart';
 import 'package:driver_monitoring/data/datasources/drift_sessin_report_local_datasource.dart';
 import 'package:driver_monitoring/data/datasources/local/database_provider.dart';
+import 'package:driver_monitoring/data/datasources/mock_report_sessions_local_datasource.dart';
 import 'package:driver_monitoring/presentation/providers/score_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -44,19 +48,26 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
 
     return MultiProvider(
       providers: [
-        /// ✅ Settings Provider (este important să fie PRIMUL)
         ChangeNotifierProvider<SettingsProvider>(
           create: (_) => SettingsProvider()..loadSettings(),
         ),
-
-        /// ✅ Score Provider (fără dependențe)
         ChangeNotifierProvider(create: (_) => ScoreProvider()),
-
-        ChangeNotifierProxyProvider<SettingsProvider, SessionManager>(
+        Provider<PermissionsService>(
+          lazy: false,
+          create: (_) => PermissionsService(),
+        ),
+        ChangeNotifierProvider<CameraManager>(
+          create: (_) {
+            final cameraService = FrontCameraService();
+            return CameraManager(cameraService: cameraService);
+          },
+        ),
+        ChangeNotifierProxyProvider2<SettingsProvider, CameraManager,
+            SessionManager>(
           create: (context) {
             final settingsProvider = context.read<SettingsProvider>();
+            final cameraManager = context.read<CameraManager>();
 
-            // ⚙️ Inițializăm componentele pe care SessionManager le orchestrează
             final sessionTimer = SessionTimer();
             final pauseManager = PauseManager();
             final alertManager = AlertManager();
@@ -66,16 +77,12 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
               sessionTimer: sessionTimer,
               pauseManager: pauseManager,
               alertManager: alertManager,
+              cameraManager: cameraManager,
             );
           },
-
-          // update poate fi opțional în cazul tău dacă nu vrei să reactivezi SessionManager la schimbarea setărilor.
-          update: (_, settingsProvider, sessionManager) {
-            // Dacă SessionManager nu se schimbă pe parcurs, îl returnezi pur și simplu:
-            return sessionManager!;
-          },
+          update: (_, settingsProvider, cameraManager, sessionManager) =>
+              sessionManager!,
         ),
-
         ChangeNotifierProxyProvider<SettingsProvider, SessionReportProvider>(
           create: (_) => SessionReportProvider(
             getReportsUseCase: getReportsUseCase,
@@ -102,8 +109,6 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
           },
         ),
       ],
-
-      /// 📦 Aici bagi aplicația ta (sau widget-ul copil)
       child: widget.child,
     );
   }
