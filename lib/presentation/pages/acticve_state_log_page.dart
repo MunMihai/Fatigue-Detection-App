@@ -2,6 +2,7 @@ import 'package:driver_monitoring/core/constants/app_spaceses.dart';
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
 import 'package:driver_monitoring/presentation/widgets/app_bar.dart';
 import 'package:driver_monitoring/presentation/widgets/buttomNavigationBar/bottom_navigation_bar_active.dart';
+import 'package:driver_monitoring/presentation/widgets/camera_previw_wiget.dart';
 import 'package:flutter/material.dart';
 
 class SessionLogsPage extends StatelessWidget {
@@ -26,11 +27,27 @@ class SessionLogsPage extends StatelessWidget {
 
     return Scaffold(
       appBar: CustomAppBar(title: 'Session'),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 30),
-        children: logs.map((log) {
-          return _buildSimpleLogCard(log['message']!, log['time']!);
-        }).toList(),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: 250, // sau ce înălțime vrei tu
+            width: 340,
+            child: CameraPreviewWidget(),
+          ),
+          AppSpaceses.verticalMedium,
+
+          // Log-urile devin scrollabile
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 30),
+              children: logs.map((log) {
+                return _buildSimpleLogCard(log['message']!, log['time']!);
+              }).toList(),
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: BottomNavBarActive(currentIndex: 2),
     );

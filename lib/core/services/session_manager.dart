@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'package:camera/camera.dart';
+import 'package:driver_monitoring/core/services/analysis/frame_analyzer.dart';
 import 'package:driver_monitoring/core/services/camera_manager.dart';
+import 'package:driver_monitoring/core/utils/app_logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:driver_monitoring/domain/entities/session_report.dart';
 import 'package:driver_monitoring/domain/entities/alert.dart';
@@ -14,11 +17,13 @@ class SessionManager extends ChangeNotifier {
   final PauseManager pauseManager;
   final AlertManager alertManager;
   final CameraManager cameraManager;
+  final FrameAnalyzer frameAnalyzer;
 
   SessionReport? _currentSession;
   int _breaksCount = 0;
 
   StreamSubscription? _frameSubscription;
+  bool _isProcessingFrame = false;
 
   SessionManager({
     required this.settingsProvider,
@@ -26,6 +31,7 @@ class SessionManager extends ChangeNotifier {
     required this.pauseManager,
     required this.alertManager,
     required this.cameraManager,
+    required this.frameAnalyzer,
   });
 
   bool get isActive => _currentSession != null;
@@ -106,31 +112,26 @@ class SessionManager extends ChangeNotifier {
     return session;
   }
 
-  void startPause() async {
+  Future<void> startPause() async {
     appLogger.i('[SessionManager] Pausing session...');
 
     pauseManager.startPause();
     _breaksCount++;
 
-    // ✅ Oprești ascultarea la frame-uri
     await _frameSubscription?.cancel();
     _frameSubscription = null;
 
-    // (Opțional) Oprești complet stream-ul video
     await cameraManager.stopCapturing();
 
     notifyListeners();
   }
 
-  void stopPause() async {
+  Future<void> stopPause() async {
     appLogger.i('[SessionManager] Resuming session...');
 
     pauseManager.stopPause();
 
-    // ✅ Repornești stream-ul video
     await cameraManager.startCapturing();
-
-    // ✅ Reîncepi ascultarea la frame-uri
     await _listenToFrames();
 
     notifyListeners();
@@ -168,9 +169,7 @@ class SessionManager extends ChangeNotifier {
     _frameSubscription = cameraManager.frameStream.listen(
       (frame) {
         appLogger.t('[SessionManager] New frame received');
-
-        // TODO: Aici faci analiza pe frame, scoruri etc.
-        // _analyzeFrame(frame);
+        _analyzeFrame(frame);
       },
       onError: (error, stack) {
         appLogger.e('[SessionManager] Error in frame stream',
@@ -180,6 +179,30 @@ class SessionManager extends ChangeNotifier {
     );
   }
 
+  Future<void> _analyzeFrame(Object frame) async {
+  if (_isProcessingFrame) return;
+  _isProcessingFrame = true;
+
+  try {
+    appLogger.t('[SessionManager] Processing frame...');
+
+    if (frame is CameraImage) {
+      final alert = await frameAnalyzer.analyze(frame);
+
+      if (alert != null) {
+        appLogger.w('[SessionManager] Adding alert ${alert.type}');
+        addAlert(alert);
+      }
+    }
+
+  } catch (e, stackTrace) {
+    appLogger.e('[SessionManager] Error processing frame.', error: e, stackTrace: stackTrace);
+  } finally {
+    _isProcessingFrame = false;
+  }
+}
+
+
   @override
   void dispose() {
     _frameSubscription?.cancel();
@@ -187,9 +210,3 @@ class SessionManager extends ChangeNotifier {
     super.dispose();
   }
 }
-
-// TODO: Dacă vrei să adaugi o analiză pe frame:
-// void _analyzeFrame(CameraImage frame) {
-//   appLogger.t('[SessionManager] Processing frame...');
-//   // Ex: AI processing, detect oboseală etc.
-// }

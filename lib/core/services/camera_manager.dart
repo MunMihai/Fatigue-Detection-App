@@ -7,66 +7,65 @@ class CameraManager extends ChangeNotifier {
 
   bool _isStreaming = false;
 
-  CameraManager({
-    required this.cameraService,
-  }) {
+  CameraManager({required this.cameraService}) {
     appLogger.i('[CameraManager] Created with ${cameraService.runtimeType}');
   }
 
   bool get isStreaming => _isStreaming;
 
+  Object? get previewData => cameraService.previewData;
+
   Future<void> initializeCamera() async {
     appLogger.i('[CameraManager] Initializing camera...');
-
     try {
       await cameraService.initialize();
-      appLogger.i('[CameraManager] Camera initialized successfully.');
+      appLogger.i('Camera initialized successfully.');
     } catch (e, stackTrace) {
-      appLogger.e('[CameraManager] Error initializing camera', error: e, stackTrace: stackTrace);
+      appLogger.e('Error initializing camera', error: e, stackTrace: stackTrace);
     }
   }
 
   Future<void> startCapturing() async {
     if (_isStreaming) {
-      appLogger.w('[CameraManager] Already streaming. Ignoring start.');
+      appLogger.w('Already streaming. Ignoring start.');
       return;
     }
 
-    appLogger.i('[CameraManager] Starting capture...');
+    appLogger.i('Starting capture...');
     try {
       await cameraService.startStream();
       _isStreaming = true;
-      appLogger.i('[CameraManager] Capture started successfully.');
+      appLogger.i('Capture started successfully.');
       notifyListeners();
     } catch (e, stackTrace) {
-      appLogger.e('[CameraManager] Error starting capture', error: e, stackTrace: stackTrace);
+      appLogger.e('Error starting capture', error: e, stackTrace: stackTrace);
     }
   }
 
   Future<void> stopCapturing() async {
     if (!_isStreaming) {
-      appLogger.w('[CameraManager] Not streaming. Ignoring stop.');
+      appLogger.w('Not streaming. Ignoring stop.');
       return;
     }
 
-    appLogger.i('[CameraManager] Stopping capture...');
+    appLogger.i('Stopping capture...');
     try {
       await cameraService.stopStream();
       _isStreaming = false;
-      appLogger.i('[CameraManager] Capture stopped successfully.');
+      appLogger.i('Capture stopped successfully.');
       notifyListeners();
     } catch (e, stackTrace) {
-      appLogger.e('[CameraManager] Error stopping capture', error: e, stackTrace: stackTrace);
+      appLogger.e('Error stopping capture', error: e, stackTrace: stackTrace);
     }
   }
 
   Stream<Object> get frameStream {
-    appLogger.t('[CameraManager] Accessed frame stream.');
+    appLogger.t('Accessed frame stream.');
     return cameraService.frameStream;
   }
 
   Future<void> disposeCamera() async {
-    appLogger.i('[CameraManager] Disposing camera...');
+    appLogger.i('Disposing camera...');
 
     try {
       if (_isStreaming) {
@@ -76,17 +75,16 @@ class CameraManager extends ChangeNotifier {
       await cameraService.dispose();
 
       _isStreaming = false;
-      appLogger.i('[CameraManager] Camera disposed successfully.');
+      appLogger.i('Camera disposed successfully.');
     } catch (e, stackTrace) {
-      appLogger.e('[CameraManager] Error disposing camera', error: e, stackTrace: stackTrace);
+      appLogger.e('Error disposing camera', error: e, stackTrace: stackTrace);
     }
   }
 
   @override
   void dispose() {
-    appLogger.i('[CameraManager] Disposing CameraManager...');
-
-    disposeCamera(); // ⚠️ Important să-l chemi aici!
+    appLogger.i('Disposing CameraManager...');
+    disposeCamera();
     super.dispose();
   }
 }

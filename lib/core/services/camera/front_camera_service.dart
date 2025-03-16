@@ -7,6 +7,8 @@ class FrontCameraService implements ICameraService {
   CameraController? _controller;
   StreamController<CameraImage>? _frameController;
 
+  FrontCameraService();
+
   @override
   Future<void> initialize() async {
     appLogger.i('[FrontCameraService] Starting initialization...');
@@ -16,14 +18,14 @@ class FrontCameraService implements ICameraService {
 
       if (cameras.isEmpty) {
         appLogger.e('[FrontCameraService] No cameras available!');
-        throw Exception('[FrontCameraService] No cameras available!');
+        throw Exception('No cameras available!');
       }
 
       final frontCamera = cameras.firstWhere(
         (camera) => camera.lensDirection == CameraLensDirection.front,
         orElse: () {
-          appLogger.e('[FrontCameraService] No front camera found!');
-          throw Exception('[FrontCameraService] No front camera found!');
+          appLogger.e('No front camera found!');
+          throw Exception('No front camera found!');
         },
       );
 
@@ -39,8 +41,7 @@ class FrontCameraService implements ICameraService {
 
       appLogger.i('[FrontCameraService] Camera initialized successfully.');
     } catch (e, stack) {
-      appLogger.e('[FrontCameraService] Error during camera initialization',
-          error: e, stackTrace: stack);
+      appLogger.e('Error during camera initialization', error: e, stackTrace: stack);
       rethrow;
     }
   }
@@ -48,7 +49,7 @@ class FrontCameraService implements ICameraService {
   @override
   Stream<CameraImage> get frameStream {
     if (_frameController == null) {
-      throw Exception('[FrontCameraService] Frame stream is not initialized!');
+      throw Exception('Frame stream not initialized!');
     }
     return _frameController!.stream;
   }
@@ -58,12 +59,11 @@ class FrontCameraService implements ICameraService {
     appLogger.i('[FrontCameraService] Starting image stream...');
 
     if (_controller == null || !_controller!.value.isInitialized) {
-      appLogger.e('[FrontCameraService] Controller is not initialized!');
-      throw Exception('[FrontCameraService] Controller is not initialized!');
+      throw Exception('Controller not initialized!');
     }
 
     if (_controller!.value.isStreamingImages) {
-      appLogger.w('[FrontCameraService] Image stream already running!');
+      appLogger.w('Image stream already running!');
       return;
     }
 
@@ -73,7 +73,7 @@ class FrontCameraService implements ICameraService {
       }
     });
 
-    appLogger.i('[FrontCameraService] Image stream started.');
+    appLogger.i('Image stream started.');
   }
 
   @override
@@ -81,16 +81,12 @@ class FrontCameraService implements ICameraService {
     appLogger.i('[FrontCameraService] Stopping image stream...');
 
     if (_controller == null || !_controller!.value.isInitialized) {
-      appLogger.w(
-          '[FrontCameraService] Controller not initialized, cannot stop stream.');
       return;
     }
 
     if (_controller!.value.isStreamingImages) {
       await _controller!.stopImageStream();
-      appLogger.i('[FrontCameraService] Image stream stopped.');
-    } else {
-      appLogger.w('[FrontCameraService] Image stream was not running.');
+      appLogger.i('Image stream stopped.');
     }
   }
 
@@ -103,15 +99,16 @@ class FrontCameraService implements ICameraService {
     if (_controller != null) {
       await _controller!.dispose();
       _controller = null;
-      appLogger.i('[FrontCameraService] CameraController disposed.');
+      appLogger.i('CameraController disposed.');
     }
 
     if (_frameController != null) {
       await _frameController!.close();
       _frameController = null;
-      appLogger.i('[FrontCameraService] FrameController closed.');
+      appLogger.i('FrameController closed.');
     }
-
-    appLogger.i('[FrontCameraService] Resources cleaned up successfully.');
   }
+
+  @override
+  CameraController? get previewData => _controller;
 }

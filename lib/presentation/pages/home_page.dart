@@ -7,6 +7,7 @@ import 'package:driver_monitoring/presentation/widgets/buttomNavigationBar/butto
 import 'package:driver_monitoring/presentation/widgets/buttons/arrow_button.dart';
 import 'package:driver_monitoring/presentation/widgets/buttons/camera_connection_statut_button.dart';
 import 'package:driver_monitoring/presentation/widgets/buttons/main_monitoring_button.dart';
+import 'package:driver_monitoring/presentation/widgets/camera_previw_wiget.dart';
 import 'package:driver_monitoring/presentation/widgets/reports_section.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -21,8 +22,8 @@ class HomePage extends StatelessWidget {
       appBar: CustomAppBar(title: 'Home'),
       body: Padding(
           padding: EdgeInsets.symmetric(horizontal: 25),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: ListView(
+            //crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               AppSpaceses.verticalLarge,
               Text('Set Up your system', style: AppTextStyles.h2),
@@ -51,6 +52,9 @@ class HomePage extends StatelessWidget {
                       settingsProvider.isReportsSectionEnabled
                           ? ReportsSection()
                           : SizedBox()),
+              AppSpaceses.verticalLarge,
+              CameraPreviewWidget(),
+              AppSpaceses.verticalLarge,
             ],
           )),
       bottomNavigationBar: const BottomNavBarIDLE(currentIndex: 0),

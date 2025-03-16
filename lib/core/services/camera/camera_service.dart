@@ -1,7 +1,9 @@
 abstract class ICameraService {
   Future<void> initialize();
-  Stream<Object> get frameStream; // Sau tipul exact de frame (ex: CameraImage)
+  Stream<Object> get frameStream;
   Future<void> startStream();
   Future<void> stopStream();
   Future<void> dispose();
+
+  Object? get previewData;
 }

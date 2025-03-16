@@ -1,17 +1,6 @@
+import 'package:driver_monitoring/core/utils/app_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:logger/logger.dart';
-
-// Logger global definit clar
-final appLogger = Logger(
-  printer: PrettyPrinter(
-    methodCount: 0,
-    errorMethodCount: 5,
-    lineLength: 80,
-    colors: true,
-    printEmojis: true,
-  ),
-);
 
 class SettingsProvider extends ChangeNotifier {
   late SharedPreferences _prefs;

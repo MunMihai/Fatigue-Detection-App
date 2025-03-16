@@ -30,7 +30,12 @@ class AppRouter {
     ),
     GoRoute(
       path: '/reports',
-      builder: (context, state) => const ReportsPage(),
+      builder: (context, state) {
+        // Când se navighează către pagină, declanșăm fetch
+        context.read<SessionReportProvider>().fetchReports();
+
+        return const ReportsPage();
+      },
     ),
     GoRoute(
       path: '/allSessions',

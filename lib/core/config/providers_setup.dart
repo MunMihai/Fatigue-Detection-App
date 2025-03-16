@@ -1,4 +1,6 @@
 import 'package:driver_monitoring/core/services/alert_manager.dart';
+import 'package:driver_monitoring/core/services/analysis/fatigue_detector.dart';
+import 'package:driver_monitoring/core/services/analysis/frame_analyzer.dart';
 import 'package:driver_monitoring/core/services/camera/front_camera_service.dart';
 import 'package:driver_monitoring/core/services/camera_manager.dart';
 import 'package:driver_monitoring/core/services/pause_manager.dart';
@@ -7,7 +9,6 @@ import 'package:driver_monitoring/core/services/session_manager.dart';
 import 'package:driver_monitoring/core/services/session_timer.dart';
 import 'package:driver_monitoring/data/datasources/drift_sessin_report_local_datasource.dart';
 import 'package:driver_monitoring/data/datasources/local/database_provider.dart';
-import 'package:driver_monitoring/data/datasources/mock_report_sessions_local_datasource.dart';
 import 'package:driver_monitoring/presentation/providers/score_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -71,6 +72,9 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
             final sessionTimer = SessionTimer();
             final pauseManager = PauseManager();
             final alertManager = AlertManager();
+            
+            final fatigueDetector = FatigueDetector();
+            final frameAnalyzer = FrameAnalyzer(fatigueDetector: fatigueDetector);
 
             return SessionManager(
               settingsProvider: settingsProvider,
@@ -78,6 +82,7 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
               pauseManager: pauseManager,
               alertManager: alertManager,
               cameraManager: cameraManager,
+              frameAnalyzer: frameAnalyzer
             );
           },
           update: (_, settingsProvider, cameraManager, sessionManager) =>
