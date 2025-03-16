@@ -6,8 +6,14 @@ import 'package:driver_monitoring/core/utils/app_logger.dart';
 class FrontCameraService implements ICameraService {
   CameraController? _controller;
   StreamController<CameraImage>? _frameController;
+  CameraDescription? _cameraDescription;
 
   FrontCameraService();
+
+  @override
+  CameraController? get previewData => _controller;
+  @override
+  CameraDescription? get cameraDescription => _cameraDescription;
 
   @override
   Future<void> initialize() async {
@@ -28,10 +34,12 @@ class FrontCameraService implements ICameraService {
           throw Exception('No front camera found!');
         },
       );
+      _cameraDescription = frontCamera;
 
       _controller = CameraController(
         frontCamera,
         ResolutionPreset.medium,
+        imageFormatGroup: ImageFormatGroup.yuv420,
         enableAudio: false,
       );
 
@@ -41,7 +49,8 @@ class FrontCameraService implements ICameraService {
 
       appLogger.i('[FrontCameraService] Camera initialized successfully.');
     } catch (e, stack) {
-      appLogger.e('Error during camera initialization', error: e, stackTrace: stack);
+      appLogger.e('Error during camera initialization',
+          error: e, stackTrace: stack);
       rethrow;
     }
   }
@@ -108,7 +117,4 @@ class FrontCameraService implements ICameraService {
       appLogger.i('FrameController closed.');
     }
   }
-
-  @override
-  CameraController? get previewData => _controller;
 }

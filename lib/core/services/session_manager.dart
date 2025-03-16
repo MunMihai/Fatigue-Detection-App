@@ -1,15 +1,15 @@
 import 'dart:async';
-import 'package:camera/camera.dart';
-import 'package:driver_monitoring/core/services/analysis/frame_analyzer.dart';
-import 'package:driver_monitoring/core/services/camera_manager.dart';
-import 'package:driver_monitoring/core/utils/app_logger.dart';
+import 'package:driver_monitoring/core/services/analysis/frame_processor.dart';
 import 'package:flutter/foundation.dart';
+import 'package:driver_monitoring/core/services/camera_manager.dart';
+import 'package:driver_monitoring/core/services/session_timer.dart';
+import 'package:driver_monitoring/core/services/pause_manager.dart';
+import 'package:driver_monitoring/core/services/alert_manager.dart';
+import 'package:driver_monitoring/core/services/analysis/frame_analyzer.dart';
+import 'package:driver_monitoring/core/utils/app_logger.dart';
 import 'package:driver_monitoring/domain/entities/session_report.dart';
 import 'package:driver_monitoring/domain/entities/alert.dart';
 import 'package:driver_monitoring/presentation/providers/settings_provider.dart';
-import 'session_timer.dart';
-import 'pause_manager.dart';
-import 'alert_manager.dart';
 
 class SessionManager extends ChangeNotifier {
   final SettingsProvider settingsProvider;
@@ -22,8 +22,7 @@ class SessionManager extends ChangeNotifier {
   SessionReport? _currentSession;
   int _breaksCount = 0;
 
-  StreamSubscription? _frameSubscription;
-  bool _isProcessingFrame = false;
+  late final FrameProcessor _frameProcessor;
 
   SessionManager({
     required this.settingsProvider,
@@ -66,13 +65,18 @@ class SessionManager extends ChangeNotifier {
 
     try {
       await cameraManager.startCapturing();
-      await _listenToFrames();
-      appLogger.i('[SessionManager] Camera capturing started.');
+
+      _frameProcessor = FrameProcessor(
+        cameraManager: cameraManager,
+        frameAnalyzer: frameAnalyzer,
+        onAlertDetected: addAlert,
+      );
+
+      await _frameProcessor.start();
+      appLogger.i('[SessionManager] Camera capturing and frame processing started.');
     } catch (e, stackTrace) {
-      appLogger.e('[SessionManager] Failed to start camera capturing.',
-          error: e, stackTrace: stackTrace);
-      stopSession();
-      return;
+      appLogger.e('[SessionManager] Failed to start session.', error: e, stackTrace: stackTrace);
+      await stopSession();
     }
 
     notifyListeners();
@@ -87,15 +91,11 @@ class SessionManager extends ChangeNotifier {
     pauseManager.stopPause();
 
     try {
+      await _frameProcessor.stop();
       await cameraManager.stopCapturing();
-      await _frameSubscription?.cancel();
-      _frameSubscription = null;
-
-      appLogger
-          .i('[SessionManager] Camera capturing and frame listening stopped.');
+      appLogger.i('[SessionManager] Camera capturing and frame processing stopped.');
     } catch (e, stackTrace) {
-      appLogger.e('[SessionManager] Failed to stop camera capturing.',
-          error: e, stackTrace: stackTrace);
+      appLogger.e('[SessionManager] Failed to stop session.', error: e, stackTrace: stackTrace);
     }
 
     final session = _currentSession!.copyWith(
@@ -108,31 +108,28 @@ class SessionManager extends ChangeNotifier {
     sessionTimer.reset();
 
     notifyListeners();
-
     return session;
   }
 
-  Future<void> startPause() async {
+  Future<void> pauseSession() async {
     appLogger.i('[SessionManager] Pausing session...');
 
     pauseManager.startPause();
     _breaksCount++;
 
-    await _frameSubscription?.cancel();
-    _frameSubscription = null;
-
+    await _frameProcessor.stop();
     await cameraManager.stopCapturing();
 
     notifyListeners();
   }
 
-  Future<void> stopPause() async {
+  Future<void> resumeSession() async {
     appLogger.i('[SessionManager] Resuming session...');
 
     pauseManager.stopPause();
 
     await cameraManager.startCapturing();
-    await _listenToFrames();
+    await _frameProcessor.start();
 
     notifyListeners();
   }
@@ -150,8 +147,7 @@ class SessionManager extends ChangeNotifier {
   }
 
   void _handleCountdownFinished() {
-    appLogger
-        .w('[SessionManager] Session timer expired! Triggering break alert.');
+    appLogger.w('[SessionManager] Session timer expired! Triggering break alert.');
 
     addAlert(Alert(
       id: 'timeout-${DateTime.now().microsecondsSinceEpoch}',
@@ -161,51 +157,9 @@ class SessionManager extends ChangeNotifier {
     ));
   }
 
-  Future<void> _listenToFrames() async {
-    appLogger.i('[SessionManager] Subscribing to frame stream...');
-
-    await _frameSubscription?.cancel();
-
-    _frameSubscription = cameraManager.frameStream.listen(
-      (frame) {
-        appLogger.t('[SessionManager] New frame received');
-        _analyzeFrame(frame);
-      },
-      onError: (error, stack) {
-        appLogger.e('[SessionManager] Error in frame stream',
-            error: error, stackTrace: stack);
-      },
-      cancelOnError: false,
-    );
-  }
-
-  Future<void> _analyzeFrame(Object frame) async {
-  if (_isProcessingFrame) return;
-  _isProcessingFrame = true;
-
-  try {
-    appLogger.t('[SessionManager] Processing frame...');
-
-    if (frame is CameraImage) {
-      final alert = await frameAnalyzer.analyze(frame);
-
-      if (alert != null) {
-        appLogger.w('[SessionManager] Adding alert ${alert.type}');
-        addAlert(alert);
-      }
-    }
-
-  } catch (e, stackTrace) {
-    appLogger.e('[SessionManager] Error processing frame.', error: e, stackTrace: stackTrace);
-  } finally {
-    _isProcessingFrame = false;
-  }
-}
-
-
   @override
   void dispose() {
-    _frameSubscription?.cancel();
+    _frameProcessor.stop();
     sessionTimer.removeListener(_onTimerTick);
     super.dispose();
   }

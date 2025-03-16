@@ -1,6 +1,7 @@
 import 'package:driver_monitoring/core/services/alert_manager.dart';
 import 'package:driver_monitoring/core/services/analysis/fatigue_detector.dart';
 import 'package:driver_monitoring/core/services/analysis/frame_analyzer.dart';
+import 'package:driver_monitoring/core/services/analysis/frame_processor.dart';
 import 'package:driver_monitoring/core/services/camera/front_camera_service.dart';
 import 'package:driver_monitoring/core/services/camera_manager.dart';
 import 'package:driver_monitoring/core/services/pause_manager.dart';
@@ -34,14 +35,11 @@ class AppProvidersWrapper extends StatefulWidget {
 class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
   @override
   Widget build(BuildContext context) {
-    /// 🗄️ Inițializare DB și repository
     final db = DatabaseProvider().database;
     final reportDataSource = DriftSessionReportLocalDataSource(db);
-    //final reportDataSource = MockSessionReportLocalDataSource();    //MockDatasource
     final sessionReportRepository =
         SessionReportRepositoryImpl(dataSource: reportDataSource);
 
-    /// 🛠️ Inițializare use case-uri
     final getReportsUseCase = GetReportsUseCase(sessionReportRepository);
     final addReportUseCase = AddReportUseCase(sessionReportRepository);
     final updateReportUseCase = UpdateReportUseCase(sessionReportRepository);
@@ -49,43 +47,46 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
 
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<SettingsProvider>(
-          create: (_) => SettingsProvider()..loadSettings(),
-        ),
+        ChangeNotifierProvider(
+            create: (_) => SettingsProvider()..loadSettings()),
         ChangeNotifierProvider(create: (_) => ScoreProvider()),
         Provider<PermissionsService>(
-          lazy: false,
-          create: (_) => PermissionsService(),
-        ),
+            lazy: false, create: (_) => PermissionsService()),
         ChangeNotifierProvider<CameraManager>(
-          create: (_) {
-            final cameraService = FrontCameraService();
-            return CameraManager(cameraService: cameraService);
-          },
+          create: (_) => CameraManager(cameraService: FrontCameraService()),
         ),
-        ChangeNotifierProxyProvider2<SettingsProvider, CameraManager,
-            SessionManager>(
-          create: (context) {
-            final settingsProvider = context.read<SettingsProvider>();
-            final cameraManager = context.read<CameraManager>();
-
-            final sessionTimer = SessionTimer();
-            final pauseManager = PauseManager();
-            final alertManager = AlertManager();
-            
-            final fatigueDetector = FatigueDetector();
-            final frameAnalyzer = FrameAnalyzer(fatigueDetector: fatigueDetector);
-
-            return SessionManager(
-              settingsProvider: settingsProvider,
-              sessionTimer: sessionTimer,
-              pauseManager: pauseManager,
-              alertManager: alertManager,
-              cameraManager: cameraManager,
-              frameAnalyzer: frameAnalyzer
-            );
-          },
-          update: (_, settingsProvider, cameraManager, sessionManager) =>
+        ProxyProvider<CameraManager, FrameAnalyzer>(
+          update: (context, cameraManager, _) => FrameAnalyzer(
+            fatigueDetector: FatigueDetector(),
+            cameraDescription: cameraManager.cameraDescription!,
+          ),
+        ),
+        ChangeNotifierProxyProvider2<CameraManager, FrameAnalyzer,
+            FrameProcessor>(
+          create: (context) => FrameProcessor(
+            cameraManager: context.read<CameraManager>(),
+            frameAnalyzer: context.read<FrameAnalyzer>(),
+            onAlertDetected: (alert) {
+              final sessionManager = context.read<SessionManager>();
+              sessionManager.addAlert(alert);
+            },
+          ),
+          update: (context, cameraManager, frameAnalyzer, previous) => previous!
+            ..update(
+                cameraManager: cameraManager, frameAnalyzer: frameAnalyzer),
+        ),
+        ChangeNotifierProxyProvider3<SettingsProvider, CameraManager,
+            FrameAnalyzer, SessionManager>(
+          create: (context) => SessionManager(
+            settingsProvider: context.read<SettingsProvider>(),
+            sessionTimer: SessionTimer(),
+            pauseManager: PauseManager(),
+            alertManager: AlertManager(),
+            cameraManager: context.read<CameraManager>(),
+            frameAnalyzer: context.read<FrameAnalyzer>(),
+          ),
+          update: (_, settingsProvider, cameraManager, frameAnalyzer,
+                  sessionManager) =>
               sessionManager!,
         ),
         ChangeNotifierProxyProvider<SettingsProvider, SessionReportProvider>(
@@ -97,7 +98,6 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
           ),
           update: (_, settingsProvider, reportProvider) {
             final isEnabled = settingsProvider.isReportsSectionEnabled;
-
             final nonNullReportProvider = reportProvider ??
                 SessionReportProvider(
                   getReportsUseCase: getReportsUseCase,
@@ -118,3 +118,4 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
     );
   }
 }
+ 

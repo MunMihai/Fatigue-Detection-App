@@ -6,4 +6,6 @@ abstract class ICameraService {
   Future<void> dispose();
 
   Object? get previewData;
+  Object? get cameraDescription;
+
 }

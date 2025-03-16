@@ -1,3 +1,4 @@
+import 'package:camera/camera.dart';
 import 'package:driver_monitoring/core/services/camera/camera_service.dart';
 import 'package:driver_monitoring/core/utils/app_logger.dart';
 import 'package:flutter/foundation.dart';
@@ -14,6 +15,8 @@ class CameraManager extends ChangeNotifier {
   bool get isStreaming => _isStreaming;
 
   Object? get previewData => cameraService.previewData;
+  CameraDescription? get cameraDescription => cameraService.cameraDescription as CameraDescription;
+
 
   Future<void> initializeCamera() async {
     appLogger.i('[CameraManager] Initializing camera...');

@@ -80,9 +80,9 @@ class ActiveMonitoringMainPage extends StatelessWidget {
                     title: isPaused ? 'RESUME Monitoring' : 'PAUSE Monitoring',
                     onPressed: () {
                       if (isPaused) {
-                        sessionManager.stopPause();
+                        sessionManager.resumeSession();
                       } else {
-                        sessionManager.startPause();
+                        sessionManager.pauseSession();
                       }
                     },
                   ),

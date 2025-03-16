@@ -3,6 +3,7 @@ import 'package:driver_monitoring/core/constants/app_text_styles.dart';
 import 'package:driver_monitoring/presentation/widgets/app_bar.dart';
 import 'package:driver_monitoring/presentation/widgets/buttomNavigationBar/bottom_navigation_bar_active.dart';
 import 'package:driver_monitoring/presentation/widgets/camera_previw_wiget.dart';
+import 'package:driver_monitoring/presentation/widgets/processed_image_widget.dart';
 import 'package:flutter/material.dart';
 
 class SessionLogsPage extends StatelessWidget {
@@ -35,6 +36,12 @@ class SessionLogsPage extends StatelessWidget {
             height: 250, // sau ce înălțime vrei tu
             width: 340,
             child: CameraPreviewWidget(),
+          ),
+          AppSpaceses.verticalMedium,
+          SizedBox(
+            height: 250,
+            width: 340,
+            child: ProcessedImageWidget(),
           ),
           AppSpaceses.verticalMedium,
 
