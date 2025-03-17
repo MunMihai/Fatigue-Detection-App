@@ -19,8 +19,11 @@ class ActiveMonitoringMainPage extends StatelessWidget {
     return Consumer<SessionManager>(
       builder: (context, sessionManager, child) {
         final score = sessionManager.alertManager.averageSeverity;
+
+        /// Stări actualizate
         final isMonitoring = sessionManager.isActive;
-        final isPaused = sessionManager.pauseManager.isPaused;
+        final isPaused = sessionManager.isPaused;
+
         final elapsedTime = sessionManager.sessionTimer.elapsedTime;
         final breakTime = sessionManager.pauseManager.totalPause;
         final breaksCount = sessionManager.breaksCount;
@@ -32,24 +35,27 @@ class ActiveMonitoringMainPage extends StatelessWidget {
             child: ListView(
               children: [
                 AppSpaceses.verticalLarge,
+
+                /// Fatigue level
                 Text('Fatigue Level', style: AppTextStyles.h2),
                 AppSpaceses.verticalSmall,
-
                 FatigueLevelIndicator(score: score),
 
                 AppSpaceses.verticalLarge,
+
+                /// Recommendations
                 Text('Recommendations', style: AppTextStyles.h2),
                 AppSpaceses.verticalMedium,
-
                 RecommendationCard(score: score),
 
                 AppSpaceses.verticalLarge,
 
+                /// Info cards for breaks & time
                 Row(
                   children: [
                     InfoCard(
                       title: 'Break Time',
-                      value: breakTime.inMinutes.toHoursAndMinutes(), 
+                      value: breakTime.inMinutes.toHoursAndMinutes(),
                       width: 170,
                       height: 100,
                     ),
@@ -67,22 +73,22 @@ class ActiveMonitoringMainPage extends StatelessWidget {
 
                 InfoCard(
                   title: 'Total Session Time',
-                  value: elapsedTime.inSeconds.toHoursMinutesAndSeconds(), 
+                  value: elapsedTime.inSeconds.toHoursMinutesAndSeconds(),
                   height: 100,
                   width: 340,
                 ),
 
                 AppSpaceses.verticalMedium,
 
-
-                if (isMonitoring)
+                /// Button: Pause/Resume Monitoring
+                if (isMonitoring || isPaused)
                   PrimaryButton(
                     title: isPaused ? 'RESUME Monitoring' : 'PAUSE Monitoring',
-                    onPressed: () {
+                    onPressed: () async {
                       if (isPaused) {
-                        sessionManager.stopPause();
+                        await sessionManager.resumeMonitoring();
                       } else {
-                        sessionManager.startPause();
+                        await sessionManager.pauseMonitoring();
                       }
                     },
                   ),
@@ -91,6 +97,8 @@ class ActiveMonitoringMainPage extends StatelessWidget {
               ],
             ),
           ),
+
+          /// Bottom navigation bar pentru starea activă
           bottomNavigationBar: const BottomNavBarActive(currentIndex: 0),
         );
       },

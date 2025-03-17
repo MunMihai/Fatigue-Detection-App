@@ -1,7 +1,7 @@
 import 'package:driver_monitoring/core/constants/app_gifs.dart';
 import 'package:driver_monitoring/core/constants/app_spaceses.dart';
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
-import 'package:driver_monitoring/core/services/camera_manager.dart';
+// import 'package:driver_monitoring/core/services/camera_manager.dart';
 import 'package:driver_monitoring/core/services/permissions_service.dart';
 import 'package:driver_monitoring/core/utils/color_scheme_extensions.dart';
 import 'package:driver_monitoring/presentation/widgets/buttons/simple_button.dart';
@@ -59,7 +59,7 @@ class LandingPage extends StatelessWidget {
                 title: 'Start navigation',
                 onPressed: () async {
                   final permissionsService = context.read<PermissionsService>();
-                  final cameraManager = context.read<CameraManager>();
+                  // final cameraManager = context.read<CameraManager>();
 
                   final permissionStatus = await permissionsService
                       .requestCameraPermissionWithStatus();
@@ -68,7 +68,7 @@ class LandingPage extends StatelessWidget {
 
                   switch (permissionStatus) {
                     case PermissionStatus.granted:
-                      await cameraManager.initializeCamera();
+                      // await cameraManager.initializeCamera();
                       if (!context.mounted) return;
                       context.go('/');
                       break;

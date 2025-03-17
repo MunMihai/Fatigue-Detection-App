@@ -1,3 +1,4 @@
+import 'package:driver_monitoring/core/enum/app_state.dart';
 import 'package:driver_monitoring/core/services/session_manager.dart';
 import 'package:driver_monitoring/core/utils/color_scheme_extensions.dart';
 import 'package:driver_monitoring/core/utils/show_confiramtion_dialog.dart';
@@ -16,6 +17,9 @@ class BottomNavBarActive extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final sessionManager = context.watch<SessionManager>();
+    final appState = sessionManager.appState;
+
     return BottomNavigationBar(
       backgroundColor: Theme.of(context).colorScheme.primary,
       selectedItemColor: Theme.of(context).colorScheme.activeIcon,
@@ -27,54 +31,67 @@ class BottomNavBarActive extends StatelessWidget {
 
         switch (index) {
           case 0:
-            context.go('/activeMonitoring/main');
+            // Dacă suntem deja în monitoring activ, navighează la pagina principală
+            if (appState == AppState.active || appState == AppState.paused) {
+              context.go('/activeMonitoring/main');
+            }
             break;
 
           case 1:
-            final sessionManager = context.read<SessionManager>();
-            final sessionReportProvider = context.read<SessionReportProvider>();
+            // Exit/Stop monitoring button
+            if (appState == AppState.active || appState == AppState.paused) {
+              final sessionReportProvider =
+                  context.read<SessionReportProvider>();
 
-            // Confirm the action before stopping the session
-            final confirmed = await showConfirmationDialog(
-              context: context,
-              title: 'Stop Monitoring',
-              confirmText: 'STOP',
-              message: 'Are you sure you want to stop monitoring? Stopping monitoring will interrupt all alerts and stop recording the current session.',
-              showIcon: false
-            );
+              final confirmed = await showConfirmationDialog(
+                context: context,
+                title: 'Stop Monitoring',
+                confirmText: 'STOP',
+                message:
+                    'Are you sure you want to stop monitoring? Stopping monitoring will interrupt all alerts and stop recording the current session.',
+                showIcon: false,
+              );
 
-            if (confirmed) {
-              final finishedSession = await sessionManager.stopSession();
+              if (confirmed) {
+                final finishedSession = await sessionManager.stopMonitoring();
 
-              if (finishedSession != null) {
-                await sessionReportProvider.addReport(finishedSession);
+                if (finishedSession != null) {
+                  await sessionReportProvider.addReport(finishedSession);
+                  if (!context.mounted) return;
 
-                if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Session saved successfully!')),
+                  );
 
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Session saved successfully!')),
-                );
+                  context.go('/'); // Revine la home după terminarea sesiunii
+                } else {
+                  if (!context.mounted) return;
 
-                // Navigate to the home page after session is saved
-                context.go('/');
-              } else {
-                if (!context.mounted) return;
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('No active session to stop!')),
-                );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('No active session to stop!')),
+                  );
+                }
               }
+            } else {
+              // Dacă nu e activă nicio sesiune
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('No active session to stop!')),
+              );
             }
             break;
 
           case 2:
-            context.go('/activeMonitoring/logs');
+            // Info page
+            if (appState == AppState.active || appState == AppState.paused) {
+              context.go('/activeMonitoring/logs');
+            }
             break;
         }
       },
       items: [
         BottomNavigationBarItem(
-          icon: Icon(Icons.visibility),
+          icon: const Icon(Icons.visibility),
           label: 'Main',
         ),
         BottomNavigationBarItem(
@@ -100,7 +117,7 @@ class BottomNavBarActive extends StatelessWidget {
           label: 'Exit',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.info_outline_rounded),
+          icon: const Icon(Icons.info_outline_rounded),
           label: 'Info',
         ),
       ],

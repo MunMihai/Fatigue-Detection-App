@@ -1,9 +1,13 @@
-abstract class ICameraService {
-  Future<void> initialize();
-  Stream<Object> get frameStream;
-  Future<void> startStream();
-  Future<void> stopStream();
-  Future<void> dispose();
+import 'package:camera/camera.dart';
 
-  Object? get previewData;
+abstract class CameraService {
+  Future<void> initialize();
+  void dispose();
+
+  CameraController? get controller;
+
+  Future<void> setZoom(double zoom);
+  Future<void> toggleTorch();
+  Future<void> setExposure(double exposure);
+  bool get isTorchOn;
 }

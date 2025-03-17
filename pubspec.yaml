@@ -67,8 +67,20 @@ dependencies:
 
   # Camera conections.
   camera: ^0.11.1
+  camera_android: ^0.10.10+1  #fărp el nu lucrează landmarcurile pe imagine
   permission_handler: any
   flutter_foreground_task: ^8.17.0
+
+  # Face detection
+  google_mlkit_face_detection: ^0.12.0
+  google_mlkit_commons: ^0.9.0
+
+# dependency_overrides:
+#   google_mlkit_commons:
+#     path: ../google_mlkit_commons
+#   google_mlkit_face_detection:
+#     path: ../google_mlkit_face_detection
+
 
 dev_dependencies:
   flutter_test:

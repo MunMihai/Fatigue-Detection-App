@@ -1,8 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:driver_monitoring/core/utils/page_transitions.dart';
-import 'package:driver_monitoring/presentation/pages/acticve_state_log_page.dart';
+// import 'package:driver_monitoring/presentation/pages/acticve_state_log_page.dart';
 import 'package:driver_monitoring/presentation/pages/active_state_monitoring_page.dart';
 import 'package:driver_monitoring/presentation/pages/all_session_reports_page.dart';
+import 'package:driver_monitoring/presentation/pages/camera/camera_calibration_page.dart';
 import 'package:driver_monitoring/presentation/pages/home_page.dart';
 import 'package:driver_monitoring/presentation/pages/not_found_page.dart';
 import 'package:driver_monitoring/presentation/pages/reports_page.dart';
@@ -73,7 +74,7 @@ class AppRouter {
     ),
     GoRoute(
       path: '/activeMonitoring/logs',
-      builder: (context, state) => const SessionLogsPage(),
+      builder: (context, state) => const CameraCalibrationPage(),//SessionLogsPage(),
     ),
   ]);
 }

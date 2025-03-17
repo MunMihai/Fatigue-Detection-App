@@ -1,114 +1,72 @@
-import 'dart:async';
 import 'package:camera/camera.dart';
 import 'camera_service.dart';
-import 'package:driver_monitoring/core/utils/app_logger.dart';
 
-class FrontCameraService implements ICameraService {
-  CameraController? _controller;
-  StreamController<CameraImage>? _frameController;
+class FrontCameraService implements CameraService {
+  late CameraController _controller;
+  @override
+  CameraController? get controller => _controller;
 
-  FrontCameraService();
+  bool _isTorchOn = false;
+
+  @override
+  bool get isTorchOn => _isTorchOn;
 
   @override
   Future<void> initialize() async {
-    appLogger.i('[FrontCameraService] Starting initialization...');
+    final cameras = await availableCameras();
 
-    try {
-      final cameras = await availableCameras();
+    final frontCamera = cameras.firstWhere(
+      (camera) => camera.lensDirection == CameraLensDirection.front,
+    );
 
-      if (cameras.isEmpty) {
-        appLogger.e('[FrontCameraService] No cameras available!');
-        throw Exception('No cameras available!');
+    _controller = CameraController(
+      frontCamera,
+      ResolutionPreset.medium,
+      enableAudio: false,
+    );
+
+    await _controller.initialize();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+  }
+
+  @override
+  Future<void> setZoom(double zoom) async {
+    if (_controller.value.isInitialized) {
+      final minZoom = await _controller.getMinZoomLevel();
+      final maxZoom = await _controller.getMaxZoomLevel();
+
+      if (zoom >= minZoom && zoom <= maxZoom) {
+        await _controller.setZoomLevel(zoom);
       }
-
-      final frontCamera = cameras.firstWhere(
-        (camera) => camera.lensDirection == CameraLensDirection.front,
-        orElse: () {
-          appLogger.e('No front camera found!');
-          throw Exception('No front camera found!');
-        },
-      );
-
-      _controller = CameraController(
-        frontCamera,
-        ResolutionPreset.medium,
-        enableAudio: false,
-      );
-
-      _frameController = StreamController<CameraImage>.broadcast();
-
-      await _controller!.initialize();
-
-      appLogger.i('[FrontCameraService] Camera initialized successfully.');
-    } catch (e, stack) {
-      appLogger.e('Error during camera initialization', error: e, stackTrace: stack);
-      rethrow;
     }
   }
 
   @override
-  Stream<CameraImage> get frameStream {
-    if (_frameController == null) {
-      throw Exception('Frame stream not initialized!');
-    }
-    return _frameController!.stream;
-  }
-
-  @override
-  Future<void> startStream() async {
-    appLogger.i('[FrontCameraService] Starting image stream...');
-
-    if (_controller == null || !_controller!.value.isInitialized) {
-      throw Exception('Controller not initialized!');
-    }
-
-    if (_controller!.value.isStreamingImages) {
-      appLogger.w('Image stream already running!');
-      return;
-    }
-
-    _controller!.startImageStream((CameraImage image) {
-      if (_frameController != null && !_frameController!.isClosed) {
-        _frameController!.add(image);
+  Future<void> toggleTorch() async {
+    if (_controller.value.isInitialized) {
+      if (_isTorchOn) {
+        await _controller.setFlashMode(FlashMode.off);
+        _isTorchOn = false;
+      } else {
+        await _controller.setFlashMode(FlashMode.torch);
+        _isTorchOn = true;
       }
-    });
-
-    appLogger.i('Image stream started.');
-  }
-
-  @override
-  Future<void> stopStream() async {
-    appLogger.i('[FrontCameraService] Stopping image stream...');
-
-    if (_controller == null || !_controller!.value.isInitialized) {
-      return;
-    }
-
-    if (_controller!.value.isStreamingImages) {
-      await _controller!.stopImageStream();
-      appLogger.i('Image stream stopped.');
     }
   }
 
   @override
-  Future<void> dispose() async {
-    appLogger.i('[FrontCameraService] Disposing camera resources...');
+  Future<void> setExposure(double exposure) async {
+    if (_controller.value.isInitialized) {
+      final minExposure = await _controller.getMinExposureOffset();
+      final maxExposure = await _controller.getMaxExposureOffset();
 
-    await stopStream();
-
-    if (_controller != null) {
-      await _controller!.dispose();
-      _controller = null;
-      appLogger.i('CameraController disposed.');
-    }
-
-    if (_frameController != null) {
-      await _frameController!.close();
-      _frameController = null;
-      appLogger.i('FrameController closed.');
+      if (exposure >= minExposure && exposure <= maxExposure) {
+        await _controller.setExposureOffset(exposure);
+      }
     }
   }
-
-  @override
-  CameraController? get previewData => _controller;
 }
