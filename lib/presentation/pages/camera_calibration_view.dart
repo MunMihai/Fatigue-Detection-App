@@ -4,10 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:driver_monitoring/core/services/face_detection_service.dart';
 import 'package:driver_monitoring/presentation/widgets/app_bar.dart';
-import 'package:driver_monitoring/presentation/widgets/buttomNavigationBar/bottom_navigation_bar_active.dart';
 
-class CameraCalibrationPage extends StatelessWidget {
-  const CameraCalibrationPage({super.key});
+class CameraCalibrationView extends StatelessWidget {
+  const CameraCalibrationView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +31,6 @@ class CameraCalibrationPage extends StatelessWidget {
                 _exposureSlider(cameraProvider),
               ],
             ),
-      bottomNavigationBar: BottomNavBarActive(currentIndex: 2),
     );
   }
 

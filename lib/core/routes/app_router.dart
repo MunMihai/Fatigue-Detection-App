@@ -1,14 +1,14 @@
 import 'package:collection/collection.dart';
 import 'package:driver_monitoring/core/utils/page_transitions.dart';
-import 'package:driver_monitoring/presentation/pages/active_state_monitoring_page.dart';
 import 'package:driver_monitoring/presentation/pages/all_session_reports_page.dart';
-import 'package:driver_monitoring/presentation/pages/camera_calibration_page.dart';
 import 'package:driver_monitoring/presentation/pages/home_page.dart';
 import 'package:driver_monitoring/presentation/pages/not_found_page.dart';
 import 'package:driver_monitoring/presentation/pages/reports_page.dart';
 import 'package:driver_monitoring/presentation/pages/report_detailed_page.dart';
 import 'package:driver_monitoring/presentation/pages/settings_page.dart';
 import 'package:driver_monitoring/presentation/pages/landing_page.dart';
+import 'package:driver_monitoring/presentation/pages/active_monitoring_page.dart';
+import 'package:driver_monitoring/presentation/pages/wrapperIDle/idle_wrapper_page.dart';
 import 'package:driver_monitoring/presentation/providers/session_report_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -22,7 +22,7 @@ class AppRouter {
     ),
     GoRoute(
       path: '/',
-      builder: (context, state) => const HomePage(),
+      builder: (context, state) => const IdleWrapper(),
     ),
     GoRoute(
       path: '/settings',
@@ -69,11 +69,7 @@ class AppRouter {
     ),
     GoRoute(
       path: '/activeMonitoring/main',
-      builder: (context, state) => const ActiveMonitoringMainPage(),
-    ),
-    GoRoute(
-      path: '/activeMonitoring/logs',
-      builder: (context, state) => const CameraCalibrationPage(),//SessionLogsPage(),
+      builder: (context, state) => const ActiveMonitoringWrapperPage(),
     ),
   ]);
 }

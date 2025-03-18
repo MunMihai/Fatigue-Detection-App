@@ -3,7 +3,6 @@ import 'package:driver_monitoring/core/constants/app_text_styles.dart';
 import 'package:driver_monitoring/core/services/session_manager.dart';
 import 'package:driver_monitoring/core/utils/int_extension.dart';
 import 'package:driver_monitoring/presentation/widgets/app_bar.dart';
-import 'package:driver_monitoring/presentation/widgets/buttomNavigationBar/bottom_navigation_bar_active.dart';
 import 'package:driver_monitoring/presentation/widgets/buttons/simple_button.dart';
 import 'package:driver_monitoring/presentation/widgets/fatigue_level_indicator.dart.dart';
 import 'package:driver_monitoring/presentation/widgets/info_card.dart';
@@ -11,8 +10,8 @@ import 'package:driver_monitoring/presentation/widgets/recommendation_card.dart'
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class ActiveMonitoringMainPage extends StatelessWidget {
-  const ActiveMonitoringMainPage({super.key});
+class MainMonitoringView extends StatelessWidget {
+  const MainMonitoringView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -98,8 +97,6 @@ class ActiveMonitoringMainPage extends StatelessWidget {
             ),
           ),
 
-          /// Bottom navigation bar pentru starea activă
-          bottomNavigationBar: const BottomNavBarActive(currentIndex: 0),
         );
       },
     );

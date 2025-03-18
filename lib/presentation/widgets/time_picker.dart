@@ -30,10 +30,10 @@ class TimePicker extends StatelessWidget {
   }
 
   void _decrementMinutes(BuildContext context) {
-    const step = 5;
+    const step = 1;
     int newMinutes = minutes - step;
     if (newMinutes < 0) {
-      newMinutes = 60 - step; // de ex: 55 dacă step = 5
+      newMinutes = 60 - step; 
     }
     onChanged(Duration(hours: hours, minutes: newMinutes));
   }

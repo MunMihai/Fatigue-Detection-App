@@ -10,7 +10,6 @@ class PauseManager extends ChangeNotifier {
 
   bool get isPaused => _isPaused;
 
-  /// Timpul total de pauză actualizat în timp real
   Duration get totalPause {
     if (_isPaused && _pauseStart != null) {
       final currentPauseDuration = DateTime.now().difference(_pauseStart!);
@@ -26,7 +25,6 @@ class PauseManager extends ChangeNotifier {
     _pauseStart = DateTime.now();
     _isPaused = true;
 
-    // Pornim timerul care notifică UI-ul să se actualizeze pe fiecare secundă
     _pauseTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       notifyListeners();
     });
@@ -37,7 +35,6 @@ class PauseManager extends ChangeNotifier {
   void stopPause() {
     if (!_isPaused || _pauseStart == null) return;
 
-    // Calculăm durata pauzei și o adăugăm la total
     final pauseDuration = DateTime.now().difference(_pauseStart!);
     _totalPause += pauseDuration;
 

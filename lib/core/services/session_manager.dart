@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:camera/camera.dart';
+import 'package:driver_monitoring/core/enum/alert_type.dart';
 import 'package:driver_monitoring/core/enum/app_state.dart';
 import 'package:driver_monitoring/core/services/face_detection_service.dart';
 import 'package:driver_monitoring/presentation/providers/camera_provider.dart';
@@ -49,13 +50,10 @@ class SessionManager extends ChangeNotifier {
     _appState = AppState.initializing;
     notifyListeners();
 
-    // 1️⃣ Initialize camera
     await _initializeCamera();
 
-    // 2️⃣ Prepare Face Detection
     faceDetectionService.reset();
 
-    // 3️⃣ Create session report
     _currentSession = SessionReport(
       id: 'session-${DateTime.now().microsecondsSinceEpoch}',
       timestamp: DateTime.now(),
@@ -91,18 +89,14 @@ class SessionManager extends ChangeNotifier {
     _appState = AppState.stopping;
     notifyListeners();
 
-    // 1️⃣ Stop camera feed
     await cameraProvider.stopCamera();
 
-    // 2️⃣ Cleanup face detection
     faceDetectionService.reset();
 
-    // 3️⃣ Stop timers & alerts
-    sessionTimer.stop();
     sessionTimer.removeListener(_onTimerTick);
     pauseManager.stopPause();
     alertManager.stopAlert();
-    // 4️⃣ Close session
+
     final session = _currentSession?.copyWith(
       durationMinutes: sessionTimer.elapsedTime.inMinutes,
       alerts: alertManager.alerts,
@@ -113,7 +107,7 @@ class SessionManager extends ChangeNotifier {
     sessionTimer.reset();
 
     appLogger.i('[SessionManager] Moving to IDLE state...');
-    _appState= AppState.idle;
+    _appState = AppState.idle;
 
     notifyListeners();
     return session;
@@ -144,17 +138,40 @@ class SessionManager extends ChangeNotifier {
   Future<void> _initializeCamera() async {
     cameraProvider.updateImageCallback((inputImage) {
       faceDetectionService.processImage(inputImage);
+
       if (faceDetectionService.closedEyesDetected) {
         _triggerDrowsinessAlert();
+      } else {
+        _stopDrowsinessAlert();
       }
     });
+
     await cameraProvider.initialize(CameraLensDirection.front);
   }
 
   void _triggerDrowsinessAlert() {
-    appLogger.w('[SessionManager] Drowsiness detected, triggering alert!');
+    if (_appState == AppState.active) {
+      appLogger.w('[SessionManager] Drowsiness detected, triggering alert!');
 
-    alertManager.triggerAlert(type: 'Both eyes closed', severity: 1);
+      alertManager.triggerAlert(
+        type: AlertType.drowsiness.description,
+        severity: 1,
+      );
+
+      _appState = AppState.alertness;
+      notifyListeners();
+    }
+  }
+
+  void _stopDrowsinessAlert() {
+    if (_appState == AppState.alertness) {
+      appLogger.i('[SessionManager] Eyes opened, stopping alert.');
+
+      alertManager.stopAlert();
+
+      _appState = AppState.active;
+      notifyListeners();
+    }
   }
 
   void _onTimerTick() {
@@ -169,7 +186,8 @@ class SessionManager extends ChangeNotifier {
     appLogger
         .w('[SessionManager] Session timer expired! Triggering break alert.');
 
-    alertManager.triggerAlert(type: 'Countdown Finished', severity: 0);
+    alertManager.triggerAlert(
+        type: AlertType.sessionExpired.description, severity: 0);
   }
 
   @override

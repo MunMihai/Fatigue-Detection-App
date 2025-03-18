@@ -1,7 +1,8 @@
 enum AppState {
   idle,  
   initializing,    
-  active,     
+  active,    
+  alertness, 
   paused,
   stopping      
 }
