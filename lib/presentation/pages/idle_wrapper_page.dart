@@ -1,11 +1,11 @@
-import 'package:driver_monitoring/presentation/pages/wrapperIDle/navbar.dart';
+import 'package:driver_monitoring/presentation/pages/home_view.dart';
+import 'package:driver_monitoring/presentation/widgets/buttomNavigationBar/buttom_navigation_bar_idle.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:driver_monitoring/presentation/providers/settings_provider.dart';
 
 // Pagini de exemplu
-import 'home_view.dart';
 import 'reports_view.dart';
 import 'settings_view.dart';
 

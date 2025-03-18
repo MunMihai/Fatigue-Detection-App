@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'core/config/providers_setup.dart'; 
+import 'core/config/providers_setup.dart';
 import 'core/constants/app_color_scheme.dart';
 import 'core/routes/app_router.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -17,7 +18,6 @@ void main() async {
     ),
   );
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

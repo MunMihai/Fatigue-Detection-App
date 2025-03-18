@@ -1,15 +1,16 @@
 import 'package:driver_monitoring/core/utils/color_scheme_extensions.dart';
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:driver_monitoring/presentation/providers/settings_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class BottomNavBarIDLE extends StatelessWidget {
   final int currentIndex;
+  final Function(int index) onItemTapped;
 
   const BottomNavBarIDLE({
     super.key,
     required this.currentIndex,
+    required this.onItemTapped,
   });
 
   @override
@@ -27,20 +28,7 @@ class BottomNavBarIDLE extends StatelessWidget {
           onTap: (index) {
             if (index == currentIndex) return;
 
-            switch (index) {
-              case 0:
-                context.go('/');
-                break;
-
-              case 1:
-                if (!isReportsEnabled) return; 
-                context.push('/reports');
-                break;
-
-              case 2:
-                context.push('/settings');
-                break;
-            }
+            onItemTapped(index);
           },
           items: [
             const BottomNavigationBarItem(
@@ -59,9 +47,7 @@ class BottomNavBarIDLE extends StatelessWidget {
                 isReportsEnabled ? Icons.bar_chart : Icons.lock,
                 color: isReportsEnabled ? null : Colors.grey.shade600,
               ),
-              label: isReportsEnabled
-                  ? 'Reports'
-                  : 'Enable in Settings', // ✨ mai informativ
+              label: isReportsEnabled ? 'Reports' : 'Enable in Settings',
             ),
             const BottomNavigationBarItem(
               icon: Icon(Icons.settings_outlined),

@@ -1,14 +1,11 @@
 import 'package:collection/collection.dart';
 import 'package:driver_monitoring/core/utils/page_transitions.dart';
 import 'package:driver_monitoring/presentation/pages/all_session_reports_page.dart';
-import 'package:driver_monitoring/presentation/pages/home_page.dart';
 import 'package:driver_monitoring/presentation/pages/not_found_page.dart';
-import 'package:driver_monitoring/presentation/pages/reports_page.dart';
 import 'package:driver_monitoring/presentation/pages/report_detailed_page.dart';
-import 'package:driver_monitoring/presentation/pages/settings_page.dart';
 import 'package:driver_monitoring/presentation/pages/landing_page.dart';
 import 'package:driver_monitoring/presentation/pages/active_monitoring_page.dart';
-import 'package:driver_monitoring/presentation/pages/wrapperIDle/idle_wrapper_page.dart';
+import 'package:driver_monitoring/presentation/pages/idle_wrapper_page.dart';
 import 'package:driver_monitoring/presentation/providers/session_report_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -23,19 +20,6 @@ class AppRouter {
     GoRoute(
       path: '/',
       builder: (context, state) => const IdleWrapper(),
-    ),
-    GoRoute(
-      path: '/settings',
-      builder: (context, state) => const SettingsPage(),
-    ),
-    GoRoute(
-      path: '/reports',
-      builder: (context, state) {
-        // Când se navighează către pagină, declanșăm fetch
-        context.read<SessionReportProvider>().fetchReports();
-
-        return const ReportsPage();
-      },
     ),
     GoRoute(
       path: '/allSessions',
