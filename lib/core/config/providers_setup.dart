@@ -1,7 +1,4 @@
-import 'package:driver_monitoring/data/datasources/camera/front_camera_datasource_impl.dart';
-import 'package:driver_monitoring/data/repositories/camera_repository_impl.dart';
-import 'package:driver_monitoring/domain/usecases/camera/set_exposure_usecase.dart';
-import 'package:driver_monitoring/domain/usecases/camera/set_zoom_usecase.dart';
+import 'package:driver_monitoring/core/services/face_detection_service.dart';
 import 'package:driver_monitoring/presentation/providers/camera_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -43,16 +40,12 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
     //final reportDataSource = MockSessionReportLocalDataSource(); // pentru teste / mock
     final sessionReportRepository =
         SessionReportRepositoryImpl(dataSource: reportDataSource);
-    final cameraDataSource = FrontCameraDataSourceImpl();
-    final cameraRepository = CameraRepositoryImpl(cameraDataSource);
 
     /// 🛠️ Inițializare use case-uri
     final getReportsUseCase = GetReportsUseCase(sessionReportRepository);
     final addReportUseCase = AddReportUseCase(sessionReportRepository);
     final updateReportUseCase = UpdateReportUseCase(sessionReportRepository);
     final deleteReportUseCase = DeleteReportUseCase(sessionReportRepository);
-    final setZoomUseCase = SetZoomUseCase(cameraRepository);
-    final setExposureUseCase = SetExposureUseCase(cameraRepository);
 
     return MultiProvider(
       providers: [
@@ -70,33 +63,29 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
           create: (_) => PermissionsService(),
         ),
 
-        // CameraProvider doar pentru calibrare
-        ChangeNotifierProvider<CameraProvider>(
-          create: (_) => CameraProvider(
-            setZoomUseCase: setZoomUseCase,
-            setExposureUseCase: setExposureUseCase,
-            cameraRepository: cameraRepository,
-          ),
-        ),
+        ChangeNotifierProvider<CameraProvider>(create: (_) => CameraProvider()),
+        ChangeNotifierProvider<FaceDetectionService>(create: (_) => FaceDetectionService()),
 
         // SessionManager controlează starea + lifecycle cameră
-        ChangeNotifierProxyProvider<SettingsProvider, SessionManager>(
+        ChangeNotifierProxyProvider2<SettingsProvider, CameraProvider, SessionManager>(
           create: (context) {
             final settingsProvider = context.read<SettingsProvider>();
-
+            final cameraProvider = context.read<CameraProvider>();
+            final faceDetectionService = context.read<FaceDetectionService>();
             final sessionTimer = SessionTimer();
             final pauseManager = PauseManager();
             final alertManager = AlertManager();
 
             return SessionManager(
               settingsProvider: settingsProvider,
+              cameraProvider: cameraProvider,
+              faceDetectionService: faceDetectionService,
               sessionTimer: sessionTimer,
               pauseManager: pauseManager,
               alertManager: alertManager,
-              cameraRepository: cameraRepository,
             );
           },
-          update: (_, settingsProvider, sessionManager) => sessionManager!,
+          update: (_, settingsProvider, cameraProvider, sessionManager) => sessionManager!,
         ),
 
         /// 📝 SessionReportProvider (pentru listarea, salvarea și gestionarea rapoartelor)

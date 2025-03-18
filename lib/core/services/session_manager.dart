@@ -1,11 +1,12 @@
 import 'dart:async';
+import 'package:camera/camera.dart';
 import 'package:driver_monitoring/core/enum/app_state.dart';
-import 'package:driver_monitoring/domain/repositories/camera_repository.dart';
+import 'package:driver_monitoring/core/services/face_detection_service.dart';
+import 'package:driver_monitoring/presentation/providers/camera_provider.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:driver_monitoring/core/utils/app_logger.dart';
 import 'package:driver_monitoring/domain/entities/session_report.dart';
-import 'package:driver_monitoring/domain/entities/alert.dart';
 import 'package:driver_monitoring/presentation/providers/settings_provider.dart';
 import 'session_timer.dart';
 import 'pause_manager.dart';
@@ -13,10 +14,11 @@ import 'alert_manager.dart';
 
 class SessionManager extends ChangeNotifier {
   final SettingsProvider settingsProvider;
+  final CameraProvider cameraProvider;
+  final FaceDetectionService faceDetectionService;
   final SessionTimer sessionTimer;
   final PauseManager pauseManager;
   final AlertManager alertManager;
-  final CameraRepository cameraRepository; // ADD repo field
 
   AppState _appState = AppState.idle;
   AppState get appState => _appState;
@@ -26,10 +28,11 @@ class SessionManager extends ChangeNotifier {
 
   SessionManager({
     required this.settingsProvider,
+    required this.cameraProvider,
+    required this.faceDetectionService,
     required this.sessionTimer,
     required this.pauseManager,
     required this.alertManager,
-    required this.cameraRepository, // ADD repo in constructor
   });
 
   bool get isIdle => _appState == AppState.idle;
@@ -42,13 +45,17 @@ class SessionManager extends ChangeNotifier {
   Future<void> startMonitoring() async {
     if (!isIdle) return;
 
-    appLogger.i('[SessionManager] Moving to ACTIVE state...');
-    _appState = AppState.active;
+    appLogger.i('[SessionManager] Initializing state...');
+    _appState = AppState.initializing;
+    notifyListeners();
 
-    /// 🟦 Inițializează camera
-    //await cameraRepository.initializeCamera();
-    //appLogger.i('[SessionManager] Camera initialized');
+    // 1️⃣ Initialize camera
+    await _initializeCamera();
 
+    // 2️⃣ Prepare Face Detection
+    faceDetectionService.reset();
+
+    // 3️⃣ Create session report
     _currentSession = SessionReport(
       id: 'session-${DateTime.now().microsecondsSinceEpoch}',
       timestamp: DateTime.now(),
@@ -71,6 +78,8 @@ class SessionManager extends ChangeNotifier {
     );
 
     sessionTimer.addListener(_onTimerTick);
+    appLogger.i('[SessionManager] Moving to ACTIVE state...');
+    _appState = AppState.active;
 
     notifyListeners();
   }
@@ -78,16 +87,22 @@ class SessionManager extends ChangeNotifier {
   Future<SessionReport?> stopMonitoring() async {
     if (!isActive && !isPaused) return null;
 
-    appLogger.i('[SessionManager] Moving to IDLE state...');
-    _appState = AppState.idle;
+    appLogger.i('[SessionManager] Moving to STOPPING state...');
+    _appState = AppState.stopping;
+    notifyListeners();
 
-    /// 🟦 Dezactivezi camera
-    //await cameraRepository.disposeCamera();
-    //appLogger.i('[SessionManager] Camera disposed');
+    // 1️⃣ Stop camera feed
+    await cameraProvider.stopCamera();
 
+    // 2️⃣ Cleanup face detection
+    faceDetectionService.reset();
+
+    // 3️⃣ Stop timers & alerts
     sessionTimer.stop();
+    sessionTimer.removeListener(_onTimerTick);
     pauseManager.stopPause();
-
+    alertManager.stopAlert();
+    // 4️⃣ Close session
     final session = _currentSession?.copyWith(
       durationMinutes: sessionTimer.elapsedTime.inMinutes,
       alerts: alertManager.alerts,
@@ -96,6 +111,9 @@ class SessionManager extends ChangeNotifier {
 
     _currentSession = null;
     sessionTimer.reset();
+
+    appLogger.i('[SessionManager] Moving to IDLE state...');
+    _appState= AppState.idle;
 
     notifyListeners();
     return session;
@@ -116,17 +134,27 @@ class SessionManager extends ChangeNotifier {
   Future<void> resumeMonitoring() async {
     if (!isPaused) return;
 
-    appLogger.i('[SessionManager] Resuming from PAUSED to ACTIVE...');
+    appLogger.i('[SessionManager] Resuming to ACTIVE...');
     _appState = AppState.active;
 
     pauseManager.stopPause();
-
     notifyListeners();
   }
 
-  void addAlert(Alert alert) {
-    alertManager.addAlert(alert);
-    notifyListeners();
+  Future<void> _initializeCamera() async {
+    cameraProvider.updateImageCallback((inputImage) {
+      faceDetectionService.processImage(inputImage);
+      if (faceDetectionService.closedEyesDetected) {
+        _triggerDrowsinessAlert();
+      }
+    });
+    await cameraProvider.initialize(CameraLensDirection.front);
+  }
+
+  void _triggerDrowsinessAlert() {
+    appLogger.w('[SessionManager] Drowsiness detected, triggering alert!');
+
+    alertManager.triggerAlert(type: 'Both eyes closed', severity: 1);
   }
 
   void _onTimerTick() {
@@ -141,12 +169,7 @@ class SessionManager extends ChangeNotifier {
     appLogger
         .w('[SessionManager] Session timer expired! Triggering break alert.');
 
-    addAlert(Alert(
-      id: 'timeout-${DateTime.now().microsecondsSinceEpoch}',
-      timestamp: DateTime.now(),
-      severity: 0.0,
-      type: 'Session timer expired! Please take a break!',
-    ));
+    alertManager.triggerAlert(type: 'Countdown Finished', severity: 0);
   }
 
   @override
