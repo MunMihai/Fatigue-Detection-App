@@ -48,7 +48,7 @@ class ReportDetailedPage extends StatelessWidget {
                         style: AppTextStyles.timer),
                     Text('Fatigue level: ${sessionReport.fatigueLevelLabel}',
                         style: AppTextStyles.timer),
-                    Text('Fatigue level: ${sessionReport.retentionMonths}',
+                    Text('Retention for: ${sessionReport.retentionMonths} months',
                         style: AppTextStyles.timer),
                   ],
                 ),

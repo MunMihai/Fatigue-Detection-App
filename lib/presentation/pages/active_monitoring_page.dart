@@ -10,16 +10,16 @@ class ActiveMonitoringWrapperPage extends StatefulWidget {
   const ActiveMonitoringWrapperPage({super.key});
 
   @override
-  State<ActiveMonitoringWrapperPage> createState() => _ActiveMonitoringWrapperState();
+  State<ActiveMonitoringWrapperPage> createState() =>
+      _ActiveMonitoringWrapperState();
 }
 
 class _ActiveMonitoringWrapperState extends State<ActiveMonitoringWrapperPage> {
   int _selectedIndex = 0;
 
-
   final List<Widget> _pages = const [
-    MainMonitoringView(), 
-    SizedBox(),       
+    MainMonitoringView(),
+    SizedBox(),
     CameraCalibrationView(),
   ];
 
@@ -30,7 +30,9 @@ class _ActiveMonitoringWrapperState extends State<ActiveMonitoringWrapperPage> {
       return;
     }
 
-    if (appState == AppState.active || appState == AppState.paused || appState == AppState.alertness) {
+    if (appState == AppState.active ||
+        appState == AppState.paused ||
+        appState == AppState.alertness) {
       setState(() {
         _selectedIndex = index;
       });

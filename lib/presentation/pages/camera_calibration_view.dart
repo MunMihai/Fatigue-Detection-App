@@ -13,11 +13,18 @@ class CameraCalibrationView extends StatelessWidget {
     final cameraProvider = context.watch<CameraProvider>();
     final faceDetectionProvider = context.watch<FaceDetectionService>();
 
+        // ✅ Verificare de siguranță pe controller
+    final controller = cameraProvider.controller;
+    final isReady = cameraProvider.isCameraReady && 
+                    controller != null && 
+                    controller.value.isInitialized;
+
     return Scaffold(
       appBar: CustomAppBar(title: 'Camera Calibration'),
-      body: !cameraProvider.isCameraReady
+      body: !isReady
           ? const Center(child: CircularProgressIndicator())
           : Stack(
+            fit: StackFit.expand,
               children: [
                 CameraPreview(
                   cameraProvider.controller!,
@@ -64,7 +71,7 @@ class CameraCalibrationView extends StatelessWidget {
     return Positioned(
       bottom: 16,
       left: 16,
-      right: 16,
+      right: 80,
       child: Column(
         children: [
           const Text('Zoom', style: TextStyle(color: Colors.white)),

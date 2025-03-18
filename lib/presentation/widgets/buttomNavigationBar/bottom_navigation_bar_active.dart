@@ -52,7 +52,7 @@ class BottomNavBarActive extends StatelessWidget {
                 const SnackBar(content: Text('Session saved successfully!')),
               );
 
-              context.go('/'); // sau navigator.pop()
+              context.go('/');
             } else {
               if (!context.mounted) return;
 
@@ -62,7 +62,7 @@ class BottomNavBarActive extends StatelessWidget {
             }
           }
 
-          return; // ieșim după terminarea procesului de stop
+          return; 
         }
 
         if (onItemTapped != null) {
@@ -71,7 +71,8 @@ class BottomNavBarActive extends StatelessWidget {
       },
       items: [
         BottomNavigationBarItem(
-          icon: const Icon(Icons.visibility),
+          icon: const Icon(Icons.visibility_outlined),
+          activeIcon: const Icon(Icons.visibility),
           label: 'Main',
         ),
         BottomNavigationBarItem(
@@ -97,8 +98,9 @@ class BottomNavBarActive extends StatelessWidget {
           label: 'Exit',
         ),
         BottomNavigationBarItem(
-          icon: const Icon(Icons.info_outline_rounded),
-          label: 'Info',
+          icon: const Icon(Icons.settings_applications_outlined),
+          activeIcon: const Icon(Icons.settings_applications),
+          label: 'Calibration',
         ),
       ],
     );

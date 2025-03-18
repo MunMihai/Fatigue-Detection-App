@@ -27,6 +27,7 @@ class BottomNavBarIDLE extends StatelessWidget {
           currentIndex: currentIndex,
           onTap: (index) {
             if (index == currentIndex) return;
+            if (index == 1 && !isReportsEnabled) return;
 
             onItemTapped(index);
           },

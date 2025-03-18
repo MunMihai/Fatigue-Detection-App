@@ -1,3 +1,4 @@
+import 'package:driver_monitoring/core/utils/app_logger.dart';
 import 'package:driver_monitoring/core/utils/date_time_extension.dart';
 import 'package:driver_monitoring/domain/entities/alert.dart';
 import 'package:driver_monitoring/domain/entities/alert_density_point.dart';
@@ -21,10 +22,22 @@ class ChartDataUtils {
       ),
     );
 
+    double cumulativeSeverity = 0;
+
     for (int i = 0; i < sortedAlerts.length; i++) {
       final alert = sortedAlerts[i];
-      final elapsedMinutes = alert.timestamp.difference(sessionStartTime).inMinutes;
-      final double density = elapsedMinutes > 0 ? (i + 1) / elapsedMinutes : 0;
+      final elapsedMinutes =
+          alert.timestamp.difference(sessionStartTime).inMinutes;
+
+      cumulativeSeverity += alert.severity;
+
+      // 🔸 Densitatea pe minut: severitate cumulată raportată la timp
+      final double density = elapsedMinutes > 0
+          ? cumulativeSeverity / elapsedMinutes
+          : cumulativeSeverity;
+
+      appLogger.d(
+          '🚀 Density point [$i]: severity=$cumulativeSeverity, time=$elapsedMinutes min, density=$density');
 
       controlPoints.add(
         AlertDensityPoint(
@@ -38,15 +51,17 @@ class ChartDataUtils {
       );
     }
 
-    final totalAlerts = sortedAlerts.length;
-    final double finalDensity = durationMinutes > 0 ? totalAlerts / durationMinutes : 0;
+    final double finalDensity =
+        durationMinutes > 0 ? cumulativeSeverity / durationMinutes : 0;
 
     controlPoints.add(
       AlertDensityPoint(
-        nr: totalAlerts,
+        nr: sortedAlerts.length,
         density: finalDensity,
         alertType: 'End',
-        alertTime: sessionStartTime.add(Duration(minutes: durationMinutes)).toFormattedTime(),
+        alertTime: sessionStartTime
+            .add(Duration(minutes: durationMinutes))
+            .toFormattedTime(),
         timeLabel: '${durationMinutes}min',
         minute: durationMinutes,
       ),
@@ -73,15 +88,17 @@ class ChartDataUtils {
       for (int m = minuteStart; m < minuteEnd; m += step) {
         final double t = (m - minuteStart) / (minuteEnd - minuteStart);
 
-        final double interpolatedDensity = _lerp(current.density, next.density, t);
+        final double interpolatedDensity =
+            _lerp(current.density, next.density, t);
         final int interpolatedNr = _lerpInt(current.nr, next.nr, t);
-        
+
         result.add(
           AlertDensityPoint(
             nr: interpolatedNr,
             density: interpolatedDensity,
             alertType: current.alertType,
-            alertTime: sessionStartTime.add(Duration(minutes: m)).toFormattedTime(),
+            alertTime:
+                sessionStartTime.add(Duration(minutes: m)).toFormattedTime(),
             timeLabel: '${m}min',
             minute: m,
           ),

@@ -4,56 +4,56 @@
     "reportId": "1",
     "type": "Frequent Blinking",
     "timestamp": "2025-04-05T00:15:00Z",
-    "severity": 0.012
+    "severity": 1
   },
   {
     "id": "1-2",
     "reportId": "1",
     "type": "Excessive Yawning",
     "timestamp": "2025-04-05T00:40:00Z",
-    "severity": 0.016
+    "severity": 1
   },
   {
     "id": "2-1",
     "reportId": "2",
     "type": "Micro-Sleep",
     "timestamp": "2025-05-06T00:30:00Z",
-    "severity": 0.0071
+    "severity": 1
   },
   {
     "id": "3-1",
     "reportId": "3",
     "type": "Frequent Blinking",
     "timestamp": "2025-05-07T00:20:00Z",
-    "severity": 0.045
+    "severity": 1
   },
   {
     "id": "3-2",
     "reportId": "3",
     "type": "Excessive Yawning",
     "timestamp": "2025-05-07T00:50:00Z",
-    "severity": 0.058
+    "severity": 1
   },
   {
     "id": "3-3",
     "reportId": "3",
     "type": "Head Tilting",
     "timestamp": "2025-05-07T01:30:00Z",
-    "severity": 0.068
+    "severity": 1
   },
   {
     "id": "4-1",
     "reportId": "4",
     "type": "Micro-Sleep",
     "timestamp": "2025-05-08T00:25:00Z",
-    "severity": 0.065
+    "severity": 1
   },
   {
     "id": "4-2",
     "reportId": "4",
     "type": "Frequent Blinking",
     "timestamp": "2025-05-08T00:50:00Z",
-    "severity": 0.075
+    "severity": 1
   },
   {
     "id": "5-1",
@@ -165,34 +165,34 @@
     "reportId": "13",
     "type": "Frequent Blinking",
     "timestamp": "2025-05-17T00:20:00Z",
-    "severity": 0.085
+    "severity": 1
   },
   {
     "id": "13-2",
     "reportId": "13",
     "type": "Micro-Sleep",
     "timestamp": "2025-05-17T00:30:00Z",
-    "severity": 0.088
+    "severity": 1
   },
   {
     "id": "13-3",
     "reportId": "13",
     "type": "Head Tilting",
     "timestamp": "2025-05-17T01:15:00Z",
-    "severity": 0.090
+    "severity": 1
   },
   {
     "id": "13-4",
     "reportId": "13",
     "type": "Excessive Yawning",
     "timestamp": "2025-05-17T01:50:00Z",
-    "severity": 0.095
+    "severity": 1
   },
   {
     "id": "13-5",
     "reportId": "13",
     "type": "Micro-Sleep",
     "timestamp": "2025-05-17T02:30:00Z",
-    "severity": 0.094
+    "severity": 1
   }
 ]
