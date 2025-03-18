@@ -19,8 +19,6 @@ class MainMonitoringView extends StatelessWidget {
       builder: (context, sessionManager, child) {
         final score = sessionManager.alertManager.averageSeverity;
 
-        /// Stări actualizate
-        final isMonitoring = sessionManager.isActive;
         final isPaused = sessionManager.isPaused;
 
         final elapsedTime = sessionManager.sessionTimer.elapsedTime;
@@ -35,21 +33,18 @@ class MainMonitoringView extends StatelessWidget {
               children: [
                 AppSpaceses.verticalLarge,
 
-                /// Fatigue level
                 Text('Fatigue Level', style: AppTextStyles.h2),
                 AppSpaceses.verticalSmall,
                 FatigueLevelIndicator(score: score),
 
                 AppSpaceses.verticalLarge,
 
-                /// Recommendations
                 Text('Recommendations', style: AppTextStyles.h2),
                 AppSpaceses.verticalMedium,
                 RecommendationCard(score: score),
 
                 AppSpaceses.verticalLarge,
 
-                /// Info cards for breaks & time
                 Row(
                   children: [
                     InfoCard(
@@ -79,8 +74,6 @@ class MainMonitoringView extends StatelessWidget {
 
                 AppSpaceses.verticalMedium,
 
-                /// Button: Pause/Resume Monitoring
-                if (isMonitoring || isPaused)
                   PrimaryButton(
                     title: isPaused ? 'RESUME Monitoring' : 'PAUSE Monitoring',
                     onPressed: () async {

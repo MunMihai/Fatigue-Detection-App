@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 
 class CameraProvider extends ChangeNotifier {
-  // 🔧 Scoatem final ca să fie mutabil
   Function(InputImage inputImage)? onImageAvailable;
 
   static List<CameraDescription> _cameras = [];
@@ -23,7 +22,8 @@ class CameraProvider extends ChangeNotifier {
   CameraProvider({this.onImageAvailable});
 
   CameraController? get controller => _controller;
-  bool get isCameraReady => _controller != null && _controller!.value.isInitialized;
+  bool get isCameraReady =>
+      _controller != null && _controller!.value.isInitialized;
   bool get isChangingLens => _changingCameraLens;
 
   double get currentZoom => _currentZoomLevel;
@@ -34,7 +34,6 @@ class CameraProvider extends ChangeNotifier {
   double get minExposure => _minAvailableExposureOffset;
   double get maxExposure => _maxAvailableExposureOffset;
 
-  // ✅ Adaugă metoda de actualizare a callback-ului
   void updateImageCallback(Function(InputImage inputImage) callback) {
     onImageAvailable = callback;
   }
@@ -53,10 +52,10 @@ class CameraProvider extends ChangeNotifier {
       if (_cameraIndex != -1) {
         await _startLiveFeed();
       } else {
-        debugPrint('❌ Cameră nu a fost găsită');
+        debugPrint('❌ Camera not found');
       }
     } catch (e) {
-      debugPrint('❌ Eroare la inițializare cameră: $e');
+      debugPrint('❌ Error during camera initialization: $e');
     }
   }
 
@@ -142,13 +141,15 @@ class CameraProvider extends ChangeNotifier {
         DeviceOrientation.landscapeRight: 270,
       };
 
-      var rotationCompensation = orientations[_controller!.value.deviceOrientation];
+      var rotationCompensation =
+          orientations[_controller!.value.deviceOrientation];
       if (rotationCompensation == null) return null;
 
       if (camera.lensDirection == CameraLensDirection.front) {
         rotationCompensation = (sensorOrientation + rotationCompensation) % 360;
       } else {
-        rotationCompensation = (sensorOrientation - rotationCompensation + 360) % 360;
+        rotationCompensation =
+            (sensorOrientation - rotationCompensation + 360) % 360;
       }
 
       rotation = InputImageRotationValue.fromRawValue(rotationCompensation);

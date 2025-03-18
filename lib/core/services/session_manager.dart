@@ -176,7 +176,7 @@ class SessionManager extends ChangeNotifier {
   }
 
   void _onTimerTick() {
-    if (sessionTimer.countdownFinished) {
+    if (sessionTimer.countdownFinished && settingsProvider.isCounterEnabled) {
       _handleCountdownFinished();
     }
 

@@ -6,16 +6,17 @@ import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 
 class FaceDetectionService extends ChangeNotifier {
   final FaceDetector _faceDetector;
+
   final CameraLensDirection _cameraLensDirection = CameraLensDirection.front;
 
   bool _canProcess = true;
-  bool _isBusy = false;
+  bool _isProcessing = false;
 
   CustomPaint? _customPaint;
-  String? _text;
+  String? _detectionText;
 
-  int closedEyesFrames = 0;
-  final int thresholdClosedFrames = 10;
+  int closedEyesFrameCounter = 0;
+  static const int closedEyesFrameThreshold = 10;
 
   FaceDetectionService()
       : _faceDetector = FaceDetector(
@@ -27,59 +28,58 @@ class FaceDetectionService extends ChangeNotifier {
           ),
         );
 
-  bool get closedEyesDetected => closedEyesFrames >= thresholdClosedFrames;
+  bool get closedEyesDetected => closedEyesFrameCounter >= closedEyesFrameThreshold;
+
   CustomPaint? get customPaint => _customPaint;
-  String? get text => _text;
-  
+  String? get detectionText => _detectionText;
+
   void reset() {
     appLogger.i('[FaceDetectionService] Resetting...');
-    closedEyesFrames = 0;
+    closedEyesFrameCounter = 0;
     _customPaint = null;
-    _text = '';
+    _detectionText = '';
     notifyListeners();
   }
 
   Future<void> processImage(InputImage inputImage) async {
-    if (!_canProcess || _isBusy) return;
-    _isBusy = true;
+    if (!_canProcess || _isProcessing) return;
 
-    _text = '';
+    _isProcessing = true;
+    _detectionText = '';
 
     final faces = await _faceDetector.processImage(inputImage);
 
-    String eyesStatus = '';
+    String eyeStatusText = '';
 
     for (final face in faces) {
-      final leftProb = face.leftEyeOpenProbability;
-      final rightProb = face.rightEyeOpenProbability;
+      final leftEyeOpenProb = face.leftEyeOpenProbability;
+      final rightEyeOpenProb = face.rightEyeOpenProbability;
 
-      if (leftProb != null && rightProb != null) {
-        final isLeftEyeClosed = leftProb < 0.5;
-        final isRightEyeClosed = rightProb < 0.5;
+      if (leftEyeOpenProb != null && rightEyeOpenProb != null) {
+        final isLeftEyeClosed = leftEyeOpenProb < 0.5;
+        final isRightEyeClosed = rightEyeOpenProb < 0.5;
 
         if (isLeftEyeClosed && isRightEyeClosed) {
-          closedEyesFrames++;
-          eyesStatus += '⚠️ Ambii ochi închiși! Frame: $closedEyesFrames\n';
-          appLogger.w(eyesStatus);
+          closedEyesFrameCounter++;
+          eyeStatusText += '⚠️ Both eyes closed! Frame: $closedEyesFrameCounter\n';
+          appLogger.w(eyeStatusText);
         } else {
-          eyesStatus += '👁️ Ochi deschiși:\n';
-          eyesStatus += ' - Stâng: ${leftProb.toStringAsFixed(2)}\n';
-          eyesStatus += ' - Drept: ${rightProb.toStringAsFixed(2)}\n';
-          appLogger.i(eyesStatus);
+          eyeStatusText += '👁️ Eyes open:\n';
+          eyeStatusText += ' - Left: ${leftEyeOpenProb.toStringAsFixed(2)}\n';
+          eyeStatusText += ' - Right: ${rightEyeOpenProb.toStringAsFixed(2)}\n';
+          appLogger.i(eyeStatusText);
 
-          closedEyesFrames = 0;
+          closedEyesFrameCounter = 0;
         }
       } else {
-        eyesStatus += '🔍 Probabilități indisponibile pentru ochi.\n';
-        appLogger.w(eyesStatus);
+        eyeStatusText += '🔍 Eye probabilities unavailable. Adjust face position.\n';
+        appLogger.w(eyeStatusText);
 
-        closedEyesFrames++;
+        closedEyesFrameCounter++;
       }
-
-      eyesStatus += 'Face bounds: ${face.boundingBox}\n\n';
     }
 
-    _text = 'Faces found: ${faces.length}\n\n$eyesStatus';
+    _detectionText = 'Faces found: ${faces.length}\n\n$eyeStatusText';
 
     if (inputImage.metadata?.size != null &&
         inputImage.metadata?.rotation != null) {
@@ -94,7 +94,7 @@ class FaceDetectionService extends ChangeNotifier {
       _customPaint = null;
     }
 
-    _isBusy = false;
+    _isProcessing = false;
     notifyListeners();
   }
 

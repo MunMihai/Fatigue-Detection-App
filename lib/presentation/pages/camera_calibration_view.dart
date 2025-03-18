@@ -32,7 +32,7 @@ class CameraCalibrationView extends StatelessWidget {
                 ),
                 if (cameraProvider.isChangingLens)
                   const Center(child: CircularProgressIndicator()),
-                _buildOverlayText(faceDetectionProvider.text),
+                _buildOverlayText(faceDetectionProvider.detectionText),
                 _switchCameraButton(context, cameraProvider),
                 _zoomSlider(cameraProvider),
                 _exposureSlider(cameraProvider),
