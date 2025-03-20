@@ -21,7 +21,7 @@ class SessionManager extends ChangeNotifier {
   final PauseManager pauseManager;
   final AlertManager alertManager;
 
-  final int _faceDetectionTime = 60;
+  final int _faceDetectionTime = 61;
 
   AppState _appState = AppState.idle;
   AppState get appState => _appState;
@@ -123,7 +123,6 @@ class SessionManager extends ChangeNotifier {
     _appState = AppState.stopping;
     notifyListeners();
 
-    /// ✅ Oprești timerul de verificare a faței
     _faceDetectionTimeoutTimer?.cancel();
     _faceDetectionTimeoutTimer = null;
 

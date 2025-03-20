@@ -1,5 +1,6 @@
 import 'package:driver_monitoring/core/enum/alert_type.dart';
 import 'package:driver_monitoring/domain/entities/session_report.dart';
+import 'package:driver_monitoring/presentation/widgets/pulsing_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:driver_monitoring/core/services/session_manager.dart';
 import 'package:driver_monitoring/core/enum/app_state.dart';
@@ -14,6 +15,7 @@ class ActiveSessionProvider extends ChangeNotifier {
   final BuildContext context;
 
   bool _hasSavedSession = false;
+  bool _isAlertDialogShown = false;
 
   int selectedIndex = 0;
 
@@ -112,7 +114,39 @@ class ActiveSessionProvider extends ChangeNotifier {
     );
   }
 
+  void _showAlertnessDialog() {
+    if (_isAlertDialogShown) return;
+    appLogger.i(
+        '[ActiveSessionProvider] ALERTNESS state detected! Showing alert dialog.');
+    _isAlertDialogShown = true;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const PulsingAlertOverlay(),
+    ).then((_) {
+      _isAlertDialogShown = false;
+    });
+  }
+
+  void _closeAlertnessDialog() {
+    if (!_isAlertDialogShown) return;
+
+    appLogger.i(
+        '[ActiveSessionProvider] ALERTNESS state ended! Closing alert dialog.');
+
+    _isAlertDialogShown = false;
+    if (context.mounted && Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+      _isAlertDialogShown = false;
+    }
+  }
+
   void _handleSessionStateChange() async {
+    final isAlert = sessionManager.appState == AppState.alertness;
+
+    if (isAlert != _isAlertDialogShown) {
+      isAlert ? _showAlertnessDialog() : _closeAlertnessDialog();
+    }
     if (sessionManager.stopping && !_hasSavedSession) {
       appLogger.i(
           '[ActiveSessionProvider] Session stopping. Preparing to save session report...');
