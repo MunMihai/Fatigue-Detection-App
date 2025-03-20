@@ -24,7 +24,9 @@ class ActiveSessionProvider extends ChangeNotifier {
   }) {
     appLogger.i('[ActiveSessionProvider] CREATED');
     sessionManager.addListener(_handleSessionStateChange);
+
     sessionManager.onSessionTimeout = _onSessionTimeout;
+    sessionManager.onTimeRemainingNotification = _onTimeRemainingNotification;
   }
 
   @override
@@ -32,11 +34,11 @@ class ActiveSessionProvider extends ChangeNotifier {
     appLogger.w('[ActiveSessionProvider] DESTROYED');
     sessionManager.removeListener(_handleSessionStateChange);
     sessionManager.onSessionTimeout = null;
+    sessionManager.onTimeRemainingNotification = null;
     _hasSavedSession = false;
     super.dispose();
   }
 
-  /// Select item logic (navigare între pagini)
   void onItemTapped(int index) {
     final appState = sessionManager.appState;
 
@@ -65,12 +67,12 @@ class ActiveSessionProvider extends ChangeNotifier {
 
     final shouldStop = await showConfirmationDialog(
       context: context,
-      title: 'Break Time!',
+      title: 'Out Of Time',
       message:
-          'The session countdown has finished. Do you want to stop monitoring?',
+          'The allocated monitoring time has expired!\n Do you want to stop monitoring session or continue?',
       confirmText: 'STOP',
       cancelText: 'CONTINUE',
-      showIcon: true,
+      showIcon: false,
     );
 
     if (!context.mounted) return;
@@ -79,22 +81,35 @@ class ActiveSessionProvider extends ChangeNotifier {
       appLogger.i(
           '[ActiveSessionProvider] User chose to stop session after timeout.');
 
-      /// Stop session flow complet (cu raport + navigare)
       _stopSessionFlow();
     } else {
       appLogger.i('[ActiveSessionProvider] User chose to continue session.');
 
-      /// 🟢 Oprim alerta
-      sessionManager.alertManager.stopAlert(type: AlertType.sessionExpired.name);
+      sessionManager.alertManager
+          .stopAlert(type: AlertType.sessionExpired.name);
 
-      /// 🟢 (Opțional) schimbi starea dacă era în alertness și nu mai e necesar
       if (sessionManager.appState == AppState.alertness) {
-        sessionManager.resumeMonitoring(); // Dacă ai o funcție de resume
+        sessionManager.resumeMonitoring();
       }
 
-      /// Sau, doar notifici că s-a oprit alerta
       notifyListeners();
     }
+  }
+
+  Future<void> _onTimeRemainingNotification(int minutesLeft) async {
+    if (!context.mounted) return;
+
+    appLogger.i(
+        '[ActiveSessionProvider] Handling remaining time notification: $minutesLeft minutes left.');
+
+    await showConfirmationDialog(
+      context: context,
+      title: 'Time Reminder',
+      cancelText: 'OK',
+      message:
+          'You have $minutesLeft minutes remaining before the monitoring session ends!',
+      showIcon: false,
+    );
   }
 
   void _handleSessionStateChange() async {
@@ -122,8 +137,9 @@ class ActiveSessionProvider extends ChangeNotifier {
       context: context,
       title: 'Stop Monitoring',
       confirmText: 'STOP',
+      cancelText: 'Cancel',
       message:
-          'Are you sure you want to stop monitoring? Stopping monitoring will interrupt all alerts and stop recording the current session.',
+          'Are you sure you want to stop monitoring?\n Stopping monitoring will interrupt all alerts and stop recording the current session.',
       showIcon: false,
     );
 

@@ -29,10 +29,14 @@ class SessionManager extends ChangeNotifier {
   SessionReport? _currentSession;
   int _breaksCount = 0;
   Timer? _faceDetectionTimeoutTimer;
+
   VoidCallback? onSessionTimeout;
-  VoidCallback? onThirtyMinutesLeft;
-  VoidCallback? onFifteenMinutesLeft;
+  ValueChanged<int>? onTimeRemainingNotification;
+
+
   bool _hasTriggeredTimeout = false;
+  bool _notifiedThirtyMinutes = false;
+  bool _notifiedFifteenMinutes = false;
 
   SessionManager({
     required this.settingsProvider,
@@ -78,6 +82,8 @@ class SessionManager extends ChangeNotifier {
     alertManager.clearAlerts();
     pauseManager.reset();
     _hasTriggeredTimeout = false;
+    _notifiedThirtyMinutes = false;
+    _notifiedFifteenMinutes = false;
 
     sessionTimer.start(
       countdownDuration: Duration(
@@ -206,6 +212,22 @@ class SessionManager extends ChangeNotifier {
   }
 
   void _onTimerTick() {
+    final countdownRemaining = sessionTimer.remainingTime;
+
+    if (!_notifiedFifteenMinutes && countdownRemaining.inMinutes == 15) {
+      if (!_notifiedThirtyMinutes && countdownRemaining.inMinutes == 30) {
+        _notifiedThirtyMinutes = true;
+        appLogger
+            .i('[SessionManager]30 minutes remaining notification triggered.');
+        onTimeRemainingNotification?.call(30);
+      } else {
+        _notifiedFifteenMinutes = true;
+        appLogger
+            .i('[SessionManager]15 minutes remaining notification triggered.');
+        onTimeRemainingNotification?.call(15);
+      }
+    }
+    // Countdown finished
     if (sessionTimer.countdownFinished && settingsProvider.isCounterEnabled) {
       _handleCountdownFinished();
     }
@@ -220,8 +242,7 @@ class SessionManager extends ChangeNotifier {
     appLogger
         .w('[SessionManager] Session timer expired! Triggering break alert.');
 
-    alertManager.triggerAlert(
-        type: AlertType.sessionExpired.name, severity: 0);
+    alertManager.triggerAlert(type: AlertType.sessionExpired.name, severity: 0);
 
     onSessionTimeout?.call();
   }
