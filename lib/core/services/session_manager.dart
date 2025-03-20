@@ -52,7 +52,7 @@ class SessionManager extends ChangeNotifier {
 
     await _initializeCamera();
 
-    faceDetectionService.reset(settingsProvider.sessionSensibility);
+    faceDetectionService.reset(settingsProvider.sessionSensitivity);
 
     _currentSession = SessionReport(
       id: 'session-${DateTime.now().microsecondsSinceEpoch}',
@@ -91,7 +91,7 @@ class SessionManager extends ChangeNotifier {
     notifyListeners();
 
 
-    faceDetectionService.reset(settingsProvider.sessionSensibility);
+    faceDetectionService.reset(settingsProvider.sessionSensitivity);
 
     sessionTimer.removeListener(_onTimerTick);
     pauseManager.stopPause();

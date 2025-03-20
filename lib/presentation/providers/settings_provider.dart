@@ -10,7 +10,7 @@ class SettingsProvider extends ChangeNotifier {
   int _retentionMonths = 0;
   int _savedHours = 0;
   int _savedMinutes = 0;
-  int _sessionSensibility = 0;
+  int _sessionSensitivity = 0;
 
   // Getters publici
   bool get isCounterEnabled => _isCounterEnabled;
@@ -18,7 +18,7 @@ class SettingsProvider extends ChangeNotifier {
   int get retentionMonths => _retentionMonths;
   int get savedHours => _savedHours;
   int get savedMinutes => _savedMinutes;
-  int get sessionSensibility => _sessionSensibility;
+  int get sessionSensitivity => _sessionSensitivity;
 
   /// Inițializare settings + încărcare valori
   Future<void> loadSettings() async {
@@ -29,14 +29,14 @@ class SettingsProvider extends ChangeNotifier {
     _retentionMonths = _prefs.getInt('reports_retention_months') ?? 12;
     _savedHours = _prefs.getInt('alarm_time_hours') ?? 2;
     _savedMinutes = _prefs.getInt('alarm_time_minutes') ?? 0;
-    _sessionSensibility = _prefs.getInt('_session_sensibility') ?? 5;
+    _sessionSensitivity = _prefs.getInt('_session_sensibility') ?? 5;
 
     appLogger.i('🔧 Settings loaded');
     appLogger.i('   ▸ Counter enabled: $_isCounterEnabled');
     appLogger.i('   ▸ Reports section enabled: $_isReportsSectionEnabled');
     appLogger.i('   ▸ Retention months: $_retentionMonths');
     appLogger.i('   ▸ Alarm time: $_savedHours h $_savedMinutes min');
-    appLogger.i('   ▸ Sensibility: $sessionSensibility');
+    appLogger.i('   ▸ Sensibility: $_sessionSensitivity');
 
     notifyListeners();
   }
@@ -126,11 +126,11 @@ class SettingsProvider extends ChangeNotifier {
   }
 
   Future<void> updateSessionSensibility(int value) async {
-    _sessionSensibility = value;
+    _sessionSensitivity = value;
 
-    await _prefs.setInt('_session_sensibility', _sessionSensibility);
+    await _prefs.setInt('_session_sensibility', _sessionSensitivity);
 
-    appLogger.i('🎛️ Session sensitivity updated → $_sessionSensibility');
+    appLogger.i('🎛️ Session sensitivity updated → $_sessionSensitivity');
 
     notifyListeners();
   }
