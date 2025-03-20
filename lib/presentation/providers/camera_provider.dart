@@ -17,14 +17,14 @@ class CameraProvider extends ChangeNotifier {
   double _minAvailableExposureOffset = 0.0;
   double _maxAvailableExposureOffset = 0.0;
   double _currentExposureOffset = 0.0;
-  bool _changingCameraLens = false;
+
+  bool _isCameraStarting = false;
 
   CameraProvider({this.onImageAvailable});
 
   CameraController? get controller => _controller;
   bool get isCameraReady =>
       _controller != null && _controller!.value.isInitialized;
-  bool get isChangingLens => _changingCameraLens;
 
   double get currentZoom => _currentZoomLevel;
   double get minZoom => _minAvailableZoom;
@@ -39,23 +39,26 @@ class CameraProvider extends ChangeNotifier {
   }
 
   Future<void> initialize(CameraLensDirection lensDirection) async {
+    if (_isCameraStarting) return;
+
     try {
+      _isCameraStarting = true;
       _cameras = await availableCameras();
 
-      for (var i = 0; i < _cameras.length; i++) {
-        if (_cameras[i].lensDirection == lensDirection) {
-          _cameraIndex = i;
-          break;
-        }
+      final matchingIndex =
+          _cameras.indexWhere((cam) => cam.lensDirection == lensDirection);
+
+      if (matchingIndex == -1) {
+        debugPrint('❌ Camera with specified lens direction not found.');
+        return;
       }
 
-      if (_cameraIndex != -1) {
-        await _startLiveFeed();
-      } else {
-        debugPrint('❌ Camera not found');
-      }
+      _cameraIndex = matchingIndex;
+      await _startLiveFeed();
     } catch (e) {
-      debugPrint('❌ Error during camera initialization: $e');
+      debugPrint('❌ Camera initialization error: $e');
+    } finally {
+      _isCameraStarting = false;
     }
   }
 
@@ -71,50 +74,61 @@ class CameraProvider extends ChangeNotifier {
           : ImageFormatGroup.bgra8888,
     );
 
-    await _controller?.initialize();
+    try {
+      await _controller!.initialize();
 
-    _currentZoomLevel = await _controller!.getMinZoomLevel();
-    _minAvailableZoom = _currentZoomLevel;
-    _maxAvailableZoom = await _controller!.getMaxZoomLevel();
+      _currentZoomLevel = await _controller!.getMinZoomLevel();
+      _minAvailableZoom = _currentZoomLevel;
+      _maxAvailableZoom = await _controller!.getMaxZoomLevel();
 
-    _minAvailableExposureOffset = await _controller!.getMinExposureOffset();
-    _maxAvailableExposureOffset = await _controller!.getMaxExposureOffset();
+      _minAvailableExposureOffset = await _controller!.getMinExposureOffset();
+      _maxAvailableExposureOffset = await _controller!.getMaxExposureOffset();
 
-    await _controller!.startImageStream(_processCameraImage);
+      await _controller!.startImageStream(_processCameraImage);
 
-    notifyListeners();
+      notifyListeners();
+    } catch (e) {
+      debugPrint('❌ Failed to start camera live feed: $e');
+      await stopCamera();
+    }
   }
 
   Future<void> stopCamera() async {
-    await _controller?.stopImageStream();
-    await _controller?.dispose();
-    _controller = null;
-    notifyListeners();
-  }
+    if (_controller != null) {
+      try {
+        if (_controller!.value.isStreamingImages) {
+          await _controller!.stopImageStream();
+        }
 
-  Future<void> switchCamera() async {
-    _changingCameraLens = true;
-    notifyListeners();
-
-    _cameraIndex = (_cameraIndex + 1) % _cameras.length;
-
-    await stopCamera();
-    await _startLiveFeed();
-
-    _changingCameraLens = false;
-    notifyListeners();
+        await _controller!.dispose();
+        debugPrint('✅ Camera stopped and disposed.');
+      } catch (e) {
+        debugPrint('❌ Error stopping camera: $e');
+      } finally {
+        _controller = null;
+        notifyListeners();
+      }
+    }
   }
 
   Future<void> setZoomLevel(double value) async {
     _currentZoomLevel = value;
-    await _controller?.setZoomLevel(value);
-    notifyListeners();
+    try {
+      await _controller?.setZoomLevel(value);
+      notifyListeners();
+    } catch (e) {
+      debugPrint('❌ Failed to set zoom: $e');
+    }
   }
 
   Future<void> setExposureOffset(double value) async {
     _currentExposureOffset = value;
-    await _controller?.setExposureOffset(value);
-    notifyListeners();
+    try {
+      await _controller?.setExposureOffset(value);
+      notifyListeners();
+    } catch (e) {
+      debugPrint('❌ Failed to set exposure: $e');
+    }
   }
 
   void _processCameraImage(CameraImage image) {

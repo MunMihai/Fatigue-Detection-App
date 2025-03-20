@@ -17,8 +17,8 @@ class LandingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+        child: ListView(
+          // mainAxisAlignment: MainAxisAlignment.start,
           children: [
             AppSpaceses.verticalLarge,
             Container(
@@ -55,60 +55,69 @@ class LandingPage extends StatelessWidget {
               ),
             ),
             AppSpaceses.verticalExtraLarge,
-            PrimaryButton(
-                title: 'Start navigation',
-                onPressed: () async {
-                  final permissionsService = context.read<PermissionsService>();
-                  // final cameraManager = context.read<CameraManager>();
-
-                  final permissionStatus = await permissionsService
-                      .requestCameraPermissionWithStatus();
-
-                  if (!context.mounted) return;
-
-                  switch (permissionStatus) {
-                    case PermissionStatus.granted:
-                      // await cameraManager.initializeCamera();
-                      if (!context.mounted) return;
-                      context.go('/');
-                      break;
-
-                    case PermissionStatus.permanentlyDenied:
-                      final opened = await openAppSettings();
-                      if (!context.mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            opened
-                                ? 'Please enable camera permission in settings.'
-                                : 'Could not open app settings.',
+            FractionallySizedBox(
+              widthFactor: 0.9,
+              child: PrimaryButton(
+                  title: 'Start navigation',
+                  onPressed: () async {
+                    final permissionsService = context.read<PermissionsService>();
+                    // final cameraManager = context.read<CameraManager>();
+              
+                    final permissionStatus = await permissionsService
+                        .requestCameraPermissionWithStatus();
+              
+                    if (!context.mounted) return;
+              
+                    switch (permissionStatus) {
+                      case PermissionStatus.granted:
+                        // await cameraManager.initializeCamera();
+                        if (!context.mounted) return;
+                        context.go('/');
+                        break;
+              
+                      case PermissionStatus.permanentlyDenied:
+                        final opened = await openAppSettings();
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              opened
+                                  ? 'Please enable camera permission in settings.'
+                                  : 'Could not open app settings.',
+                            ),
                           ),
-                        ),
-                      );
-                      break;
-
-                    default:
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content:
-                              Text('Camera permission is required to proceed.'),
-                        ),
-                      );
-                  }
-                }),
+                        );
+                        break;
+              
+                      default:
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content:
+                                Text('Camera permission is required to proceed.'),
+                          ),
+                        );
+                    }
+                  }),
+            ),
             AppSpaceses.verticalLarge,
-            ElevatedButton(
+            FractionallySizedBox(
+              widthFactor: 0.6, // 80% din ecran
+              child: ElevatedButton(
                 onPressed: () => context.go('/fags'),
                 style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        Theme.of(context).colorScheme.secondaryButton,
-                    foregroundColor:
-                        Theme.of(context).colorScheme.onSecondaryButton,
-                    minimumSize: const Size(244, 40)),
+                  backgroundColor:
+                      Theme.of(context).colorScheme.secondaryButton,
+                  foregroundColor:
+                      Theme.of(context).colorScheme.onSecondaryButton,
+                  minimumSize: const Size(0, 40), // sau Size.zero
+                ),
                 child: Text(
                   'Check FAQs',
                   style: AppTextStyles.h3,
-                ))
+                ),
+              ),
+            ),
+            AppSpaceses.verticalLarge
           ],
         ),
       ),

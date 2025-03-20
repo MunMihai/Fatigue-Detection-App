@@ -52,7 +52,7 @@ class SessionManager extends ChangeNotifier {
 
     await _initializeCamera();
 
-    faceDetectionService.reset();
+    faceDetectionService.reset(settingsProvider.sessionSensibility);
 
     _currentSession = SessionReport(
       id: 'session-${DateTime.now().microsecondsSinceEpoch}',
@@ -90,9 +90,8 @@ class SessionManager extends ChangeNotifier {
     _appState = AppState.stopping;
     notifyListeners();
 
-    await cameraProvider.stopCamera();
 
-    faceDetectionService.reset();
+    faceDetectionService.reset(settingsProvider.sessionSensibility);
 
     sessionTimer.removeListener(_onTimerTick);
     pauseManager.stopPause();
@@ -106,6 +105,7 @@ class SessionManager extends ChangeNotifier {
 
     _currentSession = null;
     sessionTimer.reset();
+    await cameraProvider.stopCamera();
 
     appLogger.i('[SessionManager] Moving to IDLE state...');
     _appState = AppState.idle;

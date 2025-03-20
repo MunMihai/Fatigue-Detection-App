@@ -4,8 +4,8 @@ import 'package:driver_monitoring/core/services/session_manager.dart';
 import 'package:driver_monitoring/presentation/providers/settings_provider.dart';
 import 'package:driver_monitoring/presentation/widgets/app_bar.dart';
 import 'package:driver_monitoring/presentation/widgets/buttons/arrow_button.dart';
-import 'package:driver_monitoring/presentation/widgets/buttons/camera_connection_statut_button.dart';
 import 'package:driver_monitoring/presentation/widgets/buttons/main_monitoring_button.dart';
+import 'package:driver_monitoring/presentation/widgets/sensibility_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -27,21 +27,14 @@ class HomeView extends StatelessWidget {
           children: [
             AppSpaceses.verticalLarge,
 
-            /// Title
             Text('Set Up your system', style: AppTextStyles.h2),
 
             AppSpaceses.verticalMedium,
 
-            /// Camera status button (External Camera Setup)
-            CameraStatusButton(
-              title: 'External Camera',
-              status: 'Connect',
-              onPressed: () {},
-            ),
+            const SensibilitySlider(),
 
             AppSpaceses.verticalMedium,
 
-            /// Advanced Settings
             ArrowButton(
               title: 'Advanced Settings',
               onPressed: () {

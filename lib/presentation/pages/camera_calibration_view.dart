@@ -13,56 +13,54 @@ class CameraCalibrationView extends StatelessWidget {
     final cameraProvider = context.watch<CameraProvider>();
     final faceDetectionProvider = context.watch<FaceDetectionService>();
 
-        // ✅ Verificare de siguranță pe controller
     final controller = cameraProvider.controller;
-    final isReady = cameraProvider.isCameraReady && 
-                    controller != null && 
-                    controller.value.isInitialized;
 
     return Scaffold(
       appBar: CustomAppBar(title: 'Camera Calibration'),
-      body: !isReady
-          ? const Center(child: CircularProgressIndicator())
-          : Stack(
-            fit: StackFit.expand,
-              children: [
-                CameraPreview(
-                  cameraProvider.controller!,
-                  child: faceDetectionProvider.customPaint,
-                ),
-                if (cameraProvider.isChangingLens)
-                  const Center(child: CircularProgressIndicator()),
-                _buildOverlayText(faceDetectionProvider.detectionText),
-                _switchCameraButton(context, cameraProvider),
-                _zoomSlider(cameraProvider),
-                _exposureSlider(cameraProvider),
-              ],
+      body: controller == null
+          ? const Center(child: Text('Camera not initialized'))
+          : ValueListenableBuilder<CameraValue>(
+              valueListenable: controller,
+              builder: (context, value, child) {
+                if (!value.isInitialized) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                return Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    CameraPreview(
+                      controller,
+                      child: faceDetectionProvider.customPaint,
+                    ),
+                    _buildOverlayText(faceDetectionProvider.detectionText),
+                    _zoomSlider(cameraProvider),
+                    _exposureSlider(cameraProvider),
+                  ],
+                );
+              },
             ),
     );
   }
 
   Widget _buildOverlayText(String? text) {
+    if (text == null || text.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
     return Positioned(
       bottom: 100,
       left: 10,
-      child: text != null
-          ? Container(
-              padding: const EdgeInsets.all(8),
-              color: Colors.black54,
-              child: Text(text, style: const TextStyle(color: Colors.white)),
-            )
-          : const SizedBox.shrink(),
-    );
-  }
-
-  Widget _switchCameraButton(BuildContext context, CameraProvider provider) {
-    return Positioned(
-      bottom: 8,
-      right: 8,
-      child: FloatingActionButton(
-        onPressed: provider.switchCamera,
-        backgroundColor: Colors.black54,
-        child: const Icon(Icons.switch_camera, color: Colors.white),
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.black54,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Text(
+          text,
+          style: const TextStyle(color: Colors.white),
+        ),
       ),
     );
   }
@@ -71,8 +69,9 @@ class CameraCalibrationView extends StatelessWidget {
     return Positioned(
       bottom: 16,
       left: 16,
-      right: 80,
+      right: 16,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('Zoom', style: TextStyle(color: Colors.white)),
           Slider(

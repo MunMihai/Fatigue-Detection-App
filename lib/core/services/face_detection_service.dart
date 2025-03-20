@@ -16,7 +16,10 @@ class FaceDetectionService extends ChangeNotifier {
   String? _detectionText;
 
   int closedEyesFrameCounter = 0;
-  static const int closedEyesFrameThreshold = 10;
+  static int _closedEyesFrameThreshold = 0;
+
+  DateTime? _lastProcessTime;
+  static const int _minProcessDelayMs = 100; // 100ms => 10 FPS
 
   FaceDetectionService()
       : _faceDetector = FaceDetector(
@@ -28,15 +31,17 @@ class FaceDetectionService extends ChangeNotifier {
           ),
         );
 
-  bool get closedEyesDetected => closedEyesFrameCounter >= closedEyesFrameThreshold;
+  bool get closedEyesDetected =>
+      closedEyesFrameCounter >= _closedEyesFrameThreshold;
 
   CustomPaint? get customPaint => _customPaint;
   String? get detectionText => _detectionText;
 
-  void reset() {
+  void reset(int sensitivity) {
     appLogger.i('[FaceDetectionService] Resetting...');
     closedEyesFrameCounter = 0;
     _customPaint = null;
+    _closedEyesFrameThreshold  = 11 - sensitivity;
     _detectionText = '';
     notifyListeners();
   }
@@ -44,47 +49,68 @@ class FaceDetectionService extends ChangeNotifier {
   Future<void> processImage(InputImage inputImage) async {
     if (!_canProcess || _isProcessing) return;
 
+    final currentTime = DateTime.now();
+    if (_lastProcessTime != null &&
+        currentTime.difference(_lastProcessTime!).inMilliseconds <
+            _minProcessDelayMs) {
+      return;
+    }
+    _lastProcessTime = currentTime;
+
     _isProcessing = true;
     _detectionText = '';
 
     final faces = await _faceDetector.processImage(inputImage);
 
     String eyeStatusText = '';
-
-    for (final face in faces) {
-      final leftEyeOpenProb = face.leftEyeOpenProbability;
-      final rightEyeOpenProb = face.rightEyeOpenProbability;
-
-      if (leftEyeOpenProb != null && rightEyeOpenProb != null) {
-        final isLeftEyeClosed = leftEyeOpenProb < 0.5;
-        final isRightEyeClosed = rightEyeOpenProb < 0.5;
-
-        if (isLeftEyeClosed && isRightEyeClosed) {
-          closedEyesFrameCounter++;
-          eyeStatusText += '⚠️ Both eyes closed! Frame: $closedEyesFrameCounter\n';
-          appLogger.w(eyeStatusText);
-        } else {
-          eyeStatusText += '👁️ Eyes open:\n';
-          eyeStatusText += ' - Left: ${leftEyeOpenProb.toStringAsFixed(2)}\n';
-          eyeStatusText += ' - Right: ${rightEyeOpenProb.toStringAsFixed(2)}\n';
-          appLogger.i(eyeStatusText);
-
-          closedEyesFrameCounter = 0;
-        }
-      } else {
-        eyeStatusText += '🔍 Eye probabilities unavailable. Adjust face position.\n';
-        appLogger.w(eyeStatusText);
-
-        closedEyesFrameCounter++;
-      }
+    if (faces.isEmpty) {
+      _detectionText = 'No face detected';
+      _customPaint = null;
+      _isProcessing = false;
+      notifyListeners();
+      return;
     }
 
-    _detectionText = 'Faces found: ${faces.length}\n\n$eyeStatusText';
+    // ✅ Process the largest face only
+    faces.sort((a, b) => b.boundingBox.height.compareTo(a.boundingBox.height));
+    final face = faces.first;
+
+    final leftEyeOpenProb = face.leftEyeOpenProbability;
+    final rightEyeOpenProb = face.rightEyeOpenProbability;
+
+    if (leftEyeOpenProb != null && rightEyeOpenProb != null) {
+      final isLeftEyeClosed = leftEyeOpenProb < 0.5;
+      final isRightEyeClosed = rightEyeOpenProb < 0.5;
+
+      if (isLeftEyeClosed && isRightEyeClosed) {
+        closedEyesFrameCounter++;
+        eyeStatusText +=
+            '⚠️ Both eyes closed! Frame: $closedEyesFrameCounter\n';
+        appLogger.w(eyeStatusText);
+      } else {
+        eyeStatusText += '👁️ Eyes open:\n';
+        eyeStatusText += ' - Left: ${leftEyeOpenProb.toStringAsFixed(2)}\n';
+        eyeStatusText += ' - Right: ${rightEyeOpenProb.toStringAsFixed(2)}\n';
+        appLogger.i(eyeStatusText);
+
+        closedEyesFrameCounter = 0;
+      }
+    } else {
+      eyeStatusText +=
+          '🔍 Eye probabilities unavailable. Adjust face position.\n';
+      appLogger.w(eyeStatusText);
+
+      closedEyesFrameCounter++;
+    }
+
+    eyeStatusText += 'Face bounds: ${face.boundingBox}\n\n';
+
+    _detectionText = 'Face found\n\n$eyeStatusText';
 
     if (inputImage.metadata?.size != null &&
         inputImage.metadata?.rotation != null) {
       final painter = FaceDetectorPainter(
-        faces,
+        [face],
         inputImage.metadata!.size,
         inputImage.metadata!.rotation,
         _cameraLensDirection,

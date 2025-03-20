@@ -10,6 +10,7 @@ class SettingsProvider extends ChangeNotifier {
   int _retentionMonths = 0;
   int _savedHours = 0;
   int _savedMinutes = 0;
+  int _sessionSensibility = 0;
 
   // Getters publici
   bool get isCounterEnabled => _isCounterEnabled;
@@ -17,6 +18,7 @@ class SettingsProvider extends ChangeNotifier {
   int get retentionMonths => _retentionMonths;
   int get savedHours => _savedHours;
   int get savedMinutes => _savedMinutes;
+  int get sessionSensibility => _sessionSensibility;
 
   /// Inițializare settings + încărcare valori
   Future<void> loadSettings() async {
@@ -27,12 +29,14 @@ class SettingsProvider extends ChangeNotifier {
     _retentionMonths = _prefs.getInt('reports_retention_months') ?? 12;
     _savedHours = _prefs.getInt('alarm_time_hours') ?? 2;
     _savedMinutes = _prefs.getInt('alarm_time_minutes') ?? 0;
+    _sessionSensibility = _prefs.getInt('_session_sensibility') ?? 5;
 
     appLogger.i('🔧 Settings loaded');
     appLogger.i('   ▸ Counter enabled: $_isCounterEnabled');
     appLogger.i('   ▸ Reports section enabled: $_isReportsSectionEnabled');
     appLogger.i('   ▸ Retention months: $_retentionMonths');
     appLogger.i('   ▸ Alarm time: $_savedHours h $_savedMinutes min');
+    appLogger.i('   ▸ Sensibility: $sessionSensibility');
 
     notifyListeners();
   }
@@ -117,6 +121,16 @@ class SettingsProvider extends ChangeNotifier {
     await _prefs.setInt('reports_retention_months', _retentionMonths);
 
     appLogger.i('📅 Retention decreased by year → $_retentionMonths');
+
+    notifyListeners();
+  }
+
+  Future<void> updateSessionSensibility(int value) async {
+    _sessionSensibility = value;
+
+    await _prefs.setInt('_session_sensibility', _sessionSensibility);
+
+    appLogger.i('🎛️ Session sensitivity updated → $_sessionSensibility');
 
     notifyListeners();
   }
