@@ -21,11 +21,14 @@ class SessionManager extends ChangeNotifier {
   final PauseManager pauseManager;
   final AlertManager alertManager;
 
+  final int _faceDetectionTime = 60;
+
   AppState _appState = AppState.idle;
   AppState get appState => _appState;
 
   SessionReport? _currentSession;
   int _breaksCount = 0;
+  Timer? _faceDetectionTimeoutTimer;
 
   SessionManager({
     required this.settingsProvider,
@@ -39,13 +42,14 @@ class SessionManager extends ChangeNotifier {
   bool get isIdle => _appState == AppState.idle;
   bool get isActive => _appState == AppState.active;
   bool get isPaused => _appState == AppState.paused;
+  bool get stopping => _appState == AppState.stopping;
+  bool get initializing => _appState == AppState.initializing;
 
   int get breaksCount => _breaksCount;
   SessionReport? get currentSession => _currentSession;
 
   Future<void> startMonitoring() async {
     if (!isIdle) return;
-
     appLogger.i('[SessionManager] Initializing state...');
     _appState = AppState.initializing;
     notifyListeners();
@@ -77,8 +81,25 @@ class SessionManager extends ChangeNotifier {
     );
 
     sessionTimer.addListener(_onTimerTick);
+
     appLogger.i('[SessionManager] Moving to ACTIVE state...');
     _appState = AppState.active;
+
+    _faceDetectionTimeoutTimer =
+        Timer.periodic(const Duration(seconds: 5), (_) {
+      final elapsedSinceLastFace =
+          DateTime.now().difference(faceDetectionService.lastFaceDetectedTime);
+
+      if (elapsedSinceLastFace.inSeconds >= _faceDetectionTime && !isPaused) {
+        appLogger.w(
+            '[SessionManager] No face detected for ${elapsedSinceLastFace.inSeconds} seconds. Stopping session...');
+
+        stopMonitoring();
+      } else {
+        appLogger.i(
+            '[SessionManager] Last face detected ${elapsedSinceLastFace.inSeconds} seconds ago.');
+      }
+    });
 
     notifyListeners();
   }
@@ -90,6 +111,9 @@ class SessionManager extends ChangeNotifier {
     _appState = AppState.stopping;
     notifyListeners();
 
+    /// ✅ Oprești timerul de verificare a faței
+    _faceDetectionTimeoutTimer?.cancel();
+    _faceDetectionTimeoutTimer = null;
 
     faceDetectionService.reset(settingsProvider.sessionSensitivity);
 
@@ -206,6 +230,7 @@ class SessionManager extends ChangeNotifier {
 
   @override
   void dispose() {
+    _faceDetectionTimeoutTimer?.cancel();
     sessionTimer.removeListener(_onTimerTick);
     super.dispose();
   }

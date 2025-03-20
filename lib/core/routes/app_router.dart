@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:driver_monitoring/core/services/session_manager.dart';
 import 'package:driver_monitoring/core/utils/page_transitions.dart';
 import 'package:driver_monitoring/presentation/pages/all_session_reports_page.dart';
 import 'package:driver_monitoring/presentation/pages/not_found_page.dart';
@@ -6,6 +7,7 @@ import 'package:driver_monitoring/presentation/pages/report_detailed_page.dart';
 import 'package:driver_monitoring/presentation/pages/landing_page.dart';
 import 'package:driver_monitoring/presentation/pages/active_monitoring_page.dart';
 import 'package:driver_monitoring/presentation/pages/idle_wrapper_page.dart';
+import 'package:driver_monitoring/presentation/providers/active_session_provider.dart';
 import 'package:driver_monitoring/presentation/providers/session_report_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -52,8 +54,15 @@ class AppRouter {
       },
     ),
     GoRoute(
-      path: '/activeMonitoring/main',
-      builder: (context, state) => const ActiveMonitoringWrapperPage(),
+      path: '/monitoring',
+      builder: (context, state) => ChangeNotifierProvider(
+        create: (_) => ActiveSessionProvider(
+          sessionManager: context.read<SessionManager>(),
+          sessionReportProvider: context.read<SessionReportProvider>(),
+          context: context, // ⚠️ Ai grijă că e contextul corect aici!
+        ),
+        child: const ActiveMonitoringWrapperPage(),
+      ),
     ),
   ]);
 }

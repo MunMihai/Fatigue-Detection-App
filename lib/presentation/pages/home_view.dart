@@ -52,7 +52,7 @@ class HomeView extends StatelessWidget {
 
                   if (!context.mounted) return;
 
-                  context.go('/activeMonitoring/main');
+                  context.go('/monitoring');
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Session already active!')),

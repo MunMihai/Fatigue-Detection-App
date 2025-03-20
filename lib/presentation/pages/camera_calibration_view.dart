@@ -17,7 +17,7 @@ class CameraCalibrationView extends StatelessWidget {
 
     return Scaffold(
       appBar: CustomAppBar(title: 'Camera Calibration'),
-      body: controller == null
+      body: controller == null || !controller.value.isInitialized
           ? const Center(child: Text('Camera not initialized'))
           : ValueListenableBuilder<CameraValue>(
               valueListenable: controller,
@@ -29,10 +29,13 @@ class CameraCalibrationView extends StatelessWidget {
                 return Stack(
                   fit: StackFit.expand,
                   children: [
-                    CameraPreview(
-                      controller,
-                      child: faceDetectionProvider.customPaint,
-                    ),
+                    if (controller.value.isStreamingImages)
+                      CameraPreview(
+                        controller,
+                        child: faceDetectionProvider.customPaint,
+                      )
+                    else
+                      const Center(child: Text('Camera stopped')),
                     _buildOverlayText(faceDetectionProvider.detectionText),
                     _zoomSlider(cameraProvider),
                     _exposureSlider(cameraProvider),

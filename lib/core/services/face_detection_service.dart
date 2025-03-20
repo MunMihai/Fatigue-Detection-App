@@ -18,6 +18,8 @@ class FaceDetectionService extends ChangeNotifier {
   int closedEyesFrameCounter = 0;
   static int _closedEyesFrameThreshold = 0;
 
+  DateTime _lastFaceDetectedTime = DateTime.now();
+
   DateTime? _lastProcessTime;
   static const int _minProcessDelayMs = 100; // 100ms => 10 FPS
 
@@ -34,6 +36,8 @@ class FaceDetectionService extends ChangeNotifier {
   bool get closedEyesDetected =>
       closedEyesFrameCounter >= _closedEyesFrameThreshold;
 
+  DateTime get lastFaceDetectedTime => _lastFaceDetectedTime;
+
   CustomPaint? get customPaint => _customPaint;
   String? get detectionText => _detectionText;
 
@@ -41,8 +45,9 @@ class FaceDetectionService extends ChangeNotifier {
     appLogger.i('[FaceDetectionService] Resetting...');
     closedEyesFrameCounter = 0;
     _customPaint = null;
-    _closedEyesFrameThreshold  = 11 - sensitivity;
+    _closedEyesFrameThreshold = 11 - sensitivity;
     _detectionText = '';
+    _lastFaceDetectedTime = DateTime.now();
     notifyListeners();
   }
 
@@ -70,6 +75,7 @@ class FaceDetectionService extends ChangeNotifier {
       notifyListeners();
       return;
     }
+    _lastFaceDetectedTime = DateTime.now(); // ✅ actualizezi aici
 
     // ✅ Process the largest face only
     faces.sort((a, b) => b.boundingBox.height.compareTo(a.boundingBox.height));

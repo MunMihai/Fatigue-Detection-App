@@ -1,24 +1,19 @@
-import 'package:driver_monitoring/core/services/session_manager.dart';
-import 'package:driver_monitoring/core/utils/color_scheme_extensions.dart';
-import 'package:driver_monitoring/core/utils/show_confiramtion_dialog.dart';
-import 'package:driver_monitoring/presentation/providers/session_report_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:driver_monitoring/presentation/providers/active_session_provider.dart';
+import 'package:driver_monitoring/core/utils/color_scheme_extensions.dart';
 import 'package:provider/provider.dart';
 
 class BottomNavBarActive extends StatelessWidget {
   final int currentIndex;
-  final Function(int index)? onItemTapped;
 
   const BottomNavBarActive({
     super.key,
     required this.currentIndex,
-    this.onItemTapped,
   });
 
   @override
   Widget build(BuildContext context) {
-    final sessionManager = context.watch<SessionManager>();
+    final sessionProvider = context.read<ActiveSessionProvider>();
 
     return BottomNavigationBar(
       backgroundColor: Theme.of(context).colorScheme.primary,
@@ -26,49 +21,7 @@ class BottomNavBarActive extends StatelessWidget {
       unselectedItemColor: Theme.of(context).colorScheme.inactiveIcon,
       iconSize: 30,
       currentIndex: currentIndex,
-      onTap: (index) async {
-        if (index == currentIndex) return;
-
-        if (index == 1) {
-          final confirmed = await showConfirmationDialog(
-            context: context,
-            title: 'Stop Monitoring',
-            confirmText: 'STOP',
-            message:
-                'Are you sure you want to stop monitoring? Stopping monitoring will interrupt all alerts and stop recording the current session.',
-            showIcon: false,
-          );
-
-          if (confirmed) {
-            if(!context.mounted) return;
-            final sessionReportProvider = context.read<SessionReportProvider>();
-            final finishedSession = await sessionManager.stopMonitoring();
-
-            if (finishedSession != null) {
-              await sessionReportProvider.addReport(finishedSession);
-              if (!context.mounted) return;
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Session saved successfully!')),
-              );
-
-              context.go('/');
-            } else {
-              if (!context.mounted) return;
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('No active session to stop!')),
-              );
-            }
-          }
-
-          return; 
-        }
-
-        if (onItemTapped != null) {
-          onItemTapped!(index);
-        }
-      },
+      onTap: sessionProvider.onItemTapped,
       items: [
         BottomNavigationBarItem(
           icon: const Icon(Icons.visibility_outlined),

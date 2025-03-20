@@ -10,7 +10,7 @@ class SettingsProvider extends ChangeNotifier {
   int _retentionMonths = 0;
   int _savedHours = 0;
   int _savedMinutes = 0;
-  int _sessionSensitivity = 0;
+  int _sessionSensitivity = 5;
 
   // Getters publici
   bool get isCounterEnabled => _isCounterEnabled;
