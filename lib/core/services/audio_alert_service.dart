@@ -6,29 +6,27 @@ class AudioAlertService {
   DateTime? _lastAlertTime;
   final Duration _alertCooldown = Duration(seconds: 5);
 
-  // Instanța corectă conform noii versiuni
   final FlutterRingtonePlayer _ringtonePlayer = FlutterRingtonePlayer();
 
-    void triggerAlert() async {
+  void triggerAlert() async {
     final now = DateTime.now();
 
     if (_lastAlertTime != null && now.difference(_lastAlertTime!) < _alertCooldown) {
-      appLogger.d('⌛ Cooldown activ. Nu declanșăm alerta.');
+      appLogger.d('⌛ Cooldown active. Alert not triggered.');
       return;
     }
 
     if (_isAlertActive) {
-      appLogger.d('🚨 Alerta deja activă!');
+      appLogger.d('🚨 Alert already active!');
       return;
     }
 
     _isAlertActive = true;
     _lastAlertTime = now;
 
-    appLogger.w('🚨 ALERTĂ SONORĂ: Ambii ochi închiși detectați! 🚨');
+    appLogger.w('🚨 AUDIO ALERT: Both eyes closed detected! 🚨');
 
     try {
-      // Încerci să redai sunetul custom din assets
       await _ringtonePlayer.play(
         fromAsset: "assets/sounds/warning_1.mp3",
         looping: true,
@@ -36,10 +34,9 @@ class AudioAlertService {
         asAlarm: true,
       );
 
-      appLogger.i('🔊 Redare sunet custom din assets cu succes!');
+      appLogger.i('🔊 Custom asset sound playing successfully!');
     } catch (e) {
-      // Dacă fail, fallback la alerta default
-      appLogger.e('❌ Eroare redare asset. Fallback pe sunet sistem: $e');
+      appLogger.e('❌ Error playing custom asset. Falling back to system alarm sound: $e');
 
       try {
         await _ringtonePlayer.play(
@@ -50,21 +47,21 @@ class AudioAlertService {
           asAlarm: true,
         );
 
-        appLogger.w('🚨 ALERTĂ fallback pe sunetul sistemului!');
+        appLogger.w('🚨 Fallback alert playing using system sound!');
       } catch (fallbackError) {
-        appLogger.e('❌ Eroare fallback alertă: $fallbackError');
+        appLogger.e('❌ Error triggering fallback alert: $fallbackError');
       }
     }
   }
 
   void stopAlert() {
     if (!_isAlertActive) {
-      appLogger.d('✅ Nicio alertă activă de oprit.');
+      appLogger.d('✅ No active alert to stop.');
       return;
     }
 
     _isAlertActive = false;
-    appLogger.i('🛑 Alerta sonoră oprită.');
+    appLogger.i('🛑 Audio alert stopped.');
 
     _ringtonePlayer.stop();
   }

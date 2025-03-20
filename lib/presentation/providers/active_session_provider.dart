@@ -1,3 +1,4 @@
+import 'package:driver_monitoring/core/enum/alert_type.dart';
 import 'package:driver_monitoring/domain/entities/session_report.dart';
 import 'package:flutter/material.dart';
 import 'package:driver_monitoring/core/services/session_manager.dart';
@@ -23,12 +24,14 @@ class ActiveSessionProvider extends ChangeNotifier {
   }) {
     appLogger.i('[ActiveSessionProvider] CREATED');
     sessionManager.addListener(_handleSessionStateChange);
+    sessionManager.onSessionTimeout = _onSessionTimeout;
   }
 
   @override
   void dispose() {
     appLogger.w('[ActiveSessionProvider] DESTROYED');
     sessionManager.removeListener(_handleSessionStateChange);
+    sessionManager.onSessionTimeout = null;
     _hasSavedSession = false;
     super.dispose();
   }
@@ -55,8 +58,47 @@ class ActiveSessionProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> _onSessionTimeout() async {
+    if (!context.mounted) return;
+
+    appLogger.i('[ActiveSessionProvider] Handling session timeout...');
+
+    final shouldStop = await showConfirmationDialog(
+      context: context,
+      title: 'Break Time!',
+      message:
+          'The session countdown has finished. Do you want to stop monitoring?',
+      confirmText: 'STOP',
+      cancelText: 'CONTINUE',
+      showIcon: true,
+    );
+
+    if (!context.mounted) return;
+
+    if (shouldStop) {
+      appLogger.i(
+          '[ActiveSessionProvider] User chose to stop session after timeout.');
+
+      /// Stop session flow complet (cu raport + navigare)
+      _stopSessionFlow();
+    } else {
+      appLogger.i('[ActiveSessionProvider] User chose to continue session.');
+
+      /// 🟢 Oprim alerta
+      sessionManager.alertManager.stopAlert(type: AlertType.sessionExpired.name);
+
+      /// 🟢 (Opțional) schimbi starea dacă era în alertness și nu mai e necesar
+      if (sessionManager.appState == AppState.alertness) {
+        sessionManager.resumeMonitoring(); // Dacă ai o funcție de resume
+      }
+
+      /// Sau, doar notifici că s-a oprit alerta
+      notifyListeners();
+    }
+  }
+
   void _handleSessionStateChange() async {
-    if (sessionManager.stopping && !_hasSavedSession ) {
+    if (sessionManager.stopping && !_hasSavedSession) {
       appLogger.i(
           '[ActiveSessionProvider] Session stopping. Preparing to save session report...');
 
@@ -89,7 +131,7 @@ class ActiveSessionProvider extends ChangeNotifier {
       appLogger.i('[ActiveSessionProvider] Stop session canceled by user.');
       return;
     }
-    
+
     _hasSavedSession = true;
     final finishedSession = await sessionManager.stopMonitoring();
 

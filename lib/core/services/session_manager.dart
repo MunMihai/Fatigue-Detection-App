@@ -29,6 +29,10 @@ class SessionManager extends ChangeNotifier {
   SessionReport? _currentSession;
   int _breaksCount = 0;
   Timer? _faceDetectionTimeoutTimer;
+  VoidCallback? onSessionTimeout;
+  VoidCallback? onThirtyMinutesLeft;
+  VoidCallback? onFifteenMinutesLeft;
+  bool _hasTriggeredTimeout = false;
 
   SessionManager({
     required this.settingsProvider,
@@ -44,6 +48,7 @@ class SessionManager extends ChangeNotifier {
   bool get isPaused => _appState == AppState.paused;
   bool get stopping => _appState == AppState.stopping;
   bool get initializing => _appState == AppState.initializing;
+  bool get isAlerting => _appState == AppState.alertness;
 
   int get breaksCount => _breaksCount;
   SessionReport? get currentSession => _currentSession;
@@ -72,6 +77,7 @@ class SessionManager extends ChangeNotifier {
     _breaksCount = 0;
     alertManager.clearAlerts();
     pauseManager.reset();
+    _hasTriggeredTimeout = false;
 
     sessionTimer.start(
       countdownDuration: Duration(
@@ -151,7 +157,7 @@ class SessionManager extends ChangeNotifier {
   }
 
   Future<void> resumeMonitoring() async {
-    if (!isPaused) return;
+    if (!isPaused && !isAlerting) return;
 
     appLogger.i('[SessionManager] Resuming to ACTIVE...');
     _appState = AppState.active;
@@ -179,7 +185,7 @@ class SessionManager extends ChangeNotifier {
       appLogger.w('[SessionManager] Drowsiness detected, triggering alert!');
 
       alertManager.triggerAlert(
-        type: AlertType.drowsiness.description,
+        type: AlertType.drowsiness.name,
         severity: 1,
       );
 
@@ -192,7 +198,7 @@ class SessionManager extends ChangeNotifier {
     if (_appState == AppState.alertness) {
       appLogger.i('[SessionManager] Eyes opened, stopping alert.');
 
-      alertManager.stopAlert();
+      alertManager.stopAlert(type: AlertType.drowsiness.name);
 
       _appState = AppState.active;
       notifyListeners();
@@ -208,11 +214,16 @@ class SessionManager extends ChangeNotifier {
   }
 
   void _handleCountdownFinished() {
+    if (_hasTriggeredTimeout) return;
+
+    _hasTriggeredTimeout = true;
     appLogger
         .w('[SessionManager] Session timer expired! Triggering break alert.');
 
     alertManager.triggerAlert(
-        type: AlertType.sessionExpired.description, severity: 0);
+        type: AlertType.sessionExpired.name, severity: 0);
+
+    onSessionTimeout?.call();
   }
 
   String _cameraLensDirectionToString(CameraLensDirection? direction) {

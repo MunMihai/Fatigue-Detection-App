@@ -20,7 +20,7 @@ class AlertManager extends ChangeNotifier {
 
   void clearAlerts() {
     _alerts.clear();
-    _activeAlertTypes.clear(); 
+    _activeAlertTypes.clear();
     notifyListeners();
   }
 
@@ -30,7 +30,7 @@ class AlertManager extends ChangeNotifier {
   }) {
     if (_activeAlertTypes.contains(type)) {
       appLogger.d('⚠️ Alert already active: $type');
-      return; 
+      return;
     }
 
     final alert = Alert(
@@ -49,15 +49,30 @@ class AlertManager extends ChangeNotifier {
   void stopAlert({
     String? type,
   }) {
-    appLogger.i('🛑 Stopping alert');
+    appLogger.i(
+        '🛑 Stopping alert${type != null ? ' of type: $type' : ' (all alerts)'}');
 
+    // Dacă oprești doar un anumit tip de alertă
     if (type != null) {
-      _activeAlertTypes.remove(type);
+      final wasRemoved = _activeAlertTypes.remove(type);
+
+      if (wasRemoved) {
+        appLogger.i('✅ Alert of type "$type" stopped.');
+      } else {
+        appLogger.w('⚠️ Tried to stop alert "$type", but it was not active.');
+      }
     } else {
       _activeAlertTypes.clear();
+      appLogger.i('✅ All alerts stopped.');
     }
 
-    _audioService.stopAlert();
+    // Dacă nu mai există alerte active, oprește sunetul.
+    if (_activeAlertTypes.isEmpty) {
+      appLogger.i('🛑 No more active alerts. Stopping audio.');
+      _audioService.stopAlert();
+    } else {
+      appLogger.i('ℹ️ Remaining active alerts: $_activeAlertTypes');
+    }
   }
 
   double _calculateAverageSeverity() {
@@ -68,6 +83,7 @@ class AlertManager extends ChangeNotifier {
 
   @override
   void dispose() {
+    _audioService.stopAlert();
     _audioService.dispose();
     super.dispose();
   }
