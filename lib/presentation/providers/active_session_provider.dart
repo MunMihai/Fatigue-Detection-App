@@ -8,6 +8,7 @@ import 'package:driver_monitoring/core/utils/app_logger.dart';
 import 'package:driver_monitoring/core/utils/show_confiramtion_dialog.dart';
 import 'package:driver_monitoring/presentation/providers/session_report_provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class ActiveSessionProvider extends ChangeNotifier {
   final SessionManager sessionManager;
@@ -25,6 +26,8 @@ class ActiveSessionProvider extends ChangeNotifier {
     required this.context,
   }) {
     appLogger.i('[ActiveSessionProvider] CREATED');
+    WakelockPlus.enable();
+
     sessionManager.addListener(_handleSessionStateChange);
 
     sessionManager.onSessionTimeout = _onSessionTimeout;
@@ -34,6 +37,9 @@ class ActiveSessionProvider extends ChangeNotifier {
   @override
   void dispose() {
     appLogger.w('[ActiveSessionProvider] DESTROYED');
+
+    WakelockPlus.disable();
+
     sessionManager.removeListener(_handleSessionStateChange);
     sessionManager.onSessionTimeout = null;
     sessionManager.onTimeRemainingNotification = null;

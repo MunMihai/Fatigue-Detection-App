@@ -14,7 +14,7 @@ class ActiveMonitoringWrapperPage extends StatelessWidget {
 
     final List<Widget> pages = const [
       MainMonitoringView(),
-      SizedBox(), // Index 1 (Exit) - not used as a page, handled as action
+      SizedBox(),
       CameraCalibrationView(),
     ];
 
