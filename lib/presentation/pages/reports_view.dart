@@ -33,34 +33,25 @@ class ReportsView extends StatelessWidget {
               return const Center(child: Text('No reports found.'));
             }
 
-            return Column(
-              children: [
-                AppSpaceses.verticalMedium,
-                SessionsReportsChart(reports: reports),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Sessions', style: AppTextStyles.h2),
-                    GestureDetector(
-                      onTap: () => context.push('/allSessions'),
-                      child: Text('View All', style: AppTextStyles.h4),
-                    ),
-                  ],
-                ),
-                AppSpaceses.verticalMedium,
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: reports.length >= 5 ? 5 : reports.length,
-                    itemBuilder: (context, index) {
-                      final reversedReports =
-                          reports.reversed.toList(); // inversăm lista
-                      final session = reversedReports[index]; // luăm ultimele 5
-                      return SessionCard(sessionReport: session);
-                    },
-                  ),
-                ),
-              ],
-            );
+            return ListView(
+  // padding: const EdgeInsets.symmetric(horizontal: 25),
+  children: [
+    SessionsReportsChart(reports: reports),
+    Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text('Sessions', style: AppTextStyles.h2),
+        GestureDetector(
+          onTap: () => context.push('/allSessions'),
+          child: Text('View All', style: AppTextStyles.h4),
+        ),
+      ],
+    ),
+    AppSpaceses.verticalMedium,
+    ...reports.reversed.take(5).map((session) => SessionCard(sessionReport: session)),
+  ],
+);
+
           },
         ),
       ),

@@ -31,7 +31,7 @@ class ReportDetailedPage extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 25),
         child: ListView(
           children: [
-            AppSpaceses.verticalLarge,
+            AppSpaceses.verticalSmall,
 
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,

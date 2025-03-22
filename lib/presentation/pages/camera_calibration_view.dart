@@ -70,9 +70,9 @@ class CameraCalibrationView extends StatelessWidget {
 
   Widget _zoomSlider(CameraProvider provider) {
     return Positioned(
-      bottom: 16,
-      left: 16,
-      right: 16,
+      bottom: 8,
+      left: 32,
+      right: 32,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -90,7 +90,7 @@ class CameraCalibrationView extends StatelessWidget {
 
   Widget _exposureSlider(CameraProvider provider) {
     return Positioned(
-      top: 50,
+      top: 8,
       right: 8,
       child: Column(
         children: [

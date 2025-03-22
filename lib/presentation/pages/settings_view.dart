@@ -21,10 +21,10 @@ class SettingsView extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
+          // crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AppSpaceses.verticalLarge,
+            AppSpaceses.verticalSmall,
             Text('Fatigue Counter', style: AppTextStyles.h2),
             AppSpaceses.verticalMedium,
             CustomSwitchTile(

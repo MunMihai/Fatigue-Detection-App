@@ -23,7 +23,7 @@ class FatigueLevelIndicator extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: 340,
+          width: double.infinity,
           height: 10,
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.primary,

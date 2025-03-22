@@ -32,64 +32,53 @@ class MainMonitoringView extends StatelessWidget {
             child: ListView(
               children: [
                 AppSpaceses.verticalLarge,
-
                 Text('Fatigue Level', style: AppTextStyles.h2),
                 AppSpaceses.verticalSmall,
                 FatigueLevelIndicator(score: score),
-
                 AppSpaceses.verticalLarge,
-
                 Text('Recommendations', style: AppTextStyles.h2),
                 AppSpaceses.verticalMedium,
                 RecommendationCard(score: score),
-
                 AppSpaceses.verticalLarge,
-
                 Row(
                   children: [
-                    InfoCard(
-                      title: 'Break Time',
-                      value: breakTime.inMinutes.toHoursAndMinutes(),
-                      width: 170,
-                      height: 100,
+                    Expanded(
+                      child: InfoCard(
+                        title: 'Break Time',
+                        value: breakTime.inMinutes.toHoursAndMinutes(),
+                      ),
                     ),
                     AppSpaceses.horizontalSmall,
-                    InfoCard(
-                      title: 'Breaks',
-                      value: '$breaksCount',
-                      width: 154,
-                      height: 100,
+                    Expanded(
+                      child: InfoCard(
+                        title: 'Breaks',
+                        value: '$breaksCount',
+                      ),
                     ),
                   ],
                 ),
-
                 AppSpaceses.verticalSmall,
-
                 InfoCard(
                   title: 'Total Session Time',
                   value: elapsedTime.inSeconds.toHoursMinutesAndSeconds(),
                   height: 100,
                   width: 340,
                 ),
-
                 AppSpaceses.verticalMedium,
-
-                  PrimaryButton(
-                    title: isPaused ? 'RESUME Monitoring' : 'PAUSE Monitoring',
-                    onPressed: () async {
-                      if (isPaused) {
-                        await sessionManager.resumeMonitoring();
-                      } else {
-                        await sessionManager.pauseMonitoring();
-                      }
-                    },
-                  ),
-
+                PrimaryButton(
+                  title: isPaused ? 'RESUME Monitoring' : 'PAUSE Monitoring',
+                  onPressed: () async {
+                    if (isPaused) {
+                      await sessionManager.resumeMonitoring();
+                    } else {
+                      await sessionManager.pauseMonitoring();
+                    }
+                  },
+                ),
                 AppSpaceses.verticalMedium,
               ],
             ),
           ),
-
         );
       },
     );
