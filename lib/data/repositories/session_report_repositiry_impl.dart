@@ -1,5 +1,5 @@
 import 'package:driver_monitoring/data/datasources/session_report_datasource.dart';
-import 'package:driver_monitoring/data/mappers/session_reports_mapper.dart';
+import 'package:driver_monitoring/data/models/session_report_model.dart';
 import 'package:driver_monitoring/domain/entities/session_report.dart';
 import 'package:driver_monitoring/domain/repositories/session_report_repository.dart';
 
@@ -18,13 +18,13 @@ class SessionReportRepositoryImpl implements SessionReportRepository {
 
   @override
   Future<void> addReport(SessionReport report) async {
-    final model = report.toModel();
+    final model = SessionReportModel.fromEntity(report);
     await dataSource.addReport(model);
   }
 
   @override
   Future<void> updateReport(SessionReport report) async {
-    final model = report.toModel();
+    final model = SessionReportModel.fromEntity(report);
     await dataSource.updateReport(model);
   }
 

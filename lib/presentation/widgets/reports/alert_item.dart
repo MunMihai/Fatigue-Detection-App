@@ -1,3 +1,4 @@
+import 'package:driver_monitoring/core/enum/alert_type.dart';
 import 'package:driver_monitoring/core/utils/date_time_extension.dart';
 import 'package:driver_monitoring/domain/entities/alert.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,8 @@ class AlertItem extends StatelessWidget {
           AppSpaceses.horizontalMedium,
           Expanded(
             child: Text(
-              alert.type,
+              AlertType.values.byName(alert.type).description,
+              // alert.type,
               style: AppTextStyles.h4,
             ),
           ),

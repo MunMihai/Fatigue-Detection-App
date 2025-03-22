@@ -32,25 +32,26 @@ class $SessionReportTableTable extends SessionReportTable
   late final GeneratedColumn<double> averageSeverity = GeneratedColumn<double>(
       'average_severity', aliasedName, false,
       type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _cameraMeta = const VerificationMeta('camera');
-  @override
-  late final GeneratedColumn<String> camera = GeneratedColumn<String>(
-      'camera', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _retentionMonthsMeta =
       const VerificationMeta('retentionMonths');
   @override
   late final GeneratedColumn<int> retentionMonths = GeneratedColumn<int>(
       'retention_months', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _expirationDateMeta =
+      const VerificationMeta('expirationDate');
+  @override
+  late final GeneratedColumn<DateTime> expirationDate =
+      GeneratedColumn<DateTime>('expiration_date', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
         id,
         timestamp,
         durationMinutes,
         averageSeverity,
-        camera,
-        retentionMonths
+        retentionMonths,
+        expirationDate
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -90,12 +91,6 @@ class $SessionReportTableTable extends SessionReportTable
     } else if (isInserting) {
       context.missing(_averageSeverityMeta);
     }
-    if (data.containsKey('camera')) {
-      context.handle(_cameraMeta,
-          camera.isAcceptableOrUnknown(data['camera']!, _cameraMeta));
-    } else if (isInserting) {
-      context.missing(_cameraMeta);
-    }
     if (data.containsKey('retention_months')) {
       context.handle(
           _retentionMonthsMeta,
@@ -103,6 +98,14 @@ class $SessionReportTableTable extends SessionReportTable
               data['retention_months']!, _retentionMonthsMeta));
     } else if (isInserting) {
       context.missing(_retentionMonthsMeta);
+    }
+    if (data.containsKey('expiration_date')) {
+      context.handle(
+          _expirationDateMeta,
+          expirationDate.isAcceptableOrUnknown(
+              data['expiration_date']!, _expirationDateMeta));
+    } else if (isInserting) {
+      context.missing(_expirationDateMeta);
     }
     return context;
   }
@@ -121,10 +124,10 @@ class $SessionReportTableTable extends SessionReportTable
           .read(DriftSqlType.int, data['${effectivePrefix}duration_minutes'])!,
       averageSeverity: attachedDatabase.typeMapping.read(
           DriftSqlType.double, data['${effectivePrefix}average_severity'])!,
-      camera: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}camera'])!,
       retentionMonths: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}retention_months'])!,
+      expirationDate: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}expiration_date'])!,
     );
   }
 
@@ -140,15 +143,15 @@ class SessionReportTableData extends DataClass
   final DateTime timestamp;
   final int durationMinutes;
   final double averageSeverity;
-  final String camera;
   final int retentionMonths;
+  final DateTime expirationDate;
   const SessionReportTableData(
       {required this.id,
       required this.timestamp,
       required this.durationMinutes,
       required this.averageSeverity,
-      required this.camera,
-      required this.retentionMonths});
+      required this.retentionMonths,
+      required this.expirationDate});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -156,8 +159,8 @@ class SessionReportTableData extends DataClass
     map['timestamp'] = Variable<DateTime>(timestamp);
     map['duration_minutes'] = Variable<int>(durationMinutes);
     map['average_severity'] = Variable<double>(averageSeverity);
-    map['camera'] = Variable<String>(camera);
     map['retention_months'] = Variable<int>(retentionMonths);
+    map['expiration_date'] = Variable<DateTime>(expirationDate);
     return map;
   }
 
@@ -167,8 +170,8 @@ class SessionReportTableData extends DataClass
       timestamp: Value(timestamp),
       durationMinutes: Value(durationMinutes),
       averageSeverity: Value(averageSeverity),
-      camera: Value(camera),
       retentionMonths: Value(retentionMonths),
+      expirationDate: Value(expirationDate),
     );
   }
 
@@ -180,8 +183,8 @@ class SessionReportTableData extends DataClass
       timestamp: serializer.fromJson<DateTime>(json['timestamp']),
       durationMinutes: serializer.fromJson<int>(json['durationMinutes']),
       averageSeverity: serializer.fromJson<double>(json['averageSeverity']),
-      camera: serializer.fromJson<String>(json['camera']),
       retentionMonths: serializer.fromJson<int>(json['retentionMonths']),
+      expirationDate: serializer.fromJson<DateTime>(json['expirationDate']),
     );
   }
   @override
@@ -192,8 +195,8 @@ class SessionReportTableData extends DataClass
       'timestamp': serializer.toJson<DateTime>(timestamp),
       'durationMinutes': serializer.toJson<int>(durationMinutes),
       'averageSeverity': serializer.toJson<double>(averageSeverity),
-      'camera': serializer.toJson<String>(camera),
       'retentionMonths': serializer.toJson<int>(retentionMonths),
+      'expirationDate': serializer.toJson<DateTime>(expirationDate),
     };
   }
 
@@ -202,15 +205,15 @@ class SessionReportTableData extends DataClass
           DateTime? timestamp,
           int? durationMinutes,
           double? averageSeverity,
-          String? camera,
-          int? retentionMonths}) =>
+          int? retentionMonths,
+          DateTime? expirationDate}) =>
       SessionReportTableData(
         id: id ?? this.id,
         timestamp: timestamp ?? this.timestamp,
         durationMinutes: durationMinutes ?? this.durationMinutes,
         averageSeverity: averageSeverity ?? this.averageSeverity,
-        camera: camera ?? this.camera,
         retentionMonths: retentionMonths ?? this.retentionMonths,
+        expirationDate: expirationDate ?? this.expirationDate,
       );
   SessionReportTableData copyWithCompanion(SessionReportTableCompanion data) {
     return SessionReportTableData(
@@ -222,10 +225,12 @@ class SessionReportTableData extends DataClass
       averageSeverity: data.averageSeverity.present
           ? data.averageSeverity.value
           : this.averageSeverity,
-      camera: data.camera.present ? data.camera.value : this.camera,
       retentionMonths: data.retentionMonths.present
           ? data.retentionMonths.value
           : this.retentionMonths,
+      expirationDate: data.expirationDate.present
+          ? data.expirationDate.value
+          : this.expirationDate,
     );
   }
 
@@ -236,15 +241,15 @@ class SessionReportTableData extends DataClass
           ..write('timestamp: $timestamp, ')
           ..write('durationMinutes: $durationMinutes, ')
           ..write('averageSeverity: $averageSeverity, ')
-          ..write('camera: $camera, ')
-          ..write('retentionMonths: $retentionMonths')
+          ..write('retentionMonths: $retentionMonths, ')
+          ..write('expirationDate: $expirationDate')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, timestamp, durationMinutes, averageSeverity, camera, retentionMonths);
+  int get hashCode => Object.hash(id, timestamp, durationMinutes,
+      averageSeverity, retentionMonths, expirationDate);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -253,8 +258,8 @@ class SessionReportTableData extends DataClass
           other.timestamp == this.timestamp &&
           other.durationMinutes == this.durationMinutes &&
           other.averageSeverity == this.averageSeverity &&
-          other.camera == this.camera &&
-          other.retentionMonths == this.retentionMonths);
+          other.retentionMonths == this.retentionMonths &&
+          other.expirationDate == this.expirationDate);
 }
 
 class SessionReportTableCompanion
@@ -263,16 +268,16 @@ class SessionReportTableCompanion
   final Value<DateTime> timestamp;
   final Value<int> durationMinutes;
   final Value<double> averageSeverity;
-  final Value<String> camera;
   final Value<int> retentionMonths;
+  final Value<DateTime> expirationDate;
   final Value<int> rowid;
   const SessionReportTableCompanion({
     this.id = const Value.absent(),
     this.timestamp = const Value.absent(),
     this.durationMinutes = const Value.absent(),
     this.averageSeverity = const Value.absent(),
-    this.camera = const Value.absent(),
     this.retentionMonths = const Value.absent(),
+    this.expirationDate = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   SessionReportTableCompanion.insert({
@@ -280,22 +285,22 @@ class SessionReportTableCompanion
     required DateTime timestamp,
     required int durationMinutes,
     required double averageSeverity,
-    required String camera,
     required int retentionMonths,
+    required DateTime expirationDate,
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         timestamp = Value(timestamp),
         durationMinutes = Value(durationMinutes),
         averageSeverity = Value(averageSeverity),
-        camera = Value(camera),
-        retentionMonths = Value(retentionMonths);
+        retentionMonths = Value(retentionMonths),
+        expirationDate = Value(expirationDate);
   static Insertable<SessionReportTableData> custom({
     Expression<String>? id,
     Expression<DateTime>? timestamp,
     Expression<int>? durationMinutes,
     Expression<double>? averageSeverity,
-    Expression<String>? camera,
     Expression<int>? retentionMonths,
+    Expression<DateTime>? expirationDate,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -303,8 +308,8 @@ class SessionReportTableCompanion
       if (timestamp != null) 'timestamp': timestamp,
       if (durationMinutes != null) 'duration_minutes': durationMinutes,
       if (averageSeverity != null) 'average_severity': averageSeverity,
-      if (camera != null) 'camera': camera,
       if (retentionMonths != null) 'retention_months': retentionMonths,
+      if (expirationDate != null) 'expiration_date': expirationDate,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -314,16 +319,16 @@ class SessionReportTableCompanion
       Value<DateTime>? timestamp,
       Value<int>? durationMinutes,
       Value<double>? averageSeverity,
-      Value<String>? camera,
       Value<int>? retentionMonths,
+      Value<DateTime>? expirationDate,
       Value<int>? rowid}) {
     return SessionReportTableCompanion(
       id: id ?? this.id,
       timestamp: timestamp ?? this.timestamp,
       durationMinutes: durationMinutes ?? this.durationMinutes,
       averageSeverity: averageSeverity ?? this.averageSeverity,
-      camera: camera ?? this.camera,
       retentionMonths: retentionMonths ?? this.retentionMonths,
+      expirationDate: expirationDate ?? this.expirationDate,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -343,11 +348,11 @@ class SessionReportTableCompanion
     if (averageSeverity.present) {
       map['average_severity'] = Variable<double>(averageSeverity.value);
     }
-    if (camera.present) {
-      map['camera'] = Variable<String>(camera.value);
-    }
     if (retentionMonths.present) {
       map['retention_months'] = Variable<int>(retentionMonths.value);
+    }
+    if (expirationDate.present) {
+      map['expiration_date'] = Variable<DateTime>(expirationDate.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -362,8 +367,8 @@ class SessionReportTableCompanion
           ..write('timestamp: $timestamp, ')
           ..write('durationMinutes: $durationMinutes, ')
           ..write('averageSeverity: $averageSeverity, ')
-          ..write('camera: $camera, ')
           ..write('retentionMonths: $retentionMonths, ')
+          ..write('expirationDate: $expirationDate, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -701,8 +706,8 @@ typedef $$SessionReportTableTableCreateCompanionBuilder
   required DateTime timestamp,
   required int durationMinutes,
   required double averageSeverity,
-  required String camera,
   required int retentionMonths,
+  required DateTime expirationDate,
   Value<int> rowid,
 });
 typedef $$SessionReportTableTableUpdateCompanionBuilder
@@ -711,8 +716,8 @@ typedef $$SessionReportTableTableUpdateCompanionBuilder
   Value<DateTime> timestamp,
   Value<int> durationMinutes,
   Value<double> averageSeverity,
-  Value<String> camera,
   Value<int> retentionMonths,
+  Value<DateTime> expirationDate,
   Value<int> rowid,
 });
 
@@ -760,11 +765,12 @@ class $$SessionReportTableTableFilterComposer
       column: $table.averageSeverity,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get camera => $composableBuilder(
-      column: $table.camera, builder: (column) => ColumnFilters(column));
-
   ColumnFilters<int> get retentionMonths => $composableBuilder(
       column: $table.retentionMonths,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get expirationDate => $composableBuilder(
+      column: $table.expirationDate,
       builder: (column) => ColumnFilters(column));
 
   Expression<bool> alertTableRefs(
@@ -812,11 +818,12 @@ class $$SessionReportTableTableOrderingComposer
       column: $table.averageSeverity,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get camera => $composableBuilder(
-      column: $table.camera, builder: (column) => ColumnOrderings(column));
-
   ColumnOrderings<int> get retentionMonths => $composableBuilder(
       column: $table.retentionMonths,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get expirationDate => $composableBuilder(
+      column: $table.expirationDate,
       builder: (column) => ColumnOrderings(column));
 }
 
@@ -841,11 +848,11 @@ class $$SessionReportTableTableAnnotationComposer
   GeneratedColumn<double> get averageSeverity => $composableBuilder(
       column: $table.averageSeverity, builder: (column) => column);
 
-  GeneratedColumn<String> get camera =>
-      $composableBuilder(column: $table.camera, builder: (column) => column);
-
   GeneratedColumn<int> get retentionMonths => $composableBuilder(
       column: $table.retentionMonths, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get expirationDate => $composableBuilder(
+      column: $table.expirationDate, builder: (column) => column);
 
   Expression<T> alertTableRefs<T extends Object>(
       Expression<T> Function($$AlertTableTableAnnotationComposer a) f) {
@@ -898,8 +905,8 @@ class $$SessionReportTableTableTableManager extends RootTableManager<
             Value<DateTime> timestamp = const Value.absent(),
             Value<int> durationMinutes = const Value.absent(),
             Value<double> averageSeverity = const Value.absent(),
-            Value<String> camera = const Value.absent(),
             Value<int> retentionMonths = const Value.absent(),
+            Value<DateTime> expirationDate = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               SessionReportTableCompanion(
@@ -907,8 +914,8 @@ class $$SessionReportTableTableTableManager extends RootTableManager<
             timestamp: timestamp,
             durationMinutes: durationMinutes,
             averageSeverity: averageSeverity,
-            camera: camera,
             retentionMonths: retentionMonths,
+            expirationDate: expirationDate,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -916,8 +923,8 @@ class $$SessionReportTableTableTableManager extends RootTableManager<
             required DateTime timestamp,
             required int durationMinutes,
             required double averageSeverity,
-            required String camera,
             required int retentionMonths,
+            required DateTime expirationDate,
             Value<int> rowid = const Value.absent(),
           }) =>
               SessionReportTableCompanion.insert(
@@ -925,8 +932,8 @@ class $$SessionReportTableTableTableManager extends RootTableManager<
             timestamp: timestamp,
             durationMinutes: durationMinutes,
             averageSeverity: averageSeverity,
-            camera: camera,
             retentionMonths: retentionMonths,
+            expirationDate: expirationDate,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

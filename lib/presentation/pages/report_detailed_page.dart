@@ -33,40 +33,18 @@ class ReportDetailedPage extends StatelessWidget {
           children: [
             AppSpaceses.verticalSmall,
 
-            Row(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                        'Started at: ${sessionReport.timestamp.toFormattedTime()}',
-                        style: AppTextStyles.timer),
-                    Text(
-                        'Duration for: ${sessionReport.durationMinutes.toHoursAndMinutes()}',
-                        style: AppTextStyles.timer),
-                    Text('Fatigue level: ${sessionReport.fatigueLevelLabel}',
-                        style: AppTextStyles.timer),
-                    Text('Retention for: ${sessionReport.retentionMonths} months',
-                        style: AppTextStyles.timer),
-                  ],
-                ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 6, vertical: 13),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text('Camera', style: AppTextStyles.h4),
-                      Text(sessionReport.camera, style: AppTextStyles.subtitle),
-                    ],
-                  ),
-                ),
+                Text('Started at: ${sessionReport.timestamp.toFormattedTime()}',
+                    style: AppTextStyles.timer),
+                Text(
+                    'Duration for: ${sessionReport.durationMinutes.toHoursAndMinutes()}',
+                    style: AppTextStyles.timer),
+                Text('Fatigue level: ${sessionReport.fatigueLevelLabel}',
+                    style: AppTextStyles.timer),
+                Text('Retention for: ${sessionReport.retentionMonths} months',
+                    style: AppTextStyles.timer),
               ],
             ),
 

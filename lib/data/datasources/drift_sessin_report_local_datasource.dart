@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart';
 import 'package:driver_monitoring/data/datasources/session_report_datasource.dart';
 import 'package:driver_monitoring/data/models/session_report_model.dart';
 import 'package:driver_monitoring/data/datasources/local/app_database.dart';
@@ -22,9 +23,8 @@ class DriftSessionReportLocalDataSource implements SessionReportDataSource {
             ..where((alert) => alert.reportId.equals(report.id)))
           .get();
 
-      final alerts = alertsRows
-          .map((alertRow) => AlertModel.fromDrift(alertRow))
-          .toList();
+      final alerts =
+          alertsRows.map((alertRow) => AlertModel.fromDrift(alertRow)).toList();
 
       reports.add(SessionReportModel.fromDrift(report, alerts));
     }
@@ -67,10 +67,25 @@ class DriftSessionReportLocalDataSource implements SessionReportDataSource {
   Future<void> deleteReport(String id) async {
     appLogger.i('🗑️ Deleting report with id: $id from Drift DB...');
 
-    await (db.delete(db.alertTable)..where((alert) => alert.reportId.equals(id))).go();
+    await (db.delete(db.alertTable)
+          ..where((alert) => alert.reportId.equals(id)))
+        .go();
 
-    await (db.delete(db.sessionReportTable)..where((report) => report.id.equals(id))).go();
+    await (db.delete(db.sessionReportTable)
+          ..where((report) => report.id.equals(id)))
+        .go();
 
     appLogger.i('✅ Report with id: $id deleted from Drift DB.');
+  }
+
+  @override
+  Future<void> deleteExpiredReports(DateTime currentDate) async {
+    final expiredReports = await (db.select(db.sessionReportTable)
+          ..where((tbl) => tbl.expirationDate.isSmallerThanValue(currentDate)))
+        .get();
+
+    for (final report in expiredReports) {
+      await deleteReport(report.id);
+    }
   }
 }

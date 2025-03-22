@@ -81,4 +81,10 @@ class MockSessionReportLocalDataSource implements SessionReportDataSource {
       appLogger.w('⚠️ Tried to delete a non-existing report with id: $id');
     }
   }
+  
+  @override
+  Future<void> deleteExpiredReports(DateTime currentDate) {
+    // TODO: implement deleteExpiredReports
+    throw UnimplementedError();
+  }
 }

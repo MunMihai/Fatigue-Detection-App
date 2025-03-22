@@ -43,7 +43,7 @@ class _PulsingAlertOverlayState extends State<PulsingAlertOverlay>
           child: Container(
             width: double.infinity,
             height: double.infinity,
-            color: Colors.red.withOpacity(_opacityAnimation.value),
+            color: Colors.red.withValues(alpha: 0.5),
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,

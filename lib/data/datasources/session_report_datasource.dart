@@ -5,4 +5,5 @@ abstract class SessionReportDataSource {
   Future<void> addReport(SessionReportModel report);
   Future<void> updateReport(SessionReportModel report);
   Future<void> deleteReport(String id);
+  Future<void> deleteExpiredReports(DateTime currentDate);
 }

@@ -6,7 +6,6 @@ class SessionReport {
   final DateTime timestamp; 
   final int durationMinutes;
   final double averageSeverity;
-  final String camera;
   final int retentionMonths;
   final List<Alert> alerts;
 
@@ -15,7 +14,6 @@ class SessionReport {
     required this.timestamp,
     required this.durationMinutes,
     required this.averageSeverity,
-    required this.camera,
     required this.retentionMonths,
     required this.alerts,
   });
@@ -37,7 +35,6 @@ class SessionReport {
       timestamp: timestamp ?? this.timestamp,
       durationMinutes: durationMinutes ?? this.durationMinutes,
       averageSeverity: averageSeverity ?? this.averageSeverity,
-      camera: camera ?? this.camera,
       retentionMonths: retentionMonths ?? this.retentionMonths,
       alerts: alerts ?? this.alerts,
     );

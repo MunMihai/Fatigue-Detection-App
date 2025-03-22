@@ -1,6 +1,7 @@
 import 'package:driver_monitoring/presentation/pages/home_view.dart';
 import 'package:driver_monitoring/presentation/pages/reports_view.dart';
 import 'package:driver_monitoring/presentation/pages/settings_view.dart';
+import 'package:driver_monitoring/presentation/providers/session_report_provider.dart';
 import 'package:driver_monitoring/presentation/providers/settings_provider.dart';
 import 'package:driver_monitoring/presentation/widgets/buttomNavigationBar/buttom_navigation_bar_idle.dart';
 import 'package:flutter/material.dart';
@@ -20,12 +21,14 @@ class _IdleWrapperState extends State<IdleWrapper> {
     setState(() {
       _selectedIndex = index;
     });
+    if (index == 1) {
+      context.read<SessionReportProvider>().refreshReports();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final settingsProvider = context.watch<SettingsProvider>();
-
     final isReportsEnabled = settingsProvider.isReportsSectionEnabled;
 
     final List<Widget> pages = [

@@ -72,8 +72,6 @@ class SessionManager extends ChangeNotifier {
       timestamp: DateTime.now(),
       durationMinutes: 0,
       averageSeverity: 0.0,
-      camera: _cameraLensDirectionToString(
-          cameraProvider.controller?.description.lensDirection),
       retentionMonths: settingsProvider.retentionMonths,
       alerts: [],
     );
@@ -246,18 +244,6 @@ class SessionManager extends ChangeNotifier {
     onSessionTimeout?.call();
   }
 
-  String _cameraLensDirectionToString(CameraLensDirection? direction) {
-    switch (direction) {
-      case CameraLensDirection.front:
-        return 'Front Camera';
-      case CameraLensDirection.back:
-        return 'MainPhone Camera';
-      case CameraLensDirection.external:
-        return 'External Camera';
-      default:
-        return 'Unknown Camera';
-    }
-  }
 
   @override
   void dispose() {

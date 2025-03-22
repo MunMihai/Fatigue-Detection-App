@@ -9,7 +9,7 @@ extension AlertTypeExtension on AlertType {
       case AlertType.drowsiness:
         return 'Drowsiness detected';
       case AlertType.sessionExpired:
-        return 'Session timer expired! Please take a break!';
+        return 'Session timer expired!';
     }
   }
 }

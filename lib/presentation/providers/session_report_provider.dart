@@ -26,7 +26,6 @@ class SessionReportProvider with ChangeNotifier {
     required this.updateReportUseCase,
     required this.deleteReportUseCase,
   });
-
   Future<void> fetchReports() async {
     if (_hasFetchedReports) return;
 
@@ -61,7 +60,6 @@ class SessionReportProvider with ChangeNotifier {
     try {
       await addReportUseCase(report);
       _hasFetchedReports = false;
-      await fetchReports();
       appLogger.i('➕ Report added: ${report.id}');
     } catch (e, stackTrace) {
       appLogger.e('❌ Error adding report', error: e, stackTrace: stackTrace);

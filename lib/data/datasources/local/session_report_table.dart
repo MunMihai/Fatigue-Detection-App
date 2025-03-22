@@ -5,9 +5,10 @@ class SessionReportTable extends Table {
   DateTimeColumn get timestamp => dateTime()();
   IntColumn get durationMinutes => integer()();
   RealColumn get averageSeverity => real()();
-  TextColumn get camera => text()();
   IntColumn get retentionMonths => integer()();
+  DateTimeColumn get expirationDate => dateTime()();
 
   @override
   Set<Column> get primaryKey => {id};
 }
+

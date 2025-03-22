@@ -33,6 +33,18 @@ class AppProvidersWrapper extends StatefulWidget {
 
 class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
   @override
+  void initState() {
+    super.initState();
+    _deleteExpiredReports();
+  }
+
+  void _deleteExpiredReports() async {
+    final db = DatabaseProvider().database;
+    final reportDataSource = DriftSessionReportLocalDataSource(db);
+    await reportDataSource.deleteExpiredReports(DateTime.now());
+  }
+
+  @override
   Widget build(BuildContext context) {
     /// 🗄️ Inițializare DB și repository
     final db = DatabaseProvider().database;
@@ -64,10 +76,12 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
         ),
 
         ChangeNotifierProvider<CameraProvider>(create: (_) => CameraProvider()),
-        ChangeNotifierProvider<FaceDetectionService>(create: (_) => FaceDetectionService()),
+        ChangeNotifierProvider<FaceDetectionService>(
+            create: (_) => FaceDetectionService()),
 
         // SessionManager controlează starea + lifecycle cameră
-        ChangeNotifierProxyProvider2<SettingsProvider, CameraProvider, SessionManager>(
+        ChangeNotifierProxyProvider2<SettingsProvider, CameraProvider,
+            SessionManager>(
           create: (context) {
             final settingsProvider = context.read<SettingsProvider>();
             final cameraProvider = context.read<CameraProvider>();
@@ -85,7 +99,8 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
               alertManager: alertManager,
             );
           },
-          update: (_, settingsProvider, cameraProvider, sessionManager) => sessionManager!,
+          update: (_, settingsProvider, cameraProvider, sessionManager) =>
+              sessionManager!,
         ),
 
         /// 📝 SessionReportProvider (pentru listarea, salvarea și gestionarea rapoartelor)
@@ -98,7 +113,6 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
           ),
           update: (_, settingsProvider, reportProvider) {
             final isEnabled = settingsProvider.isReportsSectionEnabled;
-
             final nonNullReportProvider = reportProvider ??
                 SessionReportProvider(
                   getReportsUseCase: getReportsUseCase,
@@ -109,6 +123,9 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
 
             if (isEnabled && !nonNullReportProvider.hasFetchedReports) {
               nonNullReportProvider.fetchReports();
+            } else if (!isEnabled) {
+              nonNullReportProvider
+                  .clearReports(); 
             }
 
             return nonNullReportProvider;
