@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:driver_monitoring/core/services/session_manager.dart';
 import 'package:driver_monitoring/core/utils/page_transitions.dart';
 import 'package:driver_monitoring/presentation/pages/all_session_reports_page.dart';
+import 'package:driver_monitoring/presentation/pages/faq_page.dart';
 import 'package:driver_monitoring/presentation/pages/not_found_page.dart';
 import 'package:driver_monitoring/presentation/pages/report_detailed_page.dart';
 import 'package:driver_monitoring/presentation/pages/landing_page.dart';
@@ -23,6 +24,10 @@ class AppRouter {
     GoRoute(
       path: '/',
       builder: (context, state) => const IdleWrapper(),
+    ),
+     GoRoute(
+      path: '/faqs',
+      builder: (context, state) => const FaqPage(),
     ),
     GoRoute(
       path: '/allSessions',

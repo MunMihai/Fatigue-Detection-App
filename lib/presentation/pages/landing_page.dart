@@ -101,15 +101,15 @@ class LandingPage extends StatelessWidget {
             ),
             AppSpaceses.verticalLarge,
             FractionallySizedBox(
-              widthFactor: 0.6, // 80% din ecran
+              widthFactor: 0.6, 
               child: ElevatedButton(
-                onPressed: () => context.go('/fags'),
+                onPressed: () => context.push('/faqs'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor:
                       Theme.of(context).colorScheme.secondaryButton,
                   foregroundColor:
                       Theme.of(context).colorScheme.onSecondaryButton,
-                  minimumSize: const Size(0, 40), // sau Size.zero
+                  minimumSize: const Size(0, 40), 
                 ),
                 child: Text(
                   'Check FAQs',
