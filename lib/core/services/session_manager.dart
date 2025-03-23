@@ -36,7 +36,6 @@ class SessionManager extends ChangeNotifier {
   VoidCallback? onSessionStarted;
   VoidCallback? onSessionStopped;
 
-
   bool _hasTriggeredTimeout = false;
   bool _notifiedThirtyMinutes = false;
   bool _notifiedFifteenMinutes = false;
@@ -65,16 +64,18 @@ class SessionManager extends ChangeNotifier {
     _appState = AppState.initializing;
     notifyListeners();
 
-    await _initializeCamera();
+    await _setupLiveFaceMonitoring();
 
     faceDetectionService.reset(settingsProvider.sessionSensitivity);
 
-if (onSessionStarted != null) {
-  appLogger.i('[SessionManager] onSessionStarted is not null. Calling now...');
-  onSessionStarted!(); // sau onSessionStarted?.call();
-} else {
-  appLogger.w('[SessionManager] onSessionStarted is NULL. Nothing will be called.');
-}
+    if (onSessionStarted != null) {
+      appLogger
+          .i('[SessionManager] onSessionStarted is not null. Calling now...');
+      onSessionStarted!(); // sau onSessionStarted?.call();
+    } else {
+      appLogger.w(
+          '[SessionManager] onSessionStarted is NULL. Nothing will be called.');
+    }
 
     _currentSession = SessionReport(
       id: 'session-${DateTime.now().microsecondsSinceEpoch}',
@@ -91,7 +92,6 @@ if (onSessionStarted != null) {
     _hasTriggeredTimeout = false;
     _notifiedThirtyMinutes = false;
     _notifiedFifteenMinutes = false;
-
 
     sessionTimer.start(
       countdownDuration: Duration(
@@ -151,7 +151,6 @@ if (onSessionStarted != null) {
     sessionTimer.reset();
     await cameraProvider.stopCamera();
 
-
     appLogger.i('[SessionManager] Moving to IDLE state...');
     _appState = AppState.idle;
 
@@ -181,41 +180,55 @@ if (onSessionStarted != null) {
     notifyListeners();
   }
 
-  Future<void> _initializeCamera() async {
+  Future<void> _setupLiveFaceMonitoring() async {
     cameraProvider.updateImageCallback((inputImage) {
       faceDetectionService.processImage(inputImage);
 
-      if (faceDetectionService.closedEyesDetected) {
-        _triggerDrowsinessAlert(360);
-      } else {
-        _stopDrowsinessAlert();
-      }
-    });
+      _handleAlert(
+        type: AlertType.drowsiness.name,
+        severity: 360,
+        conditionMet: faceDetectionService.closedEyesDetected,
+      );
 
+      _handleAlert(
+        type: AlertType.yawning.name,
+        severity: 180,
+        conditionMet: faceDetectionService.yawningDetected,
+      );
+    });
     await cameraProvider.initialize(CameraLensDirection.front);
   }
 
-  void _triggerDrowsinessAlert(double severiry) {
-    if (_appState == AppState.active) {
-      appLogger.w('[SessionManager] Drowsiness detected, triggering alert!');
-      
-      alertManager.triggerAlert(
-        type: AlertType.drowsiness.name,
-        severity: severiry,
-      );
-      onNewAlert?.call(severiry);
-
-      _appState = AppState.alertness;
-      notifyListeners();
+  void _handleAlert({
+    required String type,
+    required double severity,
+    required bool conditionMet,
+  }) {
+    if (conditionMet) {
+      _triggerAlert(type, severity);
+    } else {
+      _stopAlert(type);
     }
   }
 
-  void _stopDrowsinessAlert() {
-    if (_appState == AppState.alertness) {
-      appLogger.i('[SessionManager] Eyes opened, stopping alert.');
+  void _triggerAlert(String type, double severity) {
+    if (!isActive) return;
 
-      alertManager.stopAlert(type: AlertType.drowsiness.name);
+    if (alertManager.isAlertActive(type)) return;
 
+    alertManager.triggerAlert(type: type, severity: severity);
+    onNewAlert?.call(severity);
+
+    _appState = AppState.alertness;
+    notifyListeners();
+  }
+
+  void _stopAlert(String type) {
+    if (!alertManager.isAlertActive(type)) return;
+
+    alertManager.stopAlert(type: type);
+
+    if (alertManager.noActiveAlerts) {
       _appState = AppState.active;
       notifyListeners();
     }

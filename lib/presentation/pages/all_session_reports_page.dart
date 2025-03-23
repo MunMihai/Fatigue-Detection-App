@@ -1,13 +1,15 @@
+import 'package:driver_monitoring/core/constants/app_spaceses.dart';
+import 'package:driver_monitoring/core/constants/app_text_styles.dart';
 import 'package:driver_monitoring/core/utils/color_scheme_extensions.dart';
 import 'package:driver_monitoring/domain/entities/session_report.dart';
-import 'package:driver_monitoring/presentation/widgets/app_bar.dart';
 import 'package:driver_monitoring/presentation/providers/session_report_provider.dart';
+import 'package:driver_monitoring/presentation/widgets/app_bar.dart';
 import 'package:driver_monitoring/presentation/widgets/reports/session_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:driver_monitoring/core/constants/app_spaceses.dart';
-import 'package:driver_monitoring/core/constants/app_text_styles.dart';
+
+enum SortOption { dateDesc, dateAsc, durationDesc, durationAsc }
 
 class AllSessionReportsPage extends StatefulWidget {
   const AllSessionReportsPage({super.key});
@@ -18,16 +20,35 @@ class AllSessionReportsPage extends StatefulWidget {
 
 class _AllSessionReportsPageState extends State<AllSessionReportsPage> {
   String _searchQuery = '';
+  SortOption _selectedSortOption = SortOption.dateDesc; 
 
   List<SessionReport> getFilteredReports(
     List<SessionReport> reports,
     String searchQuery,
   ) {
-    return reports.where((session) {
-      final query = searchQuery.toLowerCase();
+    final query = searchQuery.toLowerCase();
+
+    List<SessionReport> filtered = reports.where((session) {
       return session.timestamp.toIso8601String().contains(query) ||
           session.fatigueLevelLabel.toLowerCase().contains(query);
     }).toList();
+
+    switch (_selectedSortOption) {
+      case SortOption.dateDesc:
+        filtered.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+        break;
+      case SortOption.dateAsc:
+        filtered.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+        break;
+      case SortOption.durationDesc:
+        filtered.sort((a, b) => b.durationMinutes.compareTo(a.durationMinutes));
+        break;
+      case SortOption.durationAsc:
+        filtered.sort((a, b) => a.durationMinutes.compareTo(b.durationMinutes));
+        break;
+    }
+
+    return filtered;
   }
 
   @override
@@ -50,7 +71,45 @@ class _AllSessionReportsPageState extends State<AllSessionReportsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AppSpaceses.verticalSmall,
-            // Search field
+            /// 📋 Opțiuni de sortare
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Sort by:', style: AppTextStyles.filterText),
+                DropdownButton<SortOption>(
+                  value: _selectedSortOption,
+                  onChanged: (SortOption? newValue) {
+                    if (newValue != null) {
+                      setState(() {
+                        _selectedSortOption = newValue;
+                      });
+                    }
+                  },
+                  items: const [
+                    DropdownMenuItem(
+                      value: SortOption.dateDesc,
+                      child: Text('Date ↓'),
+                    ),
+                    DropdownMenuItem(
+                      value: SortOption.dateAsc,
+                      child: Text('Date ↑'),
+                    ),
+                    DropdownMenuItem(
+                      value: SortOption.durationDesc,
+                      child: Text('Duration ↓'),
+                    ),
+                    DropdownMenuItem(
+                      value: SortOption.durationAsc,
+                      child: Text('Duration ↑'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+
+            AppSpaceses.verticalSmall,
+
+            /// 🔎 Câmp de căutare
             TextField(
               onChanged: (value) {
                 setState(() {
@@ -66,12 +125,14 @@ class _AllSessionReportsPageState extends State<AllSessionReportsPage> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                prefixIcon:
-                    const Icon(Icons.search, color: Colors.black, size: 30),
+                prefixIcon: const Icon(Icons.search, color: Colors.black, size: 30),
               ),
             ),
+
             AppSpaceses.verticalMedium,
-            // List of sessions
+
+
+            /// 🔄 Lista de sesiuni
             Expanded(
               child: provider.isLoading
                   ? const Center(child: CircularProgressIndicator())

@@ -14,6 +14,13 @@ class AlertDensityChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double maxDensity = points.isNotEmpty
+        ? points.map((e) => e.density).reduce((a, b) => a > b ? a : b)
+        : 1.0;
+
+    // Adaugi un mic offset ca să nu fie fix la limită.
+    final double yAxisMax = (maxDensity * 1.1).clamp(0, 1.0);
+
     return SizedBox(
       height: 300,
       child: SfCartesianChart(
@@ -29,8 +36,8 @@ class AlertDensityChart extends StatelessWidget {
         ),
         primaryYAxis: NumericAxis(
           minimum: 0,
-          interval: 0.1,
-          maximum: 1.0,
+          interval: yAxisMax / 10,
+          maximum: yAxisMax,
           title: AxisTitle(text: 'Fatigue Score'),
           isVisible: false,
         ),
@@ -81,27 +88,27 @@ class AlertDensityChart extends StatelessWidget {
   }
 
   LinearGradient _buildFatigueGradient(BuildContext context) {
-  final colors = points.isEmpty
-      ? [Colors.grey, Colors.grey]
-      : points.map((point) => FatigueLevelExtension.fromScore(point.density).color(context)).toList();
+    final colors = points.isEmpty
+        ? [Colors.grey, Colors.grey]
+        : points
+            .map((point) =>
+                FatigueLevelExtension.fromScore(point.density).color(context))
+            .toList();
 
-  final stops = points.isEmpty
-      ? [0.0, 1.0]
-      : _generateStops(points.length);
+    final stops = points.isEmpty ? [0.0, 1.0] : _generateStops(points.length);
 
-  return LinearGradient(
-    begin: Alignment.centerLeft,
-    end: Alignment.centerRight,
-    colors: colors,
-    stops: stops,
-  );
-}
-
-List<double> _generateStops(int length) {
-  if (length <= 1) {
-    return [0.0, 1.0];
+    return LinearGradient(
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
+      colors: colors,
+      stops: stops,
+    );
   }
-  return List<double>.generate(length, (index) => index / (length - 1));
-}
 
+  List<double> _generateStops(int length) {
+    if (length <= 1) {
+      return [0.0, 1.0];
+    }
+    return List<double>.generate(length, (index) => index / (length - 1));
+  }
 }

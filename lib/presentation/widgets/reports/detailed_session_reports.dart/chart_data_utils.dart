@@ -1,3 +1,4 @@
+import 'package:driver_monitoring/core/utils/adjustment_utils.dart';
 import 'package:driver_monitoring/core/utils/app_logger.dart';
 import 'package:driver_monitoring/core/utils/date_time_extension.dart';
 import 'package:driver_monitoring/domain/entities/alert.dart';
@@ -18,7 +19,8 @@ class ChartDataUtils {
     final alertsByMinute = <int, List<Alert>>{};
 
     for (var alert in sortedAlerts) {
-      final elapsedMinute = alert.timestamp.difference(sessionStartTime).inMinutes;
+      final elapsedMinute =
+          alert.timestamp.difference(sessionStartTime).inMinutes;
       alertsByMinute.putIfAbsent(elapsedMinute, () => []).add(alert);
     }
 
@@ -26,12 +28,14 @@ class ChartDataUtils {
     int? firstAlertMinute;
     double score = 0.0;
 
-    final sessionEndTime = sessionStartTime.add(Duration(minutes: durationMinutes));
+    final sessionEndTime =
+        sessionStartTime.add(Duration(minutes: durationMinutes));
     DateTime currentTime = sessionStartTime;
 
     int nr = 0;
 
-    while (currentTime.isBefore(sessionEndTime) || currentTime.isAtSameMomentAs(sessionEndTime)) {
+    while (currentTime.isBefore(sessionEndTime) ||
+        currentTime.isAtSameMomentAs(sessionEndTime)) {
       final elapsedMinute = currentTime.difference(sessionStartTime).inMinutes;
 
       final alertsAtThisMinute = alertsByMinute[elapsedMinute];
@@ -47,9 +51,17 @@ class ChartDataUtils {
         score = 0.0;
       } else {
         final elapsedSeconds = (elapsedMinute - firstAlertMinute) * 60;
-        score = (elapsedSeconds > 0)
-            ? (cumulativeSeverity / elapsedSeconds).clamp(0.0, 1.0)
-            : 0.0;
+        if (elapsedSeconds > 0) {
+          final adjustmentFactor = AdjustmentUtils.calculateAdjustmentFactor(
+            elapsedSeconds: elapsedSeconds,
+          );
+
+          score = (cumulativeSeverity / elapsedSeconds) * adjustmentFactor;
+
+          score = score.clamp(0.0, 1.0);
+        } else {
+          score = 0.0;
+        }
       }
 
       appLogger.d(
@@ -60,7 +72,8 @@ class ChartDataUtils {
         AlertDensityPoint(
           nr: nr++,
           density: score,
-          alertType: alertsAtThisMinute?.map((a) => a.type).join(', ') ?? 'None',
+          alertType:
+              alertsAtThisMinute?.map((a) => a.type).join(', ') ?? 'None',
           alertTime: currentTime.toFormattedTime(),
           timeLabel: '${elapsedMinute}min',
           minute: elapsedMinute,

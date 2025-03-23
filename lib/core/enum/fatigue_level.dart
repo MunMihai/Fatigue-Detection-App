@@ -21,11 +21,11 @@ extension FatigueLevelExtension on FatigueLevel {
   static FatigueLevel fromScore(double score) {
     if (score <= 0.1) {
       return FatigueLevel.normal;
-    } else if (score <= 0.3) {
+    } else if (score <= 0.2) {
       return FatigueLevel.good;
-    } else if (score <= 0.6) {
+    } else if (score <= 0.3) {
       return FatigueLevel.moderate;
-    } else if (score <= 0.9) {
+    } else if (score <= 0.4) {
       return FatigueLevel.high;
     } else {
       return FatigueLevel.extreme;

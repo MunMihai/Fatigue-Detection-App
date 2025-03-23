@@ -1,6 +1,6 @@
 import 'dart:async';
-
 import 'package:driver_monitoring/core/services/session_manager.dart';
+import 'package:driver_monitoring/core/utils/adjustment_utils.dart';
 import 'package:driver_monitoring/core/utils/app_logger.dart';
 import 'package:flutter/material.dart';
 
@@ -82,7 +82,11 @@ class ScoreProvider with ChangeNotifier {
       if (elapsedSeconds <= 0) {
         _score = 0.0;
       } else {
-        _score = (_cumulativeSeverity / elapsedSeconds).clamp(0.0, 1.0);
+        final adjustmentFactor = AdjustmentUtils.calculateAdjustmentFactor(
+          elapsedSeconds: elapsedSeconds,
+        );
+        _score = ((_cumulativeSeverity / elapsedSeconds) * adjustmentFactor)
+            .clamp(0.0, 1.0);
 
         if (_score > _highestScore) {
           _highestScore = _score;

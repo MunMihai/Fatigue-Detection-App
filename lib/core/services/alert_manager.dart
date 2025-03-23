@@ -11,7 +11,9 @@ class AlertManager extends ChangeNotifier {
 
 
   List<Alert> get alerts => List.unmodifiable(_alerts);
-  // double get averageSeverity => _calculateAverageSeverity();
+  bool isAlertActive(String type) => _activeAlertTypes.contains(type);
+  bool get noActiveAlerts => _activeAlertTypes.isEmpty;
+
 
   void addAlert(Alert alert) {
     _alerts.add(alert);
@@ -48,39 +50,34 @@ class AlertManager extends ChangeNotifier {
   }
 
   void stopAlert({
-    String? type,
-  }) {
-    appLogger.i(
-        '🛑 Stopping alert${type != null ? ' of type: $type' : ' (all alerts)'}');
-
-    // Dacă oprești doar un anumit tip de alertă
-    if (type != null) {
-      final wasRemoved = _activeAlertTypes.remove(type);
-
-      if (wasRemoved) {
-        appLogger.i('✅ Alert of type "$type" stopped.');
-      } else {
-        appLogger.w('⚠️ Tried to stop alert "$type", but it was not active.');
-      }
-    } else {
-      _activeAlertTypes.clear();
-      appLogger.i('✅ All alerts stopped.');
-    }
-
-    // Dacă nu mai există alerte active, oprește sunetul.
+  String? type,
+}) {
+  if (type == null) {
     if (_activeAlertTypes.isEmpty) {
-      appLogger.i('🛑 No more active alerts. Stopping audio.');
-      _audioService.stopAlert();
+      appLogger.i('ℹ️ No active alerts to stop.');
     } else {
-      appLogger.i('ℹ️ Remaining active alerts: $_activeAlertTypes');
+      appLogger.i('🛑 Stopping ALL alerts: $_activeAlertTypes');
+      _activeAlertTypes.clear();
+    }
+  } else {
+    final wasRemoved = _activeAlertTypes.remove(type);
+
+    if (wasRemoved) {
+      appLogger.i('✅ Alert of type "$type" stopped.');
+    } else {
+      appLogger.w('⚠️ Tried to stop alert "$type", but it was not active.');
     }
   }
 
-  // double _calculateAverageSeverity() {
-  //   if (_alerts.isEmpty) return 0.0;
-  //   final total = _alerts.fold(0.0, (sum, alert) => sum + alert.severity);
-  //   return total / _alerts.length;
-  // }
+  if (_activeAlertTypes.isEmpty) {
+    appLogger.i('🛑 No more active alerts. Stopping audio.');
+    _audioService.stopAlert();
+  } else {
+    appLogger.i('ℹ️ Remaining active alerts: $_activeAlertTypes');
+  }
+}
+
+
 
   @override
   void dispose() {
