@@ -61,7 +61,7 @@ class AppRouter {
           sessionManager: context.read<SessionManager>(),
           sessionReportProvider: context.read<SessionReportProvider>(),
           scoreProvider: context.read<ScoreProvider>(),
-          context: context, // ⚠️ Ai grijă că e contextul corect aici!
+          context: context, 
         ),
         child: const ActiveMonitoringWrapperPage(),
       ),

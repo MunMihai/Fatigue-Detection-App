@@ -48,11 +48,9 @@ class HomeView extends StatelessWidget {
               title: 'START MONITORING',
               onPressed: () async {
                 if (sessionManager.isIdle) {
-                  await sessionManager.startMonitoring();
-
                   if (!context.mounted) return;
-
                   context.go('/monitoring');
+                  
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Session already active!')),

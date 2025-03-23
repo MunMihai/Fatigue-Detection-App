@@ -13,10 +13,9 @@ class FatigueLevelIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Normalizează scorul pe scala 0.0 - 1.0, unde 0.1 = 100%
-    final double normalized = (score / 0.1).clamp(0.0, 1.0);
+    // Normalizează scorul pe scala 0.0 - 1.0
+    final double normalized = score.clamp(0.0, 1.0);
 
-    // Determină nivelul de oboseală pe baza scorului
     final fatigueLevel = FatigueLevelExtension.fromScore(score);
 
     return Column(
@@ -31,7 +30,7 @@ class FatigueLevelIndicator extends StatelessWidget {
           ),
           child: FractionallySizedBox(
             alignment: Alignment.centerLeft,
-            widthFactor: normalized, // între 0.0 și 1.0
+            widthFactor: normalized, 
             child: Container(
               decoration: BoxDecoration(
                 color: fatigueLevel.color(context),

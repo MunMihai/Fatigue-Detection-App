@@ -25,7 +25,7 @@ class ActiveSessionProvider extends ChangeNotifier {
   ActiveSessionProvider({
     required this.sessionManager,
     required this.sessionReportProvider,
-    required this.scoreProvider, 
+    required this.scoreProvider,
     required this.context,
   }) {
     appLogger.i('[ActiveSessionProvider] CREATED');
@@ -35,6 +35,14 @@ class ActiveSessionProvider extends ChangeNotifier {
 
     sessionManager.onSessionTimeout = _onSessionTimeout;
     sessionManager.onTimeRemainingNotification = _onTimeRemainingNotification;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!context.mounted) return;
+
+      appLogger.i('[ActiveSessionProvider] Starting monitoring...');
+      await sessionManager
+          .startMonitoring(); 
+    });
   }
 
   @override
@@ -201,7 +209,8 @@ class ActiveSessionProvider extends ChangeNotifier {
 
   Future<bool> _saveSessionReport(SessionReport? finishedSession) async {
     if (finishedSession != null) {
-      finishedSession = finishedSession.copyWith(highestSeverityScore: scoreProvider.highestScore);
+      finishedSession = finishedSession.copyWith(
+          highestSeverityScore: scoreProvider.highestScore);
 
       await sessionReportProvider.addReport(finishedSession);
 
@@ -209,7 +218,9 @@ class ActiveSessionProvider extends ChangeNotifier {
 
       if (!context.mounted) return false;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Session saved successfully! with severity ${finishedSession.highestSeverityScore}')),
+        SnackBar(
+            content: Text(
+                'Session saved successfully! with severity ${finishedSession.highestSeverityScore}')),
       );
       return true;
     } else {

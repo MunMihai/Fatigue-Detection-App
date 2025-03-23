@@ -100,14 +100,10 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
               sessionManager!,
         ),
 
-        ChangeNotifierProxyProvider<SessionManager, ScoreProvider>(
-          create: (_) => ScoreProvider(), // creăm inițial fără SessionManager
-          update: (_, sessionManager, scoreProvider) {
-            scoreProvider ??= ScoreProvider();
-
-            sessionManager.onNewAlert = scoreProvider.onNewAlert;
-
-            return scoreProvider;
+        ChangeNotifierProvider<ScoreProvider>(
+          create: (context) {
+            final sessionManager = context.read<SessionManager>();
+            return ScoreProvider(sessionManager);
           },
         ),
 

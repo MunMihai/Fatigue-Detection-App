@@ -33,6 +33,8 @@ class SessionManager extends ChangeNotifier {
   VoidCallback? onSessionTimeout;
   ValueChanged<int>? onTimeRemainingNotification;
   ValueChanged<double>? onNewAlert;
+  VoidCallback? onSessionStarted;
+  VoidCallback? onSessionStopped;
 
 
   bool _hasTriggeredTimeout = false;
@@ -54,7 +56,6 @@ class SessionManager extends ChangeNotifier {
   bool get stopping => _appState == AppState.stopping;
   bool get initializing => _appState == AppState.initializing;
   bool get isAlerting => _appState == AppState.alertness;
-
   int get breaksCount => _breaksCount;
   SessionReport? get currentSession => _currentSession;
 
@@ -67,6 +68,13 @@ class SessionManager extends ChangeNotifier {
     await _initializeCamera();
 
     faceDetectionService.reset(settingsProvider.sessionSensitivity);
+
+if (onSessionStarted != null) {
+  appLogger.i('[SessionManager] onSessionStarted is not null. Calling now...');
+  onSessionStarted!(); // sau onSessionStarted?.call();
+} else {
+  appLogger.w('[SessionManager] onSessionStarted is NULL. Nothing will be called.');
+}
 
     _currentSession = SessionReport(
       id: 'session-${DateTime.now().microsecondsSinceEpoch}',
@@ -83,6 +91,7 @@ class SessionManager extends ChangeNotifier {
     _hasTriggeredTimeout = false;
     _notifiedThirtyMinutes = false;
     _notifiedFifteenMinutes = false;
+
 
     sessionTimer.start(
       countdownDuration: Duration(
@@ -121,6 +130,8 @@ class SessionManager extends ChangeNotifier {
     appLogger.i('[SessionManager] Moving to STOPPING state...');
     _appState = AppState.stopping;
     notifyListeners();
+
+    onSessionStopped?.call();
 
     _faceDetectionTimeoutTimer?.cancel();
     _faceDetectionTimeoutTimer = null;
@@ -175,7 +186,7 @@ class SessionManager extends ChangeNotifier {
       faceDetectionService.processImage(inputImage);
 
       if (faceDetectionService.closedEyesDetected) {
-        _triggerDrowsinessAlert(1/60);
+        _triggerDrowsinessAlert(360);
       } else {
         _stopDrowsinessAlert();
       }

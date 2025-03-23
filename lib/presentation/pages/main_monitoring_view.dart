@@ -30,6 +30,7 @@ class MainMonitoringView extends StatelessWidget {
           appBar: CustomAppBar(title: 'Active Monitoring'),
           body: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 25),
+            
             child: ListView(
               children: [
                 AppSpaceses.verticalLarge,

@@ -1,60 +1,95 @@
 import 'dart:async';
+
+import 'package:driver_monitoring/core/services/session_manager.dart';
 import 'package:driver_monitoring/core/utils/app_logger.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 class ScoreProvider with ChangeNotifier {
+  final SessionManager sessionManager;
+
   double _cumulativeSeverity = 0.0;
   DateTime? _firstAlertTime;
   double _score = 0.0;
   double _highestScore = 0.0;
+
   Timer? _timer;
 
-  double get score => _score;
-  get highestScore => _highestScore;
+  double get score => _score.clamp(0.0, 1.0);
+  double get highestScore => _highestScore.clamp(0.0, 1.0);
 
-  ScoreProvider() {
-    _timer = Timer.periodic(Duration(seconds: 1), (_) => _updateScore());
+  ScoreProvider(this.sessionManager) {
+    sessionManager.onSessionStarted = () {
+      reset();
+      start();
+    };
+    sessionManager.onSessionStopped = stop;
+    sessionManager.onNewAlert = onNewAlert;
+  }
+
+  void start() {
+    if (_timer != null) return;
+
+    appLogger.i("[ScoreProvider] Starting timer...");
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _updateScore());
+  }
+
+  void stop() {
+    if (_timer != null) {
+      appLogger.i("[ScoreProvider] Stopping timer...");
+      _timer?.cancel();
+      _timer = null;
+    }
+  }
+
+  void reset() {
+    appLogger.i("[ScoreProvider] Resetting score...");
+
+    _cumulativeSeverity = 0.0;
+    _firstAlertTime = null;
+    _score = 0.0;
+    _highestScore = 0.0;
+
+    notifyListeners();
   }
 
   void onNewAlert(double severity) {
     _firstAlertTime ??= DateTime.now();
     _cumulativeSeverity += severity;
+
+    appLogger.i(
+        "[ScoreProvider] New alert received, cumulative severity: $_cumulativeSeverity");
+  }
+
+  @override
+  void dispose() {
+    stop();
+    super.dispose();
   }
 
   void _updateScore() {
-    appLogger.i("[ScoreProvider]  Current score: $_score");
-    appLogger.i("[ScoreProvider]  Higest score: $_highestScore");
     _recalculateScore();
+    appLogger.i(
+        "[ScoreProvider] Current score: $_score | Highest score: $_highestScore");
   }
 
   void _recalculateScore() {
     if (_firstAlertTime == null) {
       _score = 0.0;
     } else {
-      final elapsedMinutes =
-          DateTime.now().difference(_firstAlertTime!).inMinutes;
-      _score = _cumulativeSeverity / (elapsedMinutes + 1);
-       if (_score > _highestScore) {
-        _highestScore = _score;
+      final elapsedSeconds =
+          DateTime.now().difference(_firstAlertTime!).inSeconds;
+
+      if (elapsedSeconds <= 0) {
+        _score = 0.0;
+      } else {
+        _score = (_cumulativeSeverity / elapsedSeconds).clamp(0.0, 1.0);
+
+        if (_score > _highestScore) {
+          _highestScore = _score;
+        }
       }
     }
+
     notifyListeners();
-  }
-
-  void reset() {
-    _cumulativeSeverity = 0.0;
-    _firstAlertTime = null;
-    _score = 0.0;
-    _highestScore = 0.0;
-
-    _timer?.cancel();
-    _timer = null;
-    notifyListeners();
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
   }
 }
