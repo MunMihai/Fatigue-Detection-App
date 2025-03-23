@@ -7,7 +7,7 @@ class SessionReportModel {
   final String id;
   final DateTime timestamp;
   final int durationMinutes;
-  final double averageSeverity;
+  final double highestSeverityScore;
   final int retentionMonths;
   final DateTime expirationDate; // noul câmp
   final List<AlertModel> alerts;
@@ -16,7 +16,7 @@ class SessionReportModel {
     required this.id,
     required this.timestamp,
     required this.durationMinutes,
-    required this.averageSeverity,
+    required this.highestSeverityScore,
     required this.retentionMonths,
     required this.expirationDate,
     required this.alerts,
@@ -31,7 +31,7 @@ class SessionReportModel {
       id: json['id'],
       timestamp: DateTime.parse(json['timestamp']),
       durationMinutes: json['durationMinutes'],
-      averageSeverity: (json['averageSeverity'] as num).toDouble(),
+      highestSeverityScore: (json['highestSeverityScore'] as num).toDouble(),
       retentionMonths: json['retentionMonths'],
       expirationDate: DateTime.parse(json['expirationDate']),
       alerts: alerts,
@@ -43,7 +43,7 @@ class SessionReportModel {
       'id': id,
       'timestamp': timestamp.toIso8601String(),
       'durationMinutes': durationMinutes,
-      'averageSeverity': averageSeverity,
+      'highestSeverityScore': highestSeverityScore,
       'retentionMonths': retentionMonths,
       'expirationDate': expirationDate.toIso8601String(),
     };
@@ -57,7 +57,7 @@ class SessionReportModel {
       id: entity.id,
       timestamp: entity.timestamp,
       durationMinutes: entity.durationMinutes,
-      averageSeverity: entity.averageSeverity,
+      highestSeverityScore: entity.highestSeverityScore,
       retentionMonths: entity.retentionMonths,
       expirationDate: expirationDate,
       alerts: entity.alerts
@@ -71,7 +71,7 @@ class SessionReportModel {
       id: id,
       timestamp: timestamp,
       durationMinutes: durationMinutes,
-      averageSeverity: averageSeverity,
+      highestSeverityScore: highestSeverityScore,
       retentionMonths: retentionMonths,
       alerts: alerts.map((e) => e.toEntity()).toList(),
     );
@@ -84,7 +84,7 @@ class SessionReportModel {
       id: Value(id),
       timestamp: Value(timestamp),
       durationMinutes: Value(durationMinutes),
-      averageSeverity: Value(averageSeverity),
+      highestSeverityScore: Value(highestSeverityScore),
       retentionMonths: Value(retentionMonths),
       expirationDate: Value(expirationDate),
     );
@@ -98,7 +98,7 @@ class SessionReportModel {
       id: data.id,
       timestamp: data.timestamp,
       durationMinutes: data.durationMinutes,
-      averageSeverity: data.averageSeverity,
+      highestSeverityScore: data.highestSeverityScore,
       retentionMonths: data.retentionMonths,
       expirationDate: data.expirationDate, // noul câmp
       alerts: alerts,

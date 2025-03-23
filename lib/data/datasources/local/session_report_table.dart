@@ -4,7 +4,7 @@ class SessionReportTable extends Table {
   TextColumn get id => text()();
   DateTimeColumn get timestamp => dateTime()();
   IntColumn get durationMinutes => integer()();
-  RealColumn get averageSeverity => real()();
+  RealColumn get highestSeverityScore => real()();
   IntColumn get retentionMonths => integer()();
   DateTimeColumn get expirationDate => dateTime()();
 

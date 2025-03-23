@@ -5,7 +5,7 @@ class SessionReport {
   final String id;
   final DateTime timestamp; 
   final int durationMinutes;
-  final double averageSeverity;
+  final double highestSeverityScore;
   final int retentionMonths;
   final List<Alert> alerts;
 
@@ -13,19 +13,19 @@ class SessionReport {
     required this.id,
     required this.timestamp,
     required this.durationMinutes,
-    required this.averageSeverity,
+    required this.highestSeverityScore,
     required this.retentionMonths,
     required this.alerts,
   });
 
-  FatigueLevel get fatigueLevel => FatigueLevelExtension.fromScore(averageSeverity);
+  FatigueLevel get fatigueLevel => FatigueLevelExtension.fromScore(highestSeverityScore);
   String get fatigueLevelLabel => fatigueLevel.label; 
 
    SessionReport copyWith({
     String? id,
     DateTime? timestamp,
     int? durationMinutes,
-    double? averageSeverity,
+    double? highestSeverityScore,
     String? camera,
     int? retentionMonths,
     List<Alert>? alerts,
@@ -34,7 +34,7 @@ class SessionReport {
       id: id ?? this.id,
       timestamp: timestamp ?? this.timestamp,
       durationMinutes: durationMinutes ?? this.durationMinutes,
-      averageSeverity: averageSeverity ?? this.averageSeverity,
+      highestSeverityScore: highestSeverityScore ?? this.highestSeverityScore,
       retentionMonths: retentionMonths ?? this.retentionMonths,
       alerts: alerts ?? this.alerts,
     );

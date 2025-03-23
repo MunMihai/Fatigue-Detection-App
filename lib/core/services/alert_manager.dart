@@ -9,8 +9,9 @@ class AlertManager extends ChangeNotifier {
 
   final AudioAlertService _audioService = AudioAlertService();
 
+
   List<Alert> get alerts => List.unmodifiable(_alerts);
-  double get averageSeverity => _calculateAverageSeverity();
+  // double get averageSeverity => _calculateAverageSeverity();
 
   void addAlert(Alert alert) {
     _alerts.add(alert);
@@ -75,11 +76,11 @@ class AlertManager extends ChangeNotifier {
     }
   }
 
-  double _calculateAverageSeverity() {
-    if (_alerts.isEmpty) return 0.0;
-    final total = _alerts.fold(0.0, (sum, alert) => sum + alert.severity);
-    return total / _alerts.length;
-  }
+  // double _calculateAverageSeverity() {
+  //   if (_alerts.isEmpty) return 0.0;
+  //   final total = _alerts.fold(0.0, (sum, alert) => sum + alert.severity);
+  //   return total / _alerts.length;
+  // }
 
   @override
   void dispose() {

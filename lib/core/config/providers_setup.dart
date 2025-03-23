@@ -66,9 +66,6 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
           create: (_) => SettingsProvider()..loadSettings(),
         ),
 
-        /// 🔧 ScoreProvider (pentru UI feedback de scor, probabil la analiza de oboseală)
-        ChangeNotifierProvider(create: (_) => ScoreProvider()),
-
         /// 🛡️ PermissionsService (permisiuni runtime)
         Provider<PermissionsService>(
           lazy: false,
@@ -103,6 +100,17 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
               sessionManager!,
         ),
 
+        ChangeNotifierProxyProvider<SessionManager, ScoreProvider>(
+          create: (_) => ScoreProvider(), // creăm inițial fără SessionManager
+          update: (_, sessionManager, scoreProvider) {
+            scoreProvider ??= ScoreProvider();
+
+            sessionManager.onNewAlert = scoreProvider.onNewAlert;
+
+            return scoreProvider;
+          },
+        ),
+
         /// 📝 SessionReportProvider (pentru listarea, salvarea și gestionarea rapoartelor)
         ChangeNotifierProxyProvider<SettingsProvider, SessionReportProvider>(
           create: (_) => SessionReportProvider(
@@ -124,8 +132,7 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
             if (isEnabled && !nonNullReportProvider.hasFetchedReports) {
               nonNullReportProvider.fetchReports();
             } else if (!isEnabled) {
-              nonNullReportProvider
-                  .clearReports(); 
+              nonNullReportProvider.clearReports();
             }
 
             return nonNullReportProvider;

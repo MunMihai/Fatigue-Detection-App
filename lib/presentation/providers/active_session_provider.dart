@@ -1,5 +1,6 @@
 import 'package:driver_monitoring/core/enum/alert_type.dart';
 import 'package:driver_monitoring/domain/entities/session_report.dart';
+import 'package:driver_monitoring/presentation/providers/score_provider.dart';
 import 'package:driver_monitoring/presentation/widgets/pulsing_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:driver_monitoring/core/services/session_manager.dart';
@@ -13,6 +14,7 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 class ActiveSessionProvider extends ChangeNotifier {
   final SessionManager sessionManager;
   final SessionReportProvider sessionReportProvider;
+  final ScoreProvider scoreProvider;
   final BuildContext context;
 
   bool _hasSavedSession = false;
@@ -23,6 +25,7 @@ class ActiveSessionProvider extends ChangeNotifier {
   ActiveSessionProvider({
     required this.sessionManager,
     required this.sessionReportProvider,
+    required this.scoreProvider, 
     required this.context,
   }) {
     appLogger.i('[ActiveSessionProvider] CREATED');
@@ -160,7 +163,6 @@ class ActiveSessionProvider extends ChangeNotifier {
       final finishedSession = sessionManager.currentSession?.copyWith(
         durationMinutes: sessionManager.sessionTimer.elapsedTime.inMinutes,
         alerts: sessionManager.alertManager.alerts,
-        averageSeverity: sessionManager.alertManager.averageSeverity,
       );
 
       await _saveSessionReport(finishedSession);
@@ -199,11 +201,15 @@ class ActiveSessionProvider extends ChangeNotifier {
 
   Future<bool> _saveSessionReport(SessionReport? finishedSession) async {
     if (finishedSession != null) {
+      finishedSession = finishedSession.copyWith(highestSeverityScore: scoreProvider.highestScore);
+
       await sessionReportProvider.addReport(finishedSession);
+
+      scoreProvider.reset();
 
       if (!context.mounted) return false;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Session saved successfully!')),
+        SnackBar(content: Text('Session saved successfully! with severity ${finishedSession.highestSeverityScore}')),
       );
       return true;
     } else {

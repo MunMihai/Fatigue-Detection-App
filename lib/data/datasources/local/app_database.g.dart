@@ -26,12 +26,12 @@ class $SessionReportTableTable extends SessionReportTable
   late final GeneratedColumn<int> durationMinutes = GeneratedColumn<int>(
       'duration_minutes', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _averageSeverityMeta =
-      const VerificationMeta('averageSeverity');
+  static const VerificationMeta _highestSeverityScoreMeta =
+      const VerificationMeta('highestSeverityScore');
   @override
-  late final GeneratedColumn<double> averageSeverity = GeneratedColumn<double>(
-      'average_severity', aliasedName, false,
-      type: DriftSqlType.double, requiredDuringInsert: true);
+  late final GeneratedColumn<double> highestSeverityScore =
+      GeneratedColumn<double>('highest_severity_score', aliasedName, false,
+          type: DriftSqlType.double, requiredDuringInsert: true);
   static const VerificationMeta _retentionMonthsMeta =
       const VerificationMeta('retentionMonths');
   @override
@@ -49,7 +49,7 @@ class $SessionReportTableTable extends SessionReportTable
         id,
         timestamp,
         durationMinutes,
-        averageSeverity,
+        highestSeverityScore,
         retentionMonths,
         expirationDate
       ];
@@ -83,13 +83,13 @@ class $SessionReportTableTable extends SessionReportTable
     } else if (isInserting) {
       context.missing(_durationMinutesMeta);
     }
-    if (data.containsKey('average_severity')) {
+    if (data.containsKey('highest_severity_score')) {
       context.handle(
-          _averageSeverityMeta,
-          averageSeverity.isAcceptableOrUnknown(
-              data['average_severity']!, _averageSeverityMeta));
+          _highestSeverityScoreMeta,
+          highestSeverityScore.isAcceptableOrUnknown(
+              data['highest_severity_score']!, _highestSeverityScoreMeta));
     } else if (isInserting) {
-      context.missing(_averageSeverityMeta);
+      context.missing(_highestSeverityScoreMeta);
     }
     if (data.containsKey('retention_months')) {
       context.handle(
@@ -122,8 +122,9 @@ class $SessionReportTableTable extends SessionReportTable
           .read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
       durationMinutes: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}duration_minutes'])!,
-      averageSeverity: attachedDatabase.typeMapping.read(
-          DriftSqlType.double, data['${effectivePrefix}average_severity'])!,
+      highestSeverityScore: attachedDatabase.typeMapping.read(
+          DriftSqlType.double,
+          data['${effectivePrefix}highest_severity_score'])!,
       retentionMonths: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}retention_months'])!,
       expirationDate: attachedDatabase.typeMapping.read(
@@ -142,14 +143,14 @@ class SessionReportTableData extends DataClass
   final String id;
   final DateTime timestamp;
   final int durationMinutes;
-  final double averageSeverity;
+  final double highestSeverityScore;
   final int retentionMonths;
   final DateTime expirationDate;
   const SessionReportTableData(
       {required this.id,
       required this.timestamp,
       required this.durationMinutes,
-      required this.averageSeverity,
+      required this.highestSeverityScore,
       required this.retentionMonths,
       required this.expirationDate});
   @override
@@ -158,7 +159,7 @@ class SessionReportTableData extends DataClass
     map['id'] = Variable<String>(id);
     map['timestamp'] = Variable<DateTime>(timestamp);
     map['duration_minutes'] = Variable<int>(durationMinutes);
-    map['average_severity'] = Variable<double>(averageSeverity);
+    map['highest_severity_score'] = Variable<double>(highestSeverityScore);
     map['retention_months'] = Variable<int>(retentionMonths);
     map['expiration_date'] = Variable<DateTime>(expirationDate);
     return map;
@@ -169,7 +170,7 @@ class SessionReportTableData extends DataClass
       id: Value(id),
       timestamp: Value(timestamp),
       durationMinutes: Value(durationMinutes),
-      averageSeverity: Value(averageSeverity),
+      highestSeverityScore: Value(highestSeverityScore),
       retentionMonths: Value(retentionMonths),
       expirationDate: Value(expirationDate),
     );
@@ -182,7 +183,8 @@ class SessionReportTableData extends DataClass
       id: serializer.fromJson<String>(json['id']),
       timestamp: serializer.fromJson<DateTime>(json['timestamp']),
       durationMinutes: serializer.fromJson<int>(json['durationMinutes']),
-      averageSeverity: serializer.fromJson<double>(json['averageSeverity']),
+      highestSeverityScore:
+          serializer.fromJson<double>(json['highestSeverityScore']),
       retentionMonths: serializer.fromJson<int>(json['retentionMonths']),
       expirationDate: serializer.fromJson<DateTime>(json['expirationDate']),
     );
@@ -194,7 +196,7 @@ class SessionReportTableData extends DataClass
       'id': serializer.toJson<String>(id),
       'timestamp': serializer.toJson<DateTime>(timestamp),
       'durationMinutes': serializer.toJson<int>(durationMinutes),
-      'averageSeverity': serializer.toJson<double>(averageSeverity),
+      'highestSeverityScore': serializer.toJson<double>(highestSeverityScore),
       'retentionMonths': serializer.toJson<int>(retentionMonths),
       'expirationDate': serializer.toJson<DateTime>(expirationDate),
     };
@@ -204,14 +206,14 @@ class SessionReportTableData extends DataClass
           {String? id,
           DateTime? timestamp,
           int? durationMinutes,
-          double? averageSeverity,
+          double? highestSeverityScore,
           int? retentionMonths,
           DateTime? expirationDate}) =>
       SessionReportTableData(
         id: id ?? this.id,
         timestamp: timestamp ?? this.timestamp,
         durationMinutes: durationMinutes ?? this.durationMinutes,
-        averageSeverity: averageSeverity ?? this.averageSeverity,
+        highestSeverityScore: highestSeverityScore ?? this.highestSeverityScore,
         retentionMonths: retentionMonths ?? this.retentionMonths,
         expirationDate: expirationDate ?? this.expirationDate,
       );
@@ -222,9 +224,9 @@ class SessionReportTableData extends DataClass
       durationMinutes: data.durationMinutes.present
           ? data.durationMinutes.value
           : this.durationMinutes,
-      averageSeverity: data.averageSeverity.present
-          ? data.averageSeverity.value
-          : this.averageSeverity,
+      highestSeverityScore: data.highestSeverityScore.present
+          ? data.highestSeverityScore.value
+          : this.highestSeverityScore,
       retentionMonths: data.retentionMonths.present
           ? data.retentionMonths.value
           : this.retentionMonths,
@@ -240,7 +242,7 @@ class SessionReportTableData extends DataClass
           ..write('id: $id, ')
           ..write('timestamp: $timestamp, ')
           ..write('durationMinutes: $durationMinutes, ')
-          ..write('averageSeverity: $averageSeverity, ')
+          ..write('highestSeverityScore: $highestSeverityScore, ')
           ..write('retentionMonths: $retentionMonths, ')
           ..write('expirationDate: $expirationDate')
           ..write(')'))
@@ -249,7 +251,7 @@ class SessionReportTableData extends DataClass
 
   @override
   int get hashCode => Object.hash(id, timestamp, durationMinutes,
-      averageSeverity, retentionMonths, expirationDate);
+      highestSeverityScore, retentionMonths, expirationDate);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -257,7 +259,7 @@ class SessionReportTableData extends DataClass
           other.id == this.id &&
           other.timestamp == this.timestamp &&
           other.durationMinutes == this.durationMinutes &&
-          other.averageSeverity == this.averageSeverity &&
+          other.highestSeverityScore == this.highestSeverityScore &&
           other.retentionMonths == this.retentionMonths &&
           other.expirationDate == this.expirationDate);
 }
@@ -267,7 +269,7 @@ class SessionReportTableCompanion
   final Value<String> id;
   final Value<DateTime> timestamp;
   final Value<int> durationMinutes;
-  final Value<double> averageSeverity;
+  final Value<double> highestSeverityScore;
   final Value<int> retentionMonths;
   final Value<DateTime> expirationDate;
   final Value<int> rowid;
@@ -275,7 +277,7 @@ class SessionReportTableCompanion
     this.id = const Value.absent(),
     this.timestamp = const Value.absent(),
     this.durationMinutes = const Value.absent(),
-    this.averageSeverity = const Value.absent(),
+    this.highestSeverityScore = const Value.absent(),
     this.retentionMonths = const Value.absent(),
     this.expirationDate = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -284,21 +286,21 @@ class SessionReportTableCompanion
     required String id,
     required DateTime timestamp,
     required int durationMinutes,
-    required double averageSeverity,
+    required double highestSeverityScore,
     required int retentionMonths,
     required DateTime expirationDate,
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         timestamp = Value(timestamp),
         durationMinutes = Value(durationMinutes),
-        averageSeverity = Value(averageSeverity),
+        highestSeverityScore = Value(highestSeverityScore),
         retentionMonths = Value(retentionMonths),
         expirationDate = Value(expirationDate);
   static Insertable<SessionReportTableData> custom({
     Expression<String>? id,
     Expression<DateTime>? timestamp,
     Expression<int>? durationMinutes,
-    Expression<double>? averageSeverity,
+    Expression<double>? highestSeverityScore,
     Expression<int>? retentionMonths,
     Expression<DateTime>? expirationDate,
     Expression<int>? rowid,
@@ -307,7 +309,8 @@ class SessionReportTableCompanion
       if (id != null) 'id': id,
       if (timestamp != null) 'timestamp': timestamp,
       if (durationMinutes != null) 'duration_minutes': durationMinutes,
-      if (averageSeverity != null) 'average_severity': averageSeverity,
+      if (highestSeverityScore != null)
+        'highest_severity_score': highestSeverityScore,
       if (retentionMonths != null) 'retention_months': retentionMonths,
       if (expirationDate != null) 'expiration_date': expirationDate,
       if (rowid != null) 'rowid': rowid,
@@ -318,7 +321,7 @@ class SessionReportTableCompanion
       {Value<String>? id,
       Value<DateTime>? timestamp,
       Value<int>? durationMinutes,
-      Value<double>? averageSeverity,
+      Value<double>? highestSeverityScore,
       Value<int>? retentionMonths,
       Value<DateTime>? expirationDate,
       Value<int>? rowid}) {
@@ -326,7 +329,7 @@ class SessionReportTableCompanion
       id: id ?? this.id,
       timestamp: timestamp ?? this.timestamp,
       durationMinutes: durationMinutes ?? this.durationMinutes,
-      averageSeverity: averageSeverity ?? this.averageSeverity,
+      highestSeverityScore: highestSeverityScore ?? this.highestSeverityScore,
       retentionMonths: retentionMonths ?? this.retentionMonths,
       expirationDate: expirationDate ?? this.expirationDate,
       rowid: rowid ?? this.rowid,
@@ -345,8 +348,9 @@ class SessionReportTableCompanion
     if (durationMinutes.present) {
       map['duration_minutes'] = Variable<int>(durationMinutes.value);
     }
-    if (averageSeverity.present) {
-      map['average_severity'] = Variable<double>(averageSeverity.value);
+    if (highestSeverityScore.present) {
+      map['highest_severity_score'] =
+          Variable<double>(highestSeverityScore.value);
     }
     if (retentionMonths.present) {
       map['retention_months'] = Variable<int>(retentionMonths.value);
@@ -366,7 +370,7 @@ class SessionReportTableCompanion
           ..write('id: $id, ')
           ..write('timestamp: $timestamp, ')
           ..write('durationMinutes: $durationMinutes, ')
-          ..write('averageSeverity: $averageSeverity, ')
+          ..write('highestSeverityScore: $highestSeverityScore, ')
           ..write('retentionMonths: $retentionMonths, ')
           ..write('expirationDate: $expirationDate, ')
           ..write('rowid: $rowid')
@@ -705,7 +709,7 @@ typedef $$SessionReportTableTableCreateCompanionBuilder
   required String id,
   required DateTime timestamp,
   required int durationMinutes,
-  required double averageSeverity,
+  required double highestSeverityScore,
   required int retentionMonths,
   required DateTime expirationDate,
   Value<int> rowid,
@@ -715,7 +719,7 @@ typedef $$SessionReportTableTableUpdateCompanionBuilder
   Value<String> id,
   Value<DateTime> timestamp,
   Value<int> durationMinutes,
-  Value<double> averageSeverity,
+  Value<double> highestSeverityScore,
   Value<int> retentionMonths,
   Value<DateTime> expirationDate,
   Value<int> rowid,
@@ -761,8 +765,8 @@ class $$SessionReportTableTableFilterComposer
       column: $table.durationMinutes,
       builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<double> get averageSeverity => $composableBuilder(
-      column: $table.averageSeverity,
+  ColumnFilters<double> get highestSeverityScore => $composableBuilder(
+      column: $table.highestSeverityScore,
       builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get retentionMonths => $composableBuilder(
@@ -814,8 +818,8 @@ class $$SessionReportTableTableOrderingComposer
       column: $table.durationMinutes,
       builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<double> get averageSeverity => $composableBuilder(
-      column: $table.averageSeverity,
+  ColumnOrderings<double> get highestSeverityScore => $composableBuilder(
+      column: $table.highestSeverityScore,
       builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get retentionMonths => $composableBuilder(
@@ -845,8 +849,8 @@ class $$SessionReportTableTableAnnotationComposer
   GeneratedColumn<int> get durationMinutes => $composableBuilder(
       column: $table.durationMinutes, builder: (column) => column);
 
-  GeneratedColumn<double> get averageSeverity => $composableBuilder(
-      column: $table.averageSeverity, builder: (column) => column);
+  GeneratedColumn<double> get highestSeverityScore => $composableBuilder(
+      column: $table.highestSeverityScore, builder: (column) => column);
 
   GeneratedColumn<int> get retentionMonths => $composableBuilder(
       column: $table.retentionMonths, builder: (column) => column);
@@ -904,7 +908,7 @@ class $$SessionReportTableTableTableManager extends RootTableManager<
             Value<String> id = const Value.absent(),
             Value<DateTime> timestamp = const Value.absent(),
             Value<int> durationMinutes = const Value.absent(),
-            Value<double> averageSeverity = const Value.absent(),
+            Value<double> highestSeverityScore = const Value.absent(),
             Value<int> retentionMonths = const Value.absent(),
             Value<DateTime> expirationDate = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -913,7 +917,7 @@ class $$SessionReportTableTableTableManager extends RootTableManager<
             id: id,
             timestamp: timestamp,
             durationMinutes: durationMinutes,
-            averageSeverity: averageSeverity,
+            highestSeverityScore: highestSeverityScore,
             retentionMonths: retentionMonths,
             expirationDate: expirationDate,
             rowid: rowid,
@@ -922,7 +926,7 @@ class $$SessionReportTableTableTableManager extends RootTableManager<
             required String id,
             required DateTime timestamp,
             required int durationMinutes,
-            required double averageSeverity,
+            required double highestSeverityScore,
             required int retentionMonths,
             required DateTime expirationDate,
             Value<int> rowid = const Value.absent(),
@@ -931,7 +935,7 @@ class $$SessionReportTableTableTableManager extends RootTableManager<
             id: id,
             timestamp: timestamp,
             durationMinutes: durationMinutes,
-            averageSeverity: averageSeverity,
+            highestSeverityScore: highestSeverityScore,
             retentionMonths: retentionMonths,
             expirationDate: expirationDate,
             rowid: rowid,

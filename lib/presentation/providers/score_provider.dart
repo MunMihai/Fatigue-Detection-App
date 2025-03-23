@@ -1,39 +1,54 @@
 import 'dart:async';
+import 'package:driver_monitoring/core/utils/app_logger.dart';
+import 'package:flutter/foundation.dart';
 
-import 'package:flutter/material.dart';
-
-class ScoreProvider extends ChangeNotifier {
+class ScoreProvider with ChangeNotifier {
+  double _cumulativeSeverity = 0.0;
+  DateTime? _firstAlertTime;
   double _score = 0.0;
+  double _highestScore = 0.0;
   Timer? _timer;
-  bool _state = false;
 
   double get score => _score;
-  bool get state => _state;
+  get highestScore => _highestScore;
 
-  void updateScore(double newScore) {
-    _score = newScore;
+  ScoreProvider() {
+    _timer = Timer.periodic(Duration(seconds: 1), (_) => _updateScore());
+  }
+
+  void onNewAlert(double severity) {
+    _firstAlertTime ??= DateTime.now();
+    _cumulativeSeverity += severity;
+  }
+
+  void _updateScore() {
+    appLogger.i("[ScoreProvider]  Current score: $_score");
+    appLogger.i("[ScoreProvider]  Higest score: $_highestScore");
+    _recalculateScore();
+  }
+
+  void _recalculateScore() {
+    if (_firstAlertTime == null) {
+      _score = 0.0;
+    } else {
+      final elapsedMinutes =
+          DateTime.now().difference(_firstAlertTime!).inMinutes;
+      _score = _cumulativeSeverity / (elapsedMinutes + 1);
+       if (_score > _highestScore) {
+        _highestScore = _score;
+      }
+    }
     notifyListeners();
   }
 
-  void startSimulatingScore() {
-    // Verifică dacă e deja pornit, previne instanțe multiple
-    if (_timer != null) return;
+  void reset() {
+    _cumulativeSeverity = 0.0;
+    _firstAlertTime = null;
+    _score = 0.0;
+    _highestScore = 0.0;
 
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      _score += 0.002;
-      if (_score > 0.1) _score = 0;
-      notifyListeners();
-    });
-
-    _state = true;
-    notifyListeners();
-  }
-
-  void stopSimulatingScore() {
     _timer?.cancel();
     _timer = null;
-
-    _state = false;
     notifyListeners();
   }
 

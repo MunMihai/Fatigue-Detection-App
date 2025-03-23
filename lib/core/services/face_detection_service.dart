@@ -35,9 +35,7 @@ class FaceDetectionService extends ChangeNotifier {
 
   bool get closedEyesDetected =>
       closedEyesFrameCounter >= _closedEyesFrameThreshold;
-
   DateTime get lastFaceDetectedTime => _lastFaceDetectedTime;
-
   CustomPaint? get customPaint => _customPaint;
   String? get detectionText => _detectionText;
 

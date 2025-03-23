@@ -60,7 +60,7 @@ class SessionsReportsChart extends StatelessWidget {
             xValueMapper: (SessionReport report, _) =>
     DateFormat('HH:mm\nMMM dd, yyyy').format(report.timestamp),
             yValueMapper: (SessionReport report, _) =>
-                min(report.averageSeverity, 0.1),
+                min(report.highestSeverityScore, 0.1),
             name: '', // Fără nume pentru legendă
             dataLabelSettings: DataLabelSettings(
               isVisible: true,
@@ -69,13 +69,13 @@ class SessionsReportsChart extends StatelessWidget {
             ),
             dataLabelMapper: (SessionReport report, _) {
               final fatigueLevel =
-                  FatigueLevelExtension.fromScore(report.averageSeverity);
+                  FatigueLevelExtension.fromScore(report.highestSeverityScore);
               return fatigueLevel.label;
             },
 
             pointColorMapper: (SessionReport report, _) {
               final fatigueLevel =
-                  FatigueLevelExtension.fromScore(report.averageSeverity);
+                  FatigueLevelExtension.fromScore(report.highestSeverityScore);
               return fatigueLevel.color(context); 
             },
 

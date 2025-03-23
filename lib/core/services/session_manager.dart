@@ -32,6 +32,7 @@ class SessionManager extends ChangeNotifier {
 
   VoidCallback? onSessionTimeout;
   ValueChanged<int>? onTimeRemainingNotification;
+  ValueChanged<double>? onNewAlert;
 
 
   bool _hasTriggeredTimeout = false;
@@ -71,7 +72,7 @@ class SessionManager extends ChangeNotifier {
       id: 'session-${DateTime.now().microsecondsSinceEpoch}',
       timestamp: DateTime.now(),
       durationMinutes: 0,
-      averageSeverity: 0.0,
+      highestSeverityScore: 0.0,
       retentionMonths: settingsProvider.retentionMonths,
       alerts: [],
     );
@@ -133,12 +134,12 @@ class SessionManager extends ChangeNotifier {
     final session = _currentSession?.copyWith(
       durationMinutes: sessionTimer.elapsedTime.inMinutes,
       alerts: alertManager.alerts,
-      averageSeverity: alertManager.averageSeverity,
     );
 
     _currentSession = null;
     sessionTimer.reset();
     await cameraProvider.stopCamera();
+
 
     appLogger.i('[SessionManager] Moving to IDLE state...');
     _appState = AppState.idle;
@@ -174,7 +175,7 @@ class SessionManager extends ChangeNotifier {
       faceDetectionService.processImage(inputImage);
 
       if (faceDetectionService.closedEyesDetected) {
-        _triggerDrowsinessAlert();
+        _triggerDrowsinessAlert(1/60);
       } else {
         _stopDrowsinessAlert();
       }
@@ -183,14 +184,15 @@ class SessionManager extends ChangeNotifier {
     await cameraProvider.initialize(CameraLensDirection.front);
   }
 
-  void _triggerDrowsinessAlert() {
+  void _triggerDrowsinessAlert(double severiry) {
     if (_appState == AppState.active) {
       appLogger.w('[SessionManager] Drowsiness detected, triggering alert!');
-
+      
       alertManager.triggerAlert(
         type: AlertType.drowsiness.name,
-        severity: 1,
+        severity: severiry,
       );
+      onNewAlert?.call(severiry);
 
       _appState = AppState.alertness;
       notifyListeners();
@@ -243,7 +245,6 @@ class SessionManager extends ChangeNotifier {
 
     onSessionTimeout?.call();
   }
-
 
   @override
   void dispose() {

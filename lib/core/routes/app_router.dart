@@ -8,6 +8,7 @@ import 'package:driver_monitoring/presentation/pages/landing_page.dart';
 import 'package:driver_monitoring/presentation/pages/active_monitoring_page.dart';
 import 'package:driver_monitoring/presentation/pages/idle_wrapper_page.dart';
 import 'package:driver_monitoring/presentation/providers/active_session_provider.dart';
+import 'package:driver_monitoring/presentation/providers/score_provider.dart';
 import 'package:driver_monitoring/presentation/providers/session_report_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -59,6 +60,7 @@ class AppRouter {
         create: (_) => ActiveSessionProvider(
           sessionManager: context.read<SessionManager>(),
           sessionReportProvider: context.read<SessionReportProvider>(),
+          scoreProvider: context.read<ScoreProvider>(),
           context: context, // ⚠️ Ai grijă că e contextul corect aici!
         ),
         child: const ActiveMonitoringWrapperPage(),
