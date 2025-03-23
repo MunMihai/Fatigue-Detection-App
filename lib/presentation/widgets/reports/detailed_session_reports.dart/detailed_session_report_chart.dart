@@ -4,7 +4,6 @@ import 'package:driver_monitoring/presentation/widgets/reports/detailed_session_
 import 'package:flutter/material.dart';
 import 'package:driver_monitoring/domain/entities/alert.dart';
 
-
 class DetailedSessionReportChart extends StatelessWidget {
   final List<Alert> alerts;
   final DateTime sessionStartTime;
@@ -25,17 +24,14 @@ class DetailedSessionReportChart extends StatelessWidget {
 
     final sortedAlerts = [...alerts]..sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
-    final controlPoints = ChartDataUtils.buildControlPoints(
-      sortedAlerts,
-      sessionStartTime,
-      durationMinutes,
+    // Folosim noua metodă de generare a punctelor, pe toată durata sesiunii
+    final scorePoints = ChartDataUtils.generateSessionScorePoints(
+      sortedAlerts: sortedAlerts,
+      sessionStartTime: sessionStartTime,
+      durationMinutes: durationMinutes,
+      stepInSeconds: 60, // 1 punct pe minut, se poate schimba
     );
 
-    final interpolatedPoints = ChartDataUtils.generateLinearPoints(
-      controlPoints,
-      sessionStartTime,
-    );
-
-    return AlertDensityChart(points: interpolatedPoints);
+    return AlertDensityChart(points: scorePoints);
   }
 }

@@ -4,113 +4,73 @@ import 'package:driver_monitoring/domain/entities/alert.dart';
 import 'package:driver_monitoring/domain/entities/alert_density_point.dart';
 
 class ChartDataUtils {
-  static List<AlertDensityPoint> buildControlPoints(
-    List<Alert> sortedAlerts,
-    DateTime sessionStartTime,
-    int durationMinutes,
-  ) {
-    final controlPoints = <AlertDensityPoint>[];
+  static List<AlertDensityPoint> generateSessionScorePoints({
+    required List<Alert> sortedAlerts,
+    required DateTime sessionStartTime,
+    required int durationMinutes,
+    int stepInSeconds = 60,
+  }) {
+    final points = <AlertDensityPoint>[];
 
-    controlPoints.add(
-      AlertDensityPoint(
-        nr: 0,
-        density: 0,
-        alertType: 'Start',
-        alertTime: sessionStartTime.toFormattedTime(),
-        timeLabel: '0min',
-        minute: 0,
-      ),
-    );
+    if (durationMinutes <= 0) return points;
 
-    double cumulativeSeverity = 0;
+    // 🔧 Indexare după minute
+    final alertsByMinute = <int, List<Alert>>{};
 
-    for (int i = 0; i < sortedAlerts.length; i++) {
-      final alert = sortedAlerts[i];
-      final elapsedMinutes =
-          alert.timestamp.difference(sessionStartTime).inMinutes;
+    for (var alert in sortedAlerts) {
+      final elapsedMinute = alert.timestamp.difference(sessionStartTime).inMinutes;
+      alertsByMinute.putIfAbsent(elapsedMinute, () => []).add(alert);
+    }
 
-      cumulativeSeverity += alert.severity;
+    double cumulativeSeverity = 0.0;
+    int? firstAlertMinute;
+    double score = 0.0;
 
-      // 🔸 Densitatea pe minut: severitate cumulată raportată la timp
-      final double density = elapsedMinutes > 0
-          ? cumulativeSeverity / elapsedMinutes
-          : cumulativeSeverity;
+    final sessionEndTime = sessionStartTime.add(Duration(minutes: durationMinutes));
+    DateTime currentTime = sessionStartTime;
+
+    int nr = 0;
+
+    while (currentTime.isBefore(sessionEndTime) || currentTime.isAtSameMomentAs(sessionEndTime)) {
+      final elapsedMinute = currentTime.difference(sessionStartTime).inMinutes;
+
+      final alertsAtThisMinute = alertsByMinute[elapsedMinute];
+
+      if (alertsAtThisMinute != null) {
+        for (var alert in alertsAtThisMinute) {
+          firstAlertMinute ??= elapsedMinute;
+          cumulativeSeverity += alert.severity;
+        }
+      }
+
+      if (firstAlertMinute == null) {
+        score = 0.0;
+      } else {
+        final elapsedSeconds = (elapsedMinute - firstAlertMinute) * 60;
+        score = (elapsedSeconds > 0)
+            ? (cumulativeSeverity / elapsedSeconds).clamp(0.0, 1.0)
+            : 0.0;
+      }
 
       appLogger.d(
-          '🚀 Density point [$i]: severity=$cumulativeSeverity, time=$elapsedMinutes min, density=$density');
+        '📊 Score Point [$nr]: time=${currentTime.toFormattedTime()} | alerts=${alertsAtThisMinute?.length ?? 0} | cumulativeSeverity=$cumulativeSeverity | score=$score',
+      );
 
-      controlPoints.add(
+      points.add(
         AlertDensityPoint(
-          nr: i + 1,
-          density: density,
-          alertType: alert.type,
-          alertTime: alert.timestamp.toFormattedTime(),
-          timeLabel: '${elapsedMinutes}min',
-          minute: elapsedMinutes,
+          nr: nr++,
+          density: score,
+          alertType: alertsAtThisMinute?.map((a) => a.type).join(', ') ?? 'None',
+          alertTime: currentTime.toFormattedTime(),
+          timeLabel: '${elapsedMinute}min',
+          minute: elapsedMinute,
         ),
       );
+
+      currentTime = currentTime.add(Duration(seconds: stepInSeconds));
     }
 
-    final double finalDensity =
-        durationMinutes > 0 ? cumulativeSeverity / durationMinutes : 0;
-
-    controlPoints.add(
-      AlertDensityPoint(
-        nr: sortedAlerts.length,
-        density: finalDensity,
-        alertType: 'End',
-        alertTime: sessionStartTime
-            .add(Duration(minutes: durationMinutes))
-            .toFormattedTime(),
-        timeLabel: '${durationMinutes}min',
-        minute: durationMinutes,
-      ),
-    );
-
-    return controlPoints;
+    appLogger.i('✅ Score Points Generated: ${points.length}');
+    return points;
   }
-
-  static List<AlertDensityPoint> generateLinearPoints(
-    List<AlertDensityPoint> controlPoints,
-    DateTime sessionStartTime,
-  ) {
-    final result = <AlertDensityPoint>[];
-
-    for (int i = 0; i < controlPoints.length - 1; i++) {
-      final current = controlPoints[i];
-      final next = controlPoints[i + 1];
-
-      final int minuteStart = current.minute;
-      final int minuteEnd = next.minute;
-
-      const int step = 1;
-
-      for (int m = minuteStart; m < minuteEnd; m += step) {
-        final double t = (m - minuteStart) / (minuteEnd - minuteStart);
-
-        final double interpolatedDensity =
-            _lerp(current.density, next.density, t);
-        final int interpolatedNr = _lerpInt(current.nr, next.nr, t);
-
-        result.add(
-          AlertDensityPoint(
-            nr: interpolatedNr,
-            density: interpolatedDensity,
-            alertType: current.alertType,
-            alertTime:
-                sessionStartTime.add(Duration(minutes: m)).toFormattedTime(),
-            timeLabel: '${m}min',
-            minute: m,
-          ),
-        );
-      }
-    }
-
-    result.add(controlPoints.last);
-
-    return result;
-  }
-
-  static double _lerp(double a, double b, double t) => a + (b - a) * t;
-  static int _lerpInt(int a, int b, double t) => (a + (b - a) * t).round();
 }

@@ -18,7 +18,7 @@ class AlertDensityChart extends StatelessWidget {
       height: 300,
       child: SfCartesianChart(
         title: ChartTitle(
-          text: 'Alert Density',
+          text: 'Fatigue Score Over Time',
           textStyle: AppTextStyles.h2,
           alignment: ChartAlignment.near,
         ),
@@ -29,9 +29,9 @@ class AlertDensityChart extends StatelessWidget {
         ),
         primaryYAxis: NumericAxis(
           minimum: 0,
-          interval: 0.01,
-          maximum: 0.1,
-          title: AxisTitle(text: 'Alerts / Minute'),
+          interval: 0.1,
+          maximum: 1.0,
+          title: AxisTitle(text: 'Fatigue Score'),
           isVisible: false,
         ),
         tooltipBehavior: TooltipBehavior(
@@ -51,7 +51,7 @@ class AlertDensityChart extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                '${alertPoint.timeLabel}\n${alertPoint.nr}: ${alertPoint.alertType}\nAt: ${alertPoint.alertTime}\nLevel: ${fatigueLevel.label}\nSeverity: ${alertPoint.density.toStringAsFixed(4)}',
+                '${alertPoint.timeLabel}\n${alertPoint.nr}: ${alertPoint.alertType}\nAt: ${alertPoint.alertTime}\nLevel: ${fatigueLevel.label}\nScore: ${alertPoint.density.toStringAsFixed(4)}',
                 style: AppTextStyles.medium_12.copyWith(color: Colors.white),
               ),
             );
@@ -65,9 +65,8 @@ class AlertDensityChart extends StatelessWidget {
         ),
         legend: Legend(isVisible: false),
 
-        /// ✅ AreaSeries + LineSeries + pointColorMapper (opțional marker vizibil)
+        /// ✅ AreaSeries cu gradient de oboseală
         series: <CartesianSeries<AlertDensityPoint, String>>[
-          // 🔥 AreaSeries cu gradient bazat pe puncte
           AreaSeries<AlertDensityPoint, String>(
             dataSource: points,
             xValueMapper: (AlertDensityPoint point, _) => point.alertTime,
@@ -76,33 +75,33 @@ class AlertDensityChart extends StatelessWidget {
             borderWidth: 0,
             animationDuration: 1500,
           ),
-
-          
         ],
       ),
     );
   }
 
-  /// Gradient pe baza nivelului de oboseală, punct cu punct
   LinearGradient _buildFatigueGradient(BuildContext context) {
-    final colors = points
-        .map((point) =>
-            FatigueLevelExtension.fromScore(point.density).color(context))
-        .toList();
+  final colors = points.isEmpty
+      ? [Colors.grey, Colors.grey]
+      : points.map((point) => FatigueLevelExtension.fromScore(point.density).color(context)).toList();
 
-    final stops = _generateStops(points.length);
+  final stops = points.isEmpty
+      ? [0.0, 1.0]
+      : _generateStops(points.length);
 
-    return LinearGradient(
-      begin: Alignment.centerLeft,
-      end: Alignment.centerRight,
-      colors: colors,
-      stops: stops,
-    );
+  return LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: colors,
+    stops: stops,
+  );
+}
+
+List<double> _generateStops(int length) {
+  if (length <= 1) {
+    return [0.0, 1.0];
   }
+  return List<double>.generate(length, (index) => index / (length - 1));
+}
 
-  /// Stops pentru gradient
-  List<double> _generateStops(int length) {
-    if (length <= 1) return [0.0];
-    return List<double>.generate(length, (index) => index / (length - 1));
-  }
 }
