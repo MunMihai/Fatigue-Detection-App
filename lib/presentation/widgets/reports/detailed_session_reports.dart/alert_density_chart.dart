@@ -18,7 +18,6 @@ class AlertDensityChart extends StatelessWidget {
         ? points.map((e) => e.density).reduce((a, b) => a > b ? a : b)
         : 1.0;
 
-    // Adaugi un mic offset ca să nu fie fix la limită.
     final double yAxisMax = (maxDensity * 1.1).clamp(0, 1.0);
 
     return SizedBox(

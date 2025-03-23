@@ -70,7 +70,7 @@ class HomeView extends StatelessWidget {
                               Text('Reports', style: AppTextStyles.h2),
                               AppSpaceses.verticalMedium,
                               ArrowButton(
-                                  title: 'View driving session reports',
+                                  title: 'Sessions History',
                                   onPressed: () {
                                     onChangeTab?.call(
                                         1);

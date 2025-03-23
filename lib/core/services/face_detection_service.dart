@@ -5,8 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 
 class FaceDetectionService extends ChangeNotifier {
-  final FaceDetector _faceDetector;
+  static const int _minProcessDelayMs = 100;
+  static const double _yawnOpenThreshold = 0.4;
+  static const double _noseDistanceThreshold = 0.8;
+  static const double _eyeOpenTreshold = 0.5;
+
   final CameraLensDirection _cameraLensDirection = CameraLensDirection.front;
+  final FaceDetector _faceDetector;
 
   bool _canProcess = true;
   bool _isProcessing = false;
@@ -16,15 +21,12 @@ class FaceDetectionService extends ChangeNotifier {
 
   int closedEyesFrameCounter = 0;
   int yawnFrameCounter = 0;
-  static int _closedEyesFrameThreshold = 0;
-  static int _yawnFrameThreshold = 0;
 
-  static const double _yawnOpenThreshold = 0.4;
-  static const double _noseDistanceThreshold = 0.8;
+  late int _closedEyesFrameThreshold;
+  late int _yawnFrameThreshold;
 
   DateTime _lastFaceDetectedTime = DateTime.now();
   DateTime? _lastProcessTime;
-  static const int _minProcessDelayMs = 100;
 
   FaceDetectionService()
       : _faceDetector = FaceDetector(
@@ -47,13 +49,14 @@ class FaceDetectionService extends ChangeNotifier {
   void reset(int sensitivity) {
     appLogger.i('[FaceDetectionService] Resetting...');
     closedEyesFrameCounter = 0;
-    yawnFrameCounter = 0; 
+    yawnFrameCounter = 0;
 
     _customPaint = null;
-  
-    _closedEyesFrameThreshold = 13 - sensitivity;
-    _yawnFrameThreshold = (7 - sensitivity).clamp(3, 10); 
     _detectionText = '';
+
+    _closedEyesFrameThreshold = (13 - sensitivity).clamp(5, 15);
+    _yawnFrameThreshold = (7 - sensitivity).clamp(3, 10);
+
     _lastFaceDetectedTime = DateTime.now();
     notifyListeners();
   }
@@ -68,81 +71,74 @@ class FaceDetectionService extends ChangeNotifier {
       return;
     }
     _lastProcessTime = currentTime;
-
     _isProcessing = true;
+
     _detectionText = '';
 
     final faces = await _faceDetector.processImage(inputImage);
 
     if (faces.isEmpty) {
-      _detectionText = 'No face detected';
-      _customPaint = null;
-      _isProcessing = false;
-      notifyListeners();
+      _handleNoFaceDetected();
       return;
     }
 
     _lastFaceDetectedTime = DateTime.now();
 
-    // ✅ Process the largest face only
-    faces.sort((a, b) => b.boundingBox.height.compareTo(a.boundingBox.height));
-    final face = faces.first;
+    final face = _selectPrimaryFace(faces);
 
-    // 🔸 Detect eyes and yawning (separate methods)
     final eyeStatusText = _processEyeState(face);
     final yawnStatusText = _processYawning(face);
 
     _detectionText = 'Face found\n\n$eyeStatusText\n$yawnStatusText';
 
-    if (inputImage.metadata?.size != null &&
-        inputImage.metadata?.rotation != null) {
-      final painter = FaceDetectorPainter(
-        [face],
-        inputImage.metadata!.size,
-        inputImage.metadata!.rotation,
-        _cameraLensDirection,
-      );
-      _customPaint = CustomPaint(painter: painter);
-    } else {
-      _customPaint = null;
-    }
+    _updatePainter(inputImage, face);
 
     _isProcessing = false;
     notifyListeners();
   }
 
-  /// 🔹 Procesează starea ochilor (închiși / deschiși)
+  void _handleNoFaceDetected() {
+    _detectionText = 'No face detected';
+    _customPaint = null;
+    _isProcessing = false;
+    notifyListeners();
+  }
+
+  Face _selectPrimaryFace(List<Face> faces) {
+    faces.sort((a, b) => b.boundingBox.height.compareTo(a.boundingBox.height));
+    return faces.first;
+  }
+
   String _processEyeState(Face face) {
-    String eyeStatusText = '';
     final leftEyeOpenProb = face.leftEyeOpenProbability;
     final rightEyeOpenProb = face.rightEyeOpenProbability;
 
     if (leftEyeOpenProb != null && rightEyeOpenProb != null) {
-      final isLeftEyeClosed = leftEyeOpenProb < 0.5;
-      final isRightEyeClosed = rightEyeOpenProb < 0.5;
+      final bothEyesClosed = leftEyeOpenProb < _eyeOpenTreshold &&
+          rightEyeOpenProb < _eyeOpenTreshold;
 
-      if (isLeftEyeClosed && isRightEyeClosed) {
+      if (bothEyesClosed) {
         closedEyesFrameCounter++;
-        eyeStatusText = '⚠️ Both eyes closed! Frame: $closedEyesFrameCounter';
-        appLogger.w(eyeStatusText);
+        final text = '⚠️ Both eyes closed! Frame: $closedEyesFrameCounter';
+        appLogger.w(text);
+        return text;
       } else {
-        eyeStatusText =
-            '👁️ Eyes open\n - Left: ${leftEyeOpenProb.toStringAsFixed(2)}\n - Right: ${rightEyeOpenProb.toStringAsFixed(2)}';
         closedEyesFrameCounter = 0;
-        appLogger.i(eyeStatusText);
+        final text =
+            '👁️ Eyes open\n - Left: ${leftEyeOpenProb.toStringAsFixed(2)}'
+            '\n - Right: ${rightEyeOpenProb.toStringAsFixed(2)}';
+        appLogger.i(text);
+        return text;
       }
-    } else {
-      closedEyesFrameCounter++;
-      eyeStatusText = '🔍 Eye probabilities unavailable.';
-      appLogger.w(eyeStatusText);
     }
 
-    return eyeStatusText;
+    closedEyesFrameCounter++;
+    final fallbackText = '🔍 Eye probabilities unavailable.';
+    appLogger.w(fallbackText);
+    return fallbackText;
   }
 
   String _processYawning(Face face) {
-    String yawnStatusText = '';
-
     final landmarks = face.landmarks;
 
     final bottomMouth = landmarks[FaceLandmarkType.bottomMouth]?.position;
@@ -150,39 +146,56 @@ class FaceDetectionService extends ChangeNotifier {
     final rightMouth = landmarks[FaceLandmarkType.leftMouth]?.position;
     final noseBase = landmarks[FaceLandmarkType.noseBase]?.position;
 
-    if (bottomMouth != null &&
-        leftMouth != null &&
-        rightMouth != null &&
-        noseBase != null) {
-      final mouthWidth = (leftMouth.x - rightMouth.x).abs();
+    if (_areLandmarksValid([bottomMouth, leftMouth, rightMouth, noseBase])) {
+      final mouthWidth = (leftMouth!.x - rightMouth!.x).abs();
       final mouthHeight =
-          (bottomMouth.y - ((leftMouth.y + rightMouth.y) / 2)).abs();
-      final noseToMouthDistance = (bottomMouth.y - noseBase.y).abs();
+          (bottomMouth!.y - ((leftMouth.y + rightMouth.y) / 2)).abs();
+      final noseToMouthDistance = (bottomMouth.y - noseBase!.y).abs();
 
       final mouthOpenRatio = mouthHeight / mouthWidth;
       final noseMouthRatio = noseToMouthDistance / mouthWidth;
 
-      // Parametri reglabili pe baza testelor
-      bool isYawning = (mouthOpenRatio > _yawnOpenThreshold) &&
+      final isYawning = (mouthOpenRatio > _yawnOpenThreshold) &&
           (noseMouthRatio > _noseDistanceThreshold);
-
-      yawnStatusText = isYawning
-          ? '😮 Yawning detected! MouthRatio: ${mouthOpenRatio.toStringAsFixed(2)} | NoseRatio: ${noseMouthRatio.toStringAsFixed(2)}'
-          : '🙂 No yawning. MouthRatio: ${mouthOpenRatio.toStringAsFixed(2)} | NoseRatio: ${noseMouthRatio.toStringAsFixed(2)}';
 
       if (isYawning) {
         yawnFrameCounter++;
-        appLogger.w(yawnStatusText);
       } else {
         yawnFrameCounter = 0;
-        appLogger.i(yawnStatusText);
       }
-    } else {
-      yawnStatusText = '❗ Required landmarks not found (nose/mouth)';
-      appLogger.w(yawnStatusText);
+
+      final status = isYawning
+          ? '😮 Yawning detected! MouthRatio: ${mouthOpenRatio.toStringAsFixed(2)}'
+              ' | NoseRatio: ${noseMouthRatio.toStringAsFixed(2)}'
+          : '🙂 No yawning. MouthRatio: ${mouthOpenRatio.toStringAsFixed(2)}'
+              ' | NoseRatio: ${noseMouthRatio.toStringAsFixed(2)}';
+
+      isYawning ? appLogger.w(status) : appLogger.i(status);
+      return status;
     }
 
-    return yawnStatusText;
+    final error = '❗ Required landmarks not found (nose/mouth)';
+    appLogger.w(error);
+    return error;
+  }
+
+  bool _areLandmarksValid(List<dynamic> landmarks) {
+    return landmarks.every((element) => element != null);
+  }
+
+  void _updatePainter(InputImage inputImage, Face face) {
+    final metadata = inputImage.metadata;
+    if (metadata?.size != null && metadata?.rotation != null) {
+      final painter = FaceDetectorPainter(
+        [face],
+        metadata!.size,
+        metadata.rotation,
+        _cameraLensDirection,
+      );
+      _customPaint = CustomPaint(painter: painter);
+    } else {
+      _customPaint = null;
+    }
   }
 
   @override

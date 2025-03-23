@@ -40,7 +40,7 @@ class SettingsView extends StatelessWidget {
                 onChanged: settingsProvider.updateTime,
               ),
             AppSpaceses.verticalLarge,
-            Text('Reports Configuration', style: AppTextStyles.h2),
+            Text('Preferences', style: AppTextStyles.h2),
             AppSpaceses.verticalMedium,
             CustomSwitchTile(
               title: 'Show Reports Section',

@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 
 class PauseManager extends ChangeNotifier {
-  DateTime? _pauseStart;
-  Duration _totalPause = Duration.zero;
+  DateTime? _pauseStartTime;
+  Duration _totalPauseDuration = Duration.zero;
   bool _isPaused = false;
 
   Timer? _pauseTimer;
@@ -11,50 +11,71 @@ class PauseManager extends ChangeNotifier {
   bool get isPaused => _isPaused;
 
   Duration get totalPause {
-    if (_isPaused && _pauseStart != null) {
-      final currentPauseDuration = DateTime.now().difference(_pauseStart!);
-      return _totalPause + currentPauseDuration;
-    } else {
-      return _totalPause;
+    if (_isPaused && _pauseStartTime != null) {
+      final currentPause = DateTime.now().difference(_pauseStartTime!);
+      return _totalPauseDuration + currentPause;
     }
+    return _totalPauseDuration;
   }
 
+  /// 🟢 Pornește pauza
   void startPause() {
     if (_isPaused) return;
 
-    _pauseStart = DateTime.now();
+    _pauseStartTime = DateTime.now();
     _isPaused = true;
 
+    _startPauseTimer();
+
+    notifyListeners();
+  }
+
+  /// 🔵 Oprește pauza
+  void stopPause() {
+    if (!_isPaused || _pauseStartTime == null) return;
+
+    _totalPauseDuration += DateTime.now().difference(_pauseStartTime!);
+
+    _pauseStartTime = null;
+    _isPaused = false;
+
+    _stopPauseTimer();
+
+    notifyListeners();
+  }
+
+  /// 🟣 Reset complet
+  void reset() {
+    final wasPausedOrNotEmpty = _isPaused || _totalPauseDuration != Duration.zero;
+
+    _pauseStartTime = null;
+    _totalPauseDuration = Duration.zero;
+    _isPaused = false;
+
+    _stopPauseTimer();
+
+    if (wasPausedOrNotEmpty) {
+      notifyListeners();
+    }
+  }
+
+  /// Intern: Pornește timer-ul pentru actualizare UI
+  void _startPauseTimer() {
+    _pauseTimer?.cancel();
     _pauseTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       notifyListeners();
     });
-
-    notifyListeners();
   }
 
-  void stopPause() {
-    if (!_isPaused || _pauseStart == null) return;
-
-    final pauseDuration = DateTime.now().difference(_pauseStart!);
-    _totalPause += pauseDuration;
-
-    _pauseStart = null;
-    _isPaused = false;
-
+  /// Intern: Oprește timer-ul
+  void _stopPauseTimer() {
     _pauseTimer?.cancel();
     _pauseTimer = null;
-
-    notifyListeners();
   }
 
-  void reset() {
-    _pauseStart = null;
-    _totalPause = Duration.zero;
-    _isPaused = false;
-
-    _pauseTimer?.cancel();
-    _pauseTimer = null;
-
-    notifyListeners();
+  @override
+  void dispose() {
+    _stopPauseTimer();
+    super.dispose();
   }
 }

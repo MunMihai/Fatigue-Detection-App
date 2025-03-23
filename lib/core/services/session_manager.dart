@@ -5,7 +5,6 @@ import 'package:driver_monitoring/core/enum/app_state.dart';
 import 'package:driver_monitoring/core/services/face_detection_service.dart';
 import 'package:driver_monitoring/presentation/providers/camera_provider.dart';
 import 'package:flutter/foundation.dart';
-
 import 'package:driver_monitoring/core/utils/app_logger.dart';
 import 'package:driver_monitoring/domain/entities/session_report.dart';
 import 'package:driver_monitoring/presentation/providers/settings_provider.dart';
@@ -21,14 +20,14 @@ class SessionManager extends ChangeNotifier {
   final PauseManager pauseManager;
   final AlertManager alertManager;
 
-  final int _faceDetectionTime = 61;
+  final int _faceDetectionTimeoutSec = 61;
 
   AppState _appState = AppState.idle;
   AppState get appState => _appState;
 
   SessionReport? _currentSession;
+  Timer? _faceDetectionTimer;
   int _breaksCount = 0;
-  Timer? _faceDetectionTimeoutTimer;
 
   VoidCallback? onSessionTimeout;
   ValueChanged<int>? onTimeRemainingNotification;
@@ -53,131 +52,55 @@ class SessionManager extends ChangeNotifier {
   bool get isActive => _appState == AppState.active;
   bool get isPaused => _appState == AppState.paused;
   bool get stopping => _appState == AppState.stopping;
-  bool get initializing => _appState == AppState.initializing;
-  bool get isAlerting => _appState == AppState.alertness;
   int get breaksCount => _breaksCount;
   SessionReport? get currentSession => _currentSession;
 
   Future<void> startMonitoring() async {
     if (!isIdle) return;
-    appLogger.i('[SessionManager] Initializing state...');
-    _appState = AppState.initializing;
-    notifyListeners();
+
+    _updateAppState(AppState.initializing);
+    appLogger.i('[SessionManager] Initializing session...');
 
     await _setupLiveFaceMonitoring();
+    _initSession();
 
-    faceDetectionService.reset(settingsProvider.sessionSensitivity);
+    _startTimers();
+    _updateAppState(AppState.active);
 
-    if (onSessionStarted != null) {
-      appLogger
-          .i('[SessionManager] onSessionStarted is not null. Calling now...');
-      onSessionStarted!(); // sau onSessionStarted?.call();
-    } else {
-      appLogger.w(
-          '[SessionManager] onSessionStarted is NULL. Nothing will be called.');
-    }
-
-    _currentSession = SessionReport(
-      id: 'session-${DateTime.now().microsecondsSinceEpoch}',
-      timestamp: DateTime.now(),
-      durationMinutes: 0,
-      highestSeverityScore: 0.0,
-      retentionMonths: settingsProvider.retentionMonths,
-      alerts: [],
-    );
-
-    _breaksCount = 0;
-    alertManager.clearAlerts();
-    pauseManager.reset();
-    _hasTriggeredTimeout = false;
-    _notifiedThirtyMinutes = false;
-    _notifiedFifteenMinutes = false;
-
-    sessionTimer.start(
-      countdownDuration: Duration(
-        hours: settingsProvider.savedHours,
-        minutes: settingsProvider.savedMinutes,
-      ),
-    );
-
-    sessionTimer.addListener(_onTimerTick);
-
-    appLogger.i('[SessionManager] Moving to ACTIVE state...');
-    _appState = AppState.active;
-
-    _faceDetectionTimeoutTimer =
-        Timer.periodic(const Duration(seconds: 5), (_) {
-      final elapsedSinceLastFace =
-          DateTime.now().difference(faceDetectionService.lastFaceDetectedTime);
-
-      if (elapsedSinceLastFace.inSeconds >= _faceDetectionTime && !isPaused) {
-        appLogger.w(
-            '[SessionManager] No face detected for ${elapsedSinceLastFace.inSeconds} seconds. Stopping session...');
-
-        stopMonitoring();
-      } else {
-        appLogger.i(
-            '[SessionManager] Last face detected ${elapsedSinceLastFace.inSeconds} seconds ago.');
-      }
-    });
-
-    notifyListeners();
+    onSessionStarted?.call();
   }
 
   Future<SessionReport?> stopMonitoring() async {
     if (!isActive && !isPaused) return null;
 
-    appLogger.i('[SessionManager] Moving to STOPPING state...');
-    _appState = AppState.stopping;
-    notifyListeners();
+    _updateAppState(AppState.stopping);
+    appLogger.i('[SessionManager] Stopping session...');
 
-    onSessionStopped?.call();
-
-    _faceDetectionTimeoutTimer?.cancel();
-    _faceDetectionTimeoutTimer = null;
-
-    faceDetectionService.reset(settingsProvider.sessionSensitivity);
-
-    sessionTimer.removeListener(_onTimerTick);
+    _cleanupTimers();
     pauseManager.stopPause();
     alertManager.stopAlert();
 
-    final session = _currentSession?.copyWith(
-      durationMinutes: sessionTimer.elapsedTime.inMinutes,
-      alerts: alertManager.alerts,
-    );
+    final session = _finalizeSession();
 
-    _currentSession = null;
-    sessionTimer.reset();
     await cameraProvider.stopCamera();
 
-    appLogger.i('[SessionManager] Moving to IDLE state...');
-    _appState = AppState.idle;
+    _updateAppState(AppState.idle);
+    onSessionStopped?.call();
 
-    notifyListeners();
     return session;
   }
 
   Future<void> pauseMonitoring() async {
     if (!isActive) return;
-
-    appLogger.i('[SessionManager] Moving to PAUSED state...');
-    _appState = AppState.paused;
-
+    _updateAppState(AppState.paused);
     pauseManager.startPause();
     _breaksCount++;
-
-    notifyListeners();
   }
 
   Future<void> resumeMonitoring() async {
-    if (!isPaused && !isAlerting) return;
-
-    appLogger.i('[SessionManager] Resuming to ACTIVE...');
-    _appState = AppState.active;
-
+    if (!isPaused && _appState != AppState.alertness) return;
+    _updateAppState(AppState.active);
     pauseManager.stopPause();
-    notifyListeners();
   }
 
   Future<void> _setupLiveFaceMonitoring() async {
@@ -196,6 +119,7 @@ class SessionManager extends ChangeNotifier {
         conditionMet: faceDetectionService.yawningDetected,
       );
     });
+
     await cameraProvider.initialize(CameraLensDirection.front);
   }
 
@@ -212,67 +136,126 @@ class SessionManager extends ChangeNotifier {
   }
 
   void _triggerAlert(String type, double severity) {
-    if (!isActive) return;
+    if (!isActive || alertManager.isAlertActive(type)) return;
 
-    if (alertManager.isAlertActive(type)) return;
+    appLogger.w('[SessionManager] Trigger alert: $type');
 
     alertManager.triggerAlert(type: type, severity: severity);
     onNewAlert?.call(severity);
 
-    _appState = AppState.alertness;
-    notifyListeners();
+    _updateAppState(AppState.alertness);
   }
 
   void _stopAlert(String type) {
     if (!alertManager.isAlertActive(type)) return;
 
+    appLogger.i('[SessionManager] Stop alert: $type');
+
     alertManager.stopAlert(type: type);
 
     if (alertManager.noActiveAlerts) {
-      _appState = AppState.active;
-      notifyListeners();
+      _updateAppState(AppState.active);
     }
   }
 
   void _onTimerTick() {
-    final countdownRemaining = sessionTimer.remainingTime;
+    final remaining = sessionTimer.remainingTime;
 
-    if (!_notifiedFifteenMinutes && countdownRemaining.inMinutes == 15) {
-      if (!_notifiedThirtyMinutes && countdownRemaining.inMinutes == 30) {
-        _notifiedThirtyMinutes = true;
-        appLogger
-            .i('[SessionManager]30 minutes remaining notification triggered.');
-        onTimeRemainingNotification?.call(30);
-      } else {
-        _notifiedFifteenMinutes = true;
-        appLogger
-            .i('[SessionManager]15 minutes remaining notification triggered.');
-        onTimeRemainingNotification?.call(15);
-      }
+    if (!_notifiedThirtyMinutes && remaining.inMinutes == 30) {
+      _notifiedThirtyMinutes = true;
+      appLogger.i('[SessionManager] 30 minutes remaining');
+      onTimeRemainingNotification?.call(30);
     }
-    // Countdown finished
+
+    if (!_notifiedFifteenMinutes && remaining.inMinutes == 15) {
+      _notifiedFifteenMinutes = true;
+      appLogger.i('[SessionManager] 15 minutes remaining');
+      onTimeRemainingNotification?.call(15);
+    }
+
     if (sessionTimer.countdownFinished && settingsProvider.isCounterEnabled) {
-      _handleCountdownFinished();
+      _handleSessionTimeout();
     }
-
-    notifyListeners();
   }
 
-  void _handleCountdownFinished() {
+  void _handleSessionTimeout() {
     if (_hasTriggeredTimeout) return;
 
     _hasTriggeredTimeout = true;
-    appLogger
-        .w('[SessionManager] Session timer expired! Triggering break alert.');
+    appLogger.w('[SessionManager] Timer expired. Triggering break alert.');
 
     alertManager.triggerAlert(type: AlertType.sessionExpired.name, severity: 0);
-
     onSessionTimeout?.call();
+  }
+
+  /// Setup & Cleanup Helpers
+  void _initSession() {
+    faceDetectionService.reset(settingsProvider.sessionSensitivity);
+
+    _currentSession = SessionReport(
+      id: 'session-${DateTime.now().microsecondsSinceEpoch}',
+      timestamp: DateTime.now(),
+      durationMinutes: 0,
+      highestSeverityScore: 0.0,
+      retentionMonths: settingsProvider.retentionMonths,
+      alerts: [],
+    );
+
+    _breaksCount = 0;
+    _hasTriggeredTimeout = false;
+    _notifiedThirtyMinutes = false;
+    _notifiedFifteenMinutes = false;
+
+    alertManager.clearAlerts();
+    pauseManager.reset();
+  }
+
+  SessionReport? _finalizeSession() {
+    final session = _currentSession?.copyWith(
+      durationMinutes: sessionTimer.elapsedTime.inMinutes,
+      alerts: alertManager.alerts,
+    );
+
+    _currentSession = null;
+    sessionTimer.reset();
+    return session;
+  }
+
+  void _startTimers() {
+    sessionTimer.start(
+      countdownDuration: Duration(
+        hours: settingsProvider.savedHours,
+        minutes: settingsProvider.savedMinutes,
+      ),
+    );
+    sessionTimer.addListener(_onTimerTick);
+
+    _faceDetectionTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      final elapsed = DateTime.now().difference(faceDetectionService.lastFaceDetectedTime);
+
+      if (elapsed.inSeconds >= _faceDetectionTimeoutSec && !isPaused) {
+        appLogger.w('[SessionManager] Face not detected for $elapsed. Stopping session.');
+        stopMonitoring();
+      } else {
+        appLogger.i('[SessionManager] Last face detected ${elapsed.inSeconds} seconds ago.');
+      }
+    });
+  }
+
+  void _cleanupTimers() {
+    _faceDetectionTimer?.cancel();
+    _faceDetectionTimer = null;
+    sessionTimer.removeListener(_onTimerTick);
+  }
+
+  void _updateAppState(AppState state) {
+    _appState = state;
+    notifyListeners();
   }
 
   @override
   void dispose() {
-    _faceDetectionTimeoutTimer?.cancel();
+    _cleanupTimers();
     sessionTimer.removeListener(_onTimerTick);
     super.dispose();
   }

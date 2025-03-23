@@ -32,82 +32,70 @@ class AppProvidersWrapper extends StatefulWidget {
 }
 
 class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
+  late final DriftSessionReportLocalDataSource _reportDataSource;
+  late final SessionReportRepositoryImpl _sessionReportRepository;
+
   @override
   void initState() {
     super.initState();
+    _initDatabase();
     _deleteExpiredReports();
   }
 
-  void _deleteExpiredReports() async {
+  void _initDatabase() {
     final db = DatabaseProvider().database;
-    final reportDataSource = DriftSessionReportLocalDataSource(db);
-    await reportDataSource.deleteExpiredReports(DateTime.now());
+    _reportDataSource = DriftSessionReportLocalDataSource(db);
+    _sessionReportRepository =
+        SessionReportRepositoryImpl(dataSource: _reportDataSource);
+  }
+
+  Future<void> _deleteExpiredReports() async {
+    await _reportDataSource.deleteExpiredReports(DateTime.now());
   }
 
   @override
   Widget build(BuildContext context) {
-    /// 🗄️ Inițializare DB și repository
-    final db = DatabaseProvider().database;
-    final reportDataSource = DriftSessionReportLocalDataSource(db);
-    //final reportDataSource = MockSessionReportLocalDataSource(); // pentru teste / mock
-    final sessionReportRepository =
-        SessionReportRepositoryImpl(dataSource: reportDataSource);
-
-    /// 🛠️ Inițializare use case-uri
-    final getReportsUseCase = GetReportsUseCase(sessionReportRepository);
-    final addReportUseCase = AddReportUseCase(sessionReportRepository);
-    final updateReportUseCase = UpdateReportUseCase(sessionReportRepository);
-    final deleteReportUseCase = DeleteReportUseCase(sessionReportRepository);
+    final getReportsUseCase = GetReportsUseCase(_sessionReportRepository);
+    final addReportUseCase = AddReportUseCase(_sessionReportRepository);
+    final updateReportUseCase = UpdateReportUseCase(_sessionReportRepository);
+    final deleteReportUseCase = DeleteReportUseCase(_sessionReportRepository);
 
     return MultiProvider(
       providers: [
-        /// 🔧 Settings (preferințe salvate: ore, minute, retention)
-        ChangeNotifierProvider<SettingsProvider>(
+        ChangeNotifierProvider(
           create: (_) => SettingsProvider()..loadSettings(),
         ),
 
-        /// 🛡️ PermissionsService (permisiuni runtime)
         Provider<PermissionsService>(
           lazy: false,
           create: (_) => PermissionsService(),
         ),
 
-        ChangeNotifierProvider<CameraProvider>(create: (_) => CameraProvider()),
-        ChangeNotifierProvider<FaceDetectionService>(
-            create: (_) => FaceDetectionService()),
+        ChangeNotifierProvider(create: (_) => CameraProvider()),
+        ChangeNotifierProvider(create: (_) => FaceDetectionService()),
 
-        // SessionManager controlează starea + lifecycle cameră
-        ChangeNotifierProxyProvider2<SettingsProvider, CameraProvider,
-            SessionManager>(
+        ChangeNotifierProxyProvider2<SettingsProvider, CameraProvider, SessionManager>(
           create: (context) {
-            final settingsProvider = context.read<SettingsProvider>();
-            final cameraProvider = context.read<CameraProvider>();
-            final faceDetectionService = context.read<FaceDetectionService>();
-            final sessionTimer = SessionTimer();
-            final pauseManager = PauseManager();
-            final alertManager = AlertManager();
+            final settings = context.read<SettingsProvider>();
+            final camera = context.read<CameraProvider>();
+            final faceDetection = context.read<FaceDetectionService>();
 
             return SessionManager(
-              settingsProvider: settingsProvider,
-              cameraProvider: cameraProvider,
-              faceDetectionService: faceDetectionService,
-              sessionTimer: sessionTimer,
-              pauseManager: pauseManager,
-              alertManager: alertManager,
+              settingsProvider: settings,
+              cameraProvider: camera,
+              faceDetectionService: faceDetection,
+              sessionTimer: SessionTimer(),
+              pauseManager: PauseManager(),
+              alertManager: AlertManager(),
             );
           },
-          update: (_, settingsProvider, cameraProvider, sessionManager) =>
-              sessionManager!,
+          update: (_, __, ___, sessionManager) => sessionManager!,
         ),
 
         ChangeNotifierProvider<ScoreProvider>(
-          create: (context) {
-            final sessionManager = context.read<SessionManager>();
-            return ScoreProvider(sessionManager);
-          },
+          create: (context) => ScoreProvider(context.read<SessionManager>()),
         ),
 
-        /// 📝 SessionReportProvider (pentru listarea, salvarea și gestionarea rapoartelor)
         ChangeNotifierProxyProvider<SettingsProvider, SessionReportProvider>(
           create: (_) => SessionReportProvider(
             getReportsUseCase: getReportsUseCase,
@@ -116,8 +104,9 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
             deleteReportUseCase: deleteReportUseCase,
           ),
           update: (_, settingsProvider, reportProvider) {
-            final isEnabled = settingsProvider.isReportsSectionEnabled;
-            final nonNullReportProvider = reportProvider ??
+            final isReportsEnabled = settingsProvider.isReportsSectionEnabled;
+
+            final reports = reportProvider ??
                 SessionReportProvider(
                   getReportsUseCase: getReportsUseCase,
                   addReportUseCase: addReportUseCase,
@@ -125,13 +114,13 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
                   deleteReportUseCase: deleteReportUseCase,
                 );
 
-            if (isEnabled && !nonNullReportProvider.hasFetchedReports) {
-              nonNullReportProvider.fetchReports();
-            } else if (!isEnabled) {
-              nonNullReportProvider.clearReports();
+            if (isReportsEnabled && !reports.hasFetchedReports) {
+              reports.fetchReports();
+            } else if (!isReportsEnabled) {
+              reports.clearReports();
             }
 
-            return nonNullReportProvider;
+            return reports;
           },
         ),
       ],
