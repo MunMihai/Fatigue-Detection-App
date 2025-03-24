@@ -4,7 +4,7 @@ import 'package:driver_monitoring/core/enum/fatigue_level.dart';
 import 'package:flutter/material.dart';
 
 class FatigueLevelIndicator extends StatelessWidget {
-  final double score; // scor între 0 și 0.1
+  final double score; 
 
   const FatigueLevelIndicator({
     super.key,
@@ -13,8 +13,8 @@ class FatigueLevelIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Normalizează scorul pe scala 0.0 - 1.0
-    final double normalized = score.clamp(0.0, 1.0);
+    final double maxScore = 0.6;
+    final double normalized = (score / maxScore).clamp(0.0, 1.0);
 
     final fatigueLevel = FatigueLevelExtension.fromScore(score);
 

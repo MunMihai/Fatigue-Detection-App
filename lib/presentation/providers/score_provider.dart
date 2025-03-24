@@ -8,7 +8,7 @@ class ScoreProvider with ChangeNotifier {
   final SessionManager sessionManager;
 
   double _cumulativeSeverity = 0.0;
-  DateTime? _firstAlertTime;
+  DateTime? _sessionStartTime;
   double _score = 0.0;
   double _highestScore = 0.0;
 
@@ -30,6 +30,8 @@ class ScoreProvider with ChangeNotifier {
     if (_timer != null) return;
 
     appLogger.i("[ScoreProvider] Starting timer...");
+    _sessionStartTime = DateTime.now();
+
     _timer = Timer.periodic(const Duration(seconds: 1), (_) => _updateScore());
   }
 
@@ -45,7 +47,7 @@ class ScoreProvider with ChangeNotifier {
     appLogger.i("[ScoreProvider] Resetting score...");
 
     _cumulativeSeverity = 0.0;
-    _firstAlertTime = null;
+    _sessionStartTime = null;
     _score = 0.0;
     _highestScore = 0.0;
 
@@ -53,7 +55,7 @@ class ScoreProvider with ChangeNotifier {
   }
 
   void onNewAlert(double severity) {
-    _firstAlertTime ??= DateTime.now();
+    // _sessionStartTime ??= DateTime.now();
     _cumulativeSeverity += severity;
 
     appLogger.i(
@@ -69,15 +71,15 @@ class ScoreProvider with ChangeNotifier {
   void _updateScore() {
     _recalculateScore();
     appLogger.i(
-        "[ScoreProvider] Current score: $_score | Highest score: $_highestScore");
+        "[ScoreProvider] $_sessionStartTime Current score: $_score | Highest score: $_highestScore");
   }
 
   void _recalculateScore() {
-    if (_firstAlertTime == null) {
+    if (_sessionStartTime == null) {
       _score = 0.0;
     } else {
       final elapsedSeconds =
-          DateTime.now().difference(_firstAlertTime!).inSeconds;
+          DateTime.now().difference(_sessionStartTime!).inSeconds;
 
       if (elapsedSeconds <= 0) {
         _score = 0.0;

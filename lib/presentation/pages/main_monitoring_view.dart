@@ -55,7 +55,7 @@ class _MainMonitoringViewState extends State<MainMonitoringView>
         final breakTime = sessionManager.pauseManager.totalPause;
         final breaksCount = sessionManager.breaksCount;
 
-        final bool isFatigued = score >= 0.9;
+        final bool isFatigued = score >0.4;
 
         return AnimatedBuilder(
           animation: _controller,

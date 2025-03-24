@@ -16,13 +16,11 @@ class SessionsReportsChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ Sortăm rapoartele cronologic (crescător)
     final sortedReports = [...reports]
       ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
     final int totalReports = sortedReports.length;
 
-    // ✅ Zoom settings pentru ultimele 10 elemente
     final double zoomFactor = totalReports > 10 ? 10 / totalReports : 1.0;
     final double zoomPosition =
         totalReports > 10 ? (totalReports - 10) / totalReports : 0.0;
@@ -42,7 +40,7 @@ class SessionsReportsChart extends StatelessWidget {
         ),
         primaryYAxis: NumericAxis(
           minimum: 0,
-          maximum: 0.1,
+          maximum: 0.6,
           interval: 0.01,
           isVisible: false,
         ),
@@ -60,7 +58,7 @@ class SessionsReportsChart extends StatelessWidget {
             xValueMapper: (SessionReport report, _) =>
     DateFormat('HH:mm\nMMM dd, yyyy').format(report.timestamp),
             yValueMapper: (SessionReport report, _) =>
-                min(report.highestSeverityScore, 0.1),
+                min(report.highestSeverityScore, 0.6),
             name: '', // Fără nume pentru legendă
             dataLabelSettings: DataLabelSettings(
               isVisible: true,

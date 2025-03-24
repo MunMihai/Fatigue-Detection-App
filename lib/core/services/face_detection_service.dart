@@ -6,9 +6,11 @@ import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 
 class FaceDetectionService extends ChangeNotifier {
   static const int _minProcessDelayMs = 100;
-  static const double _yawnOpenThreshold = 0.4;
-  static const double _noseDistanceThreshold = 0.8;
-  static const double _eyeOpenTreshold = 0.5;
+  static const double _yawnOpenThreshold = 0.3;
+  static const double _noseDistanceThreshold = 1.2;
+  static const double _eyeOpenTreshold = 0.4;
+  static const double _eyesOpenDifference = 0.2;
+  
 
   final CameraLensDirection _cameraLensDirection = CameraLensDirection.front;
   final FaceDetector _faceDetector;
@@ -54,8 +56,8 @@ class FaceDetectionService extends ChangeNotifier {
     _customPaint = null;
     _detectionText = '';
 
-    _closedEyesFrameThreshold = (13 - sensitivity).clamp(5, 15);
-    _yawnFrameThreshold = (7 - sensitivity).clamp(3, 10);
+    _closedEyesFrameThreshold = (12 - sensitivity);
+    _yawnFrameThreshold = (7 - sensitivity).clamp(2, 7);
 
     _lastFaceDetectedTime = DateTime.now();
     notifyListeners();
@@ -86,8 +88,14 @@ class FaceDetectionService extends ChangeNotifier {
 
     final face = _selectPrimaryFace(faces);
 
-    final eyeStatusText = _processEyeState(face);
     final yawnStatusText = _processYawning(face);
+
+    String eyeStatusText = '';
+    if (!yawningDetected) {
+      eyeStatusText = _processEyeState(face);
+    } else {
+      closedEyesFrameCounter = 0;
+    }
 
     _detectionText = 'Face found\n\n$eyeStatusText\n$yawnStatusText';
 
@@ -114,8 +122,11 @@ class FaceDetectionService extends ChangeNotifier {
     final rightEyeOpenProb = face.rightEyeOpenProbability;
 
     if (leftEyeOpenProb != null && rightEyeOpenProb != null) {
+      final difference = (leftEyeOpenProb - rightEyeOpenProb).abs();
+
       final bothEyesClosed = leftEyeOpenProb < _eyeOpenTreshold &&
-          rightEyeOpenProb < _eyeOpenTreshold;
+          rightEyeOpenProb < _eyeOpenTreshold &&
+          difference <= _eyesOpenDifference;
 
       if (bothEyesClosed) {
         closedEyesFrameCounter++;
