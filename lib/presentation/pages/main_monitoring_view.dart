@@ -62,7 +62,7 @@ class _MainMonitoringViewState extends State<MainMonitoringView>
           builder: (context, _) {
             return Scaffold(
               appBar: CustomAppBar(
-                  title: 'Active Monitoring'),
+                  title: 'Monitoring Status'),
               backgroundColor: isFatigued
                   ? _colorAnimation.value
                   : Theme.of(context).colorScheme.surface,

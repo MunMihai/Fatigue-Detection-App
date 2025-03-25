@@ -10,7 +10,7 @@ class AudioService {
   final double volume;
 
   AudioService({
-    Duration cooldown = const Duration(seconds: 5),
+    Duration cooldown = const Duration(seconds: 2),
     this.alertSoundAsset = 'assets/sounds/warning_1.mp3',
     this.volume = 1.0,
   }) : _alertCooldown = cooldown;

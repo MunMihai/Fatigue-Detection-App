@@ -188,7 +188,6 @@ class SessionManager extends ChangeNotifier {
     onSessionTimeout?.call();
   }
 
-  /// Setup & Cleanup Helpers
   void _initSession() {
     faceDetectionService.reset(settingsProvider.sessionSensitivity);
 

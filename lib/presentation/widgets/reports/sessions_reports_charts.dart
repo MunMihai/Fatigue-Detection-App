@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
 import 'package:driver_monitoring/core/enum/fatigue_level.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/intl.dart';
 import 'package:driver_monitoring/domain/entities/session_report.dart';
@@ -56,7 +57,7 @@ class SessionsReportsChart extends StatelessWidget {
           ColumnSeries<SessionReport, String>(
             dataSource: sortedReports,
             xValueMapper: (SessionReport report, _) =>
-    DateFormat('HH:mm\nMMM dd, yyyy').format(report.timestamp),
+                DateFormat('HH:mm\nMMM dd, yyyy').format(report.timestamp),
             yValueMapper: (SessionReport report, _) =>
                 min(report.highestSeverityScore, 0.5),
             name: '', // Fără nume pentru legendă
@@ -74,10 +75,17 @@ class SessionsReportsChart extends StatelessWidget {
             pointColorMapper: (SessionReport report, _) {
               final fatigueLevel =
                   FatigueLevelExtension.fromScore(report.highestSeverityScore);
-              return fatigueLevel.color(context); 
+              return fatigueLevel.color(context);
             },
 
             markerSettings: const MarkerSettings(isVisible: false),
+            onPointTap: (ChartPointDetails details) {
+              final index = details.pointIndex;
+              if (index != null && index < sortedReports.length) {
+                final selectedReport = sortedReports[index];
+                context.push('/reports/session/${selectedReport.id}');
+              }
+            },
           ),
         ],
       ),

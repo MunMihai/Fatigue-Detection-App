@@ -40,7 +40,7 @@ class FaceDetectionService extends ChangeNotifier {
           options: FaceDetectorOptions(
             enableContours: true,
             enableLandmarks: true,
-            performanceMode: FaceDetectorMode.accurate,
+            performanceMode: FaceDetectorMode.fast,
             enableClassification: true,
           ),
         );
@@ -216,13 +216,11 @@ class FaceDetectionService extends ChangeNotifier {
 
     final avg = _average(list);
 
-    // ✅ Păstrează doar valorile care nu sar mai mult decât pragul definit
     final filtered = list.where((value) {
       final diff = (value - avg).abs();
       return diff <= _saltPepperThreshold;
     }).toList();
 
-    // Dacă toate au fost eliminate (toți outlieri), returnăm valorile originale ca fallback
     return filtered.isEmpty ? list : filtered;
   }
 

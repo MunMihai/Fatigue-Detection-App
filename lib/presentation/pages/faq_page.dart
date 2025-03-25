@@ -32,7 +32,7 @@ class FaqPage extends StatelessWidget {
           FaqItem(
             question: 'How do I calibrate the camera for better detection?',
             answer:
-                'Go to the Calibration section from Home. There, you can adjust the camera zoom and brightness settings so your face is clearly visible. For accurate fatigue detection, make sure there is enough light inside the car. Avoid shadows or extreme backlight.',
+                'In Camera Preview, you can adjust the camera zoom and brightness settings so your face is clearly visible. For accurate fatigue detection, make sure there is enough light inside the car. Avoid shadows or extreme backlight.',
           ),
           FaqItem(
             question: 'How can I adjust the sensitivity?',

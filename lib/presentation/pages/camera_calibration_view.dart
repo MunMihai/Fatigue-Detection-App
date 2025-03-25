@@ -16,7 +16,7 @@ class CameraCalibrationView extends StatelessWidget {
     final controller = cameraProvider.controller;
 
     return Scaffold(
-      appBar: CustomAppBar(title: 'Camera Calibration'),
+      appBar: CustomAppBar(title: 'Camera Preview'),
       body: controller == null || !controller.value.isInitialized
           ? const Center(child: Text('Camera not initialized'))
           : ValueListenableBuilder<CameraValue>(
