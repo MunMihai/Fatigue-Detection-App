@@ -32,11 +32,12 @@ class DetailedSessionReportChart extends StatelessWidget {
     final sortedAlerts = [...filteredAlerts]
       ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
+final stepInSeconds = (durationMinutes * 60 / 15).floor().clamp(60, 300);
     final scorePoints = ChartDataUtils.generateSessionScorePoints(
       sortedAlerts: sortedAlerts,
       sessionStartTime: sessionStartTime,
       durationMinutes: durationMinutes,
-      stepInSeconds: 60,
+      stepInSeconds: stepInSeconds,
     );
 
     return AlertDensityChart(points: scorePoints);

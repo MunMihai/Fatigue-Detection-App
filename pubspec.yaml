@@ -27,7 +27,7 @@ dependencies:
   logger: any
   intl: any
   camera: ^0.11.1
-  camera_android: ^0.10.10+1  #fărp el nu lucrează landmarcurile pe imagine
+  camera_android: ^0.10.10+1  #fără el nu lucrează landmarkurile pe imagine
   permission_handler: any
   flutter_foreground_task: ^8.17.0
   google_mlkit_face_detection: ^0.12.0

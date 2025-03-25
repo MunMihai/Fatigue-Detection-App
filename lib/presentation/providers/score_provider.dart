@@ -55,7 +55,6 @@ class ScoreProvider with ChangeNotifier {
   }
 
   void onNewAlert(double severity) {
-    // _sessionStartTime ??= DateTime.now();
     _cumulativeSeverity += severity;
 
     appLogger.i(

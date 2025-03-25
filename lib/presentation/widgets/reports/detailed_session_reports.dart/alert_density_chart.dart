@@ -18,7 +18,7 @@ class AlertDensityChart extends StatelessWidget {
         ? points.map((e) => e.density).reduce((a, b) => a > b ? a : b)
         : 1.0;
 
-    final double yAxisMax = (maxDensity * 1.1).clamp(0, 1.0);
+    final double yAxisMax = (maxDensity * 1.1).clamp(0.01, 1.0);
 
     return SizedBox(
       height: 300,
@@ -35,7 +35,7 @@ class AlertDensityChart extends StatelessWidget {
         ),
         primaryYAxis: NumericAxis(
           minimum: 0,
-          interval: yAxisMax / 10,
+          interval: yAxisMax / 10 == 0 ? 0.01 : yAxisMax / 10,
           maximum: yAxisMax,
           title: AxisTitle(text: 'Fatigue Score'),
           isVisible: false,

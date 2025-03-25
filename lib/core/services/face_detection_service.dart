@@ -5,12 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 
 class FaceDetectionService extends ChangeNotifier {
-  static const int _minProcessDelayMs = 100;
-  static const double _yawnOpenThreshold = 0.3;
+  static const int _minProcessDelayMs = 300;
+  static const double _yawnOpenThreshold = 0.4;
   static const double _noseDistanceThreshold = 1.2;
   static const double _eyeOpenTreshold = 0.4;
-  static const double _eyesOpenDifference = 0.2;
-  
+  static const double _eyeProbabilityDifferenceThreshold = 0.2;
+
+  final List<double> _leftEyeProbabilities = [];
+  final List<double> _rightEyeProbabilities = [];
+
+  final int _windowSize = 3;
+  final double _saltPepperThreshold = 0.3; 
 
   final CameraLensDirection _cameraLensDirection = CameraLensDirection.front;
   final FaceDetector _faceDetector;
@@ -56,7 +61,7 @@ class FaceDetectionService extends ChangeNotifier {
     _customPaint = null;
     _detectionText = '';
 
-    _closedEyesFrameThreshold = (12 - sensitivity);
+    _closedEyesFrameThreshold = (11 - sensitivity);
     _yawnFrameThreshold = (7 - sensitivity).clamp(2, 7);
 
     _lastFaceDetectedTime = DateTime.now();
@@ -122,11 +127,20 @@ class FaceDetectionService extends ChangeNotifier {
     final rightEyeOpenProb = face.rightEyeOpenProbability;
 
     if (leftEyeOpenProb != null && rightEyeOpenProb != null) {
-      final difference = (leftEyeOpenProb - rightEyeOpenProb).abs();
+      _addToWindow(_leftEyeProbabilities, leftEyeOpenProb);
+      _addToWindow(_rightEyeProbabilities, rightEyeOpenProb);
 
-      final bothEyesClosed = leftEyeOpenProb < _eyeOpenTreshold &&
-          rightEyeOpenProb < _eyeOpenTreshold &&
-          difference <= _eyesOpenDifference;
+      final filteredLeft = _applySaltPepperFilter(_leftEyeProbabilities);
+      final filteredRight = _applySaltPepperFilter(_rightEyeProbabilities);
+
+      final avgLeftEyeOpenProb = _average(filteredLeft);
+      final avgRightEyeOpenProb = _average(filteredRight);
+
+      final difference = (avgLeftEyeOpenProb - avgRightEyeOpenProb).abs();
+
+      final bothEyesClosed = avgLeftEyeOpenProb < _eyeOpenTreshold &&
+          avgRightEyeOpenProb < _eyeOpenTreshold &&
+          difference <= _eyeProbabilityDifferenceThreshold;
 
       if (bothEyesClosed) {
         closedEyesFrameCounter++;
@@ -136,8 +150,8 @@ class FaceDetectionService extends ChangeNotifier {
       } else {
         closedEyesFrameCounter = 0;
         final text =
-            '👁️ Eyes open\n - Left: ${leftEyeOpenProb.toStringAsFixed(2)}'
-            '\n - Right: ${rightEyeOpenProb.toStringAsFixed(2)}';
+            '👁️ Eyes open\n - Left(filtered): ${avgLeftEyeOpenProb.toStringAsFixed(2)}'
+            '\n - Right(filtered): ${avgRightEyeOpenProb.toStringAsFixed(2)}';
         appLogger.i(text);
         return text;
       }
@@ -188,6 +202,33 @@ class FaceDetectionService extends ChangeNotifier {
     final error = '❗ Required landmarks not found (nose/mouth)';
     appLogger.w(error);
     return error;
+  }
+
+  void _addToWindow(List<double> list, double value) {
+    list.add(value);
+    if (list.length > _windowSize) {
+      list.removeAt(0);
+    }
+  }
+
+  List<double> _applySaltPepperFilter(List<double> list) {
+    if (list.isEmpty) return [];
+
+    final avg = _average(list);
+
+    // ✅ Păstrează doar valorile care nu sar mai mult decât pragul definit
+    final filtered = list.where((value) {
+      final diff = (value - avg).abs();
+      return diff <= _saltPepperThreshold;
+    }).toList();
+
+    // Dacă toate au fost eliminate (toți outlieri), returnăm valorile originale ca fallback
+    return filtered.isEmpty ? list : filtered;
+  }
+
+  double _average(List<double> list) {
+    if (list.isEmpty) return 0.0;
+    return list.reduce((a, b) => a + b) / list.length;
   }
 
   bool _areLandmarksValid(List<dynamic> landmarks) {

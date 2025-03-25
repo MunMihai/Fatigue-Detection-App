@@ -40,7 +40,7 @@ class SessionsReportsChart extends StatelessWidget {
         ),
         primaryYAxis: NumericAxis(
           minimum: 0,
-          maximum: 0.6,
+          maximum: 0.5,
           interval: 0.01,
           isVisible: false,
         ),
@@ -58,7 +58,7 @@ class SessionsReportsChart extends StatelessWidget {
             xValueMapper: (SessionReport report, _) =>
     DateFormat('HH:mm\nMMM dd, yyyy').format(report.timestamp),
             yValueMapper: (SessionReport report, _) =>
-                min(report.highestSeverityScore, 0.6),
+                min(report.highestSeverityScore, 0.5),
             name: '', // Fără nume pentru legendă
             dataLabelSettings: DataLabelSettings(
               isVisible: true,
