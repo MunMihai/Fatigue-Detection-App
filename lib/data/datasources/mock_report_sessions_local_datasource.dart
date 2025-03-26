@@ -16,8 +16,8 @@ class MockSessionReportLocalDataSource implements SessionReportDataSource {
   /// ✅ Încarcă datele din assets
   Future<void> _loadMockData() async {
     try {
-      final reportsJsonString = await rootBundle.loadString('assets/mock/local/mock_session_reports.json');
-      final alertsJsonString = await rootBundle.loadString('assets/mock/local/mock_alerts.json');
+      final reportsJsonString = await rootBundle.loadString('assets/mock/mock_session_reports.json');
+      final alertsJsonString = await rootBundle.loadString('assets/mock/mock_alerts.json');
 
       final reportsJson = jsonDecode(reportsJsonString) as List<dynamic>;
       final alertsJson = jsonDecode(alertsJsonString) as List<dynamic>;

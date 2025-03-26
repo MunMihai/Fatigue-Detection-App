@@ -40,7 +40,7 @@ class FaceDetectionService extends ChangeNotifier {
           options: FaceDetectorOptions(
             enableContours: true,
             enableLandmarks: true,
-            performanceMode: FaceDetectorMode.fast,
+            performanceMode: FaceDetectorMode.accurate,
             enableClassification: true,
           ),
         );

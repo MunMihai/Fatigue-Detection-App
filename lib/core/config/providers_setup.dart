@@ -1,4 +1,6 @@
 import 'package:driver_monitoring/core/services/face_detection_service.dart';
+import 'package:driver_monitoring/data/datasources/session_report_datasource.dart';
+import 'package:driver_monitoring/domain/repositories/session_report_repository.dart';
 import 'package:driver_monitoring/presentation/providers/camera_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -32,8 +34,8 @@ class AppProvidersWrapper extends StatefulWidget {
 }
 
 class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
-  late final DriftSessionReportLocalDataSource _reportDataSource;
-  late final SessionReportRepositoryImpl _sessionReportRepository;
+  late final SessionReportDataSource _reportDataSource;
+  late final SessionReportRepository _sessionReportRepository;
 
   @override
   void initState() {
