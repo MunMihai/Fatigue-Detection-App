@@ -1,28 +1,26 @@
-import 'package:driver_monitoring/core/services/face_detection_service.dart';
-import 'package:driver_monitoring/data/datasources/session_report_datasource.dart';
-import 'package:driver_monitoring/domain/repositories/session_report_repository.dart';
-import 'package:driver_monitoring/presentation/providers/camera_provider.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
 import 'package:driver_monitoring/core/services/alert_service.dart';
-import 'package:driver_monitoring/presentation/providers/pause_provider.dart';
+import 'package:driver_monitoring/core/services/face_detection_service.dart';
 import 'package:driver_monitoring/core/services/permissions_service.dart';
-import 'package:driver_monitoring/presentation/providers/session_manager.dart';
-import 'package:driver_monitoring/presentation/providers/session_timer_provider.dart';
-
 import 'package:driver_monitoring/data/datasources/drift_sessin_report_local_datasource.dart';
 import 'package:driver_monitoring/data/datasources/local/database_provider.dart';
-
+import 'package:driver_monitoring/data/datasources/phone_camera_datasource.dart';
+import 'package:driver_monitoring/data/datasources/session_report_datasource.dart';
+import 'package:driver_monitoring/data/repositories/camera_repository_impl.dart';
 import 'package:driver_monitoring/data/repositories/session_report_repositiry_impl.dart';
-import 'package:driver_monitoring/domain/usecases/get_reports_usecase.dart';
+import 'package:driver_monitoring/domain/repositories/session_report_repository.dart';
 import 'package:driver_monitoring/domain/usecases/add_report_usecase.dart';
-import 'package:driver_monitoring/domain/usecases/update_report_usecase.dart';
 import 'package:driver_monitoring/domain/usecases/delete_report_usecase.dart';
-
-import 'package:driver_monitoring/presentation/providers/session_report_provider.dart';
-import 'package:driver_monitoring/presentation/providers/settings_provider.dart';
+import 'package:driver_monitoring/domain/usecases/get_reports_usecase.dart';
+import 'package:driver_monitoring/domain/usecases/update_report_usecase.dart';
+import 'package:driver_monitoring/presentation/providers/camera_provider.dart';
+import 'package:driver_monitoring/presentation/providers/pause_provider.dart';
 import 'package:driver_monitoring/presentation/providers/score_provider.dart';
+import 'package:driver_monitoring/presentation/providers/session_manager.dart';
+import 'package:driver_monitoring/presentation/providers/session_report_provider.dart';
+import 'package:driver_monitoring/presentation/providers/session_timer_provider.dart';
+import 'package:driver_monitoring/presentation/providers/settings_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AppProvidersWrapper extends StatefulWidget {
   final Widget child;
@@ -37,11 +35,19 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
   late final SessionReportDataSource _reportDataSource;
   late final SessionReportRepository _sessionReportRepository;
 
+  // Instanțe persistente pentru cameră
+  late final PhoneCameraDataSource _cameraDataSource;
+  late final CameraProvider _cameraProvider;
+
   @override
   void initState() {
     super.initState();
     _initDatabase();
     _deleteExpiredReports();
+
+    _cameraDataSource = PhoneCameraDataSource();
+    final cameraRepo = CameraRepositoryImpl(_cameraDataSource);
+    _cameraProvider = CameraProvider(cameraRepo);
   }
 
   void _initDatabase() {
@@ -71,12 +77,18 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
           lazy: false,
           create: (_) => PermissionsService(),
         ),
-        ChangeNotifierProvider(create: (_) => CameraProvider()),
+
+        /// 🔄 Păstrăm instanța de cameră (NU se recreează la fiecare build)
+        ChangeNotifierProvider<CameraProvider>.value(
+          value: _cameraProvider,
+        ),
+
+        /// 🔁 SessionManager legat de Settings și Camera
         ChangeNotifierProxyProvider2<SettingsProvider, CameraProvider,
             SessionManager>(
           create: (context) {
             final settings = context.read<SettingsProvider>();
-            final camera = context.read<CameraProvider>();
+            final camera = _cameraProvider;
 
             return SessionManager(
               settingsProvider: settings,
@@ -89,9 +101,13 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
           },
           update: (_, __, ___, sessionManager) => sessionManager!,
         ),
+
+        /// 🧠 Score provider
         ChangeNotifierProvider<ScoreProvider>(
           create: (context) => ScoreProvider(context.read<SessionManager>()),
         ),
+
+        /// 📋 Rapoarte sesiune
         ChangeNotifierProxyProvider<SettingsProvider, SessionReportProvider>(
           create: (_) => SessionReportProvider(
             getReportsUseCase: getReportsUseCase,

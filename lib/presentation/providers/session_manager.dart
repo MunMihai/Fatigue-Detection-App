@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:driver_monitoring/core/utils/app_logger.dart';
 import 'package:driver_monitoring/domain/entities/session_report.dart';
 import 'package:driver_monitoring/presentation/providers/settings_provider.dart';
+import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 import 'session_timer_provider.dart';
 import 'pause_provider.dart';
 import '../../core/services/alert_service.dart';
@@ -38,6 +39,7 @@ class SessionManager extends ChangeNotifier {
   bool _hasTriggeredTimeout = false;
   bool _notifiedThirtyMinutes = false;
   bool _notifiedFifteenMinutes = false;
+  StreamSubscription<InputImage>? _imageSubscription;
 
   SessionManager({
     required this.settingsProvider,
@@ -76,6 +78,9 @@ class SessionManager extends ChangeNotifier {
     _updateAppState(AppState.stopping);
     appLogger.i('[SessionManager] Stopping session...');
 
+    _imageSubscription?.cancel();
+    _imageSubscription = null;
+
     _cleanupTimers();
     pauseManager.stopPause();
     alertService.stopAlert();
@@ -104,10 +109,15 @@ class SessionManager extends ChangeNotifier {
   }
 
   Future<void> _setupLiveFaceMonitoring() async {
-    cameraProvider.updateImageCallback((inputImage) async {
+    await cameraProvider.initialize(CameraLensDirection.front);
+
+    _imageSubscription = cameraProvider.imageStream?.listen((inputImage) async {
       await faceDetectionService.processImage(inputImage);
 
-      cameraProvider.updateFromFaceDetection(faceDetectionService);
+      cameraProvider.updateFromDetection(
+        paint: faceDetectionService.customPaint,
+        text: faceDetectionService.detectionText,
+      );
 
       _handleAlert(
         type: AlertType.drowsiness.name,
@@ -121,8 +131,6 @@ class SessionManager extends ChangeNotifier {
         conditionMet: faceDetectionService.yawningDetected,
       );
     });
-
-    await cameraProvider.initialize(CameraLensDirection.front);
   }
 
   void _handleAlert({
@@ -259,6 +267,7 @@ class SessionManager extends ChangeNotifier {
 
   @override
   void dispose() {
+    _imageSubscription?.cancel();
     _cleanupTimers();
     sessionTimer.removeListener(_onTimerTick);
     super.dispose();

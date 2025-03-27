@@ -1,214 +1,92 @@
-import 'dart:io';
-import 'package:driver_monitoring/core/services/face_detection_service.dart';
-import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:flutter/services.dart';
+import 'package:driver_monitoring/core/utils/app_logger.dart';
+import 'package:driver_monitoring/domain/repositories/camera_repository.dart';
+import 'package:flutter/material.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 
 class CameraProvider extends ChangeNotifier {
-  Function(InputImage inputImage)? onImageAvailable;
+  final CameraRepository _cameraRepository;
 
-  static List<CameraDescription> _cameras = [];
-  CameraController? _controller;
-  int _cameraIndex = -1;
-
+  Stream<InputImage>? _imageStream;
   CustomPaint? _customPaint;
   String? _detectionText;
 
-  double _currentZoomLevel = 1.0;
-  double _minAvailableZoom = 1.0;
-  double _maxAvailableZoom = 1.0;
-  double _minAvailableExposureOffset = 0.0;
-  double _maxAvailableExposureOffset = 0.0;
-  double _currentExposureOffset = 0.0;
+  bool _isInitializing = false;
 
-  bool _isCameraStarting = false;
+  CameraProvider(this._cameraRepository);
 
-  CameraProvider({this.onImageAvailable});
+  bool get isCameraReady => _imageStream != null;
 
-  CameraController? get controller => _controller;
-  bool get isCameraReady =>
-      _controller != null && _controller!.value.isInitialized;
+  ValueNotifier<bool> get isCameraActive =>
+      _cameraRepository.previewAvailableNotifier;
+  Widget? get previewWidget => _cameraRepository.previewWidget;
 
   CustomPaint? get customPaint => _customPaint;
   String? get detectionText => _detectionText;
 
-  double get currentZoom => _currentZoomLevel;
-  double get minZoom => _minAvailableZoom;
-  double get maxZoom => _maxAvailableZoom;
+  double get currentZoom => _cameraRepository.currentZoom;
+  double get minZoom => _cameraRepository.minZoom;
+  double get maxZoom => _cameraRepository.maxZoom;
 
-  double get currentExposure => _currentExposureOffset;
-  double get minExposure => _minAvailableExposureOffset;
-  double get maxExposure => _maxAvailableExposureOffset;
+  double get currentExposure => _cameraRepository.currentExposure;
+  double get minExposure => _cameraRepository.minExposure;
+  double get maxExposure => _cameraRepository.maxExposure;
 
-  void updateImageCallback(Function(InputImage inputImage) callback) {
-    onImageAvailable = callback;
-  }
+  Stream<InputImage>? get imageStream => _imageStream;
 
   Future<void> initialize(CameraLensDirection lensDirection) async {
-    if (_isCameraStarting) return;
+    if (_isInitializing) return;
+    _isInitializing = true;
 
     try {
-      _isCameraStarting = true;
-      _cameras = await availableCameras();
-
-      final matchingIndex =
-          _cameras.indexWhere((cam) => cam.lensDirection == lensDirection);
-
-      if (matchingIndex == -1) {
-        debugPrint('❌ Camera with specified lens direction not found.');
-        return;
-      }
-
-      _cameraIndex = matchingIndex;
-      await _startLiveFeed();
-    } catch (e) {
-      debugPrint('❌ Camera initialization error: $e');
-    } finally {
-      _isCameraStarting = false;
-    }
-  }
-
-  void updateFromFaceDetection(FaceDetectionService faceService) {
-    final newPaint = faceService.customPaint;
-    final newText = faceService.detectionText;
-
-    if (_customPaint != newPaint || _detectionText != newText) {
-      _customPaint = newPaint;
-      _detectionText = newText;
-      notifyListeners(); // ← important
-    }
-  }
-
-  Future<void> _startLiveFeed() async {
-    final camera = _cameras[_cameraIndex];
-
-    _controller = CameraController(
-      camera,
-      ResolutionPreset.high,
-      enableAudio: false,
-      imageFormatGroup: Platform.isAndroid
-          ? ImageFormatGroup.nv21
-          : ImageFormatGroup.bgra8888,
-    );
-
-    try {
-      await _controller!.initialize();
-
-      _currentZoomLevel = await _controller!.getMinZoomLevel();
-      _minAvailableZoom = _currentZoomLevel;
-      _maxAvailableZoom = await _controller!.getMaxZoomLevel();
-
-      _minAvailableExposureOffset = await _controller!.getMinExposureOffset();
-      _maxAvailableExposureOffset = await _controller!.getMaxExposureOffset();
-
-      await _controller!.startImageStream(_processCameraImage);
-
+      await _cameraRepository.initialize(lensDirection);
+      _imageStream = _cameraRepository.imageStream;
       notifyListeners();
     } catch (e) {
-      debugPrint('❌ Failed to start camera live feed: $e');
-      await stopCamera();
+      appLogger.e('❌ Camera init error: $e');
+    } finally {
+      _isInitializing = false;
     }
   }
 
   Future<void> stopCamera() async {
-    if (_controller != null) {
-      try {
-        if (_controller!.value.isStreamingImages) {
-          await _controller!.stopImageStream();
-        }
-
-        await _controller!.dispose();
-        debugPrint('✅ Camera stopped and disposed.');
-      } catch (e) {
-        debugPrint('❌ Error stopping camera: $e');
-      } finally {
-        _controller = null;
-        notifyListeners();
-      }
-    }
+    await _cameraRepository.stop();
+    _imageStream = null;
+    notifyListeners();
   }
 
-  Future<void> setZoomLevel(double value) async {
-    _currentZoomLevel = value;
+  Future<void> setZoom(double value) async {
     try {
-      await _controller?.setZoomLevel(value);
+      await _cameraRepository.setZoom(value);
       notifyListeners();
     } catch (e) {
-      debugPrint('❌ Failed to set zoom: $e');
+      appLogger.e('❌ Failed to set zoom: $e');
     }
   }
 
-  Future<void> setExposureOffset(double value) async {
-    _currentExposureOffset = value;
+  Future<void> setExposure(double value) async {
     try {
-      await _controller?.setExposureOffset(value);
+      await _cameraRepository.setExposure(value);
       notifyListeners();
     } catch (e) {
-      debugPrint('❌ Failed to set exposure: $e');
+      appLogger.e('❌ Failed to set exposure: $e');
     }
   }
 
-  void _processCameraImage(CameraImage image) {
-    final inputImage = convertCameraImage(image);
-    if (inputImage != null && onImageAvailable != null) {
-      onImageAvailable!(inputImage);
-    }
-  }
+  void updateFromDetection({CustomPaint? paint, String? text}) {
+    bool changed = false;
 
-  InputImage? convertCameraImage(CameraImage image) {
-    if (_controller == null) return null;
-
-    final camera = _cameras[_cameraIndex];
-    final sensorOrientation = camera.sensorOrientation;
-
-    InputImageRotation? rotation;
-    if (Platform.isIOS) {
-      rotation = InputImageRotationValue.fromRawValue(sensorOrientation);
-    } else if (Platform.isAndroid) {
-      final orientations = {
-        DeviceOrientation.portraitUp: 0,
-        DeviceOrientation.landscapeLeft: 90,
-        DeviceOrientation.portraitDown: 180,
-        DeviceOrientation.landscapeRight: 270,
-      };
-
-      var rotationCompensation =
-          orientations[_controller!.value.deviceOrientation];
-      if (rotationCompensation == null) return null;
-
-      if (camera.lensDirection == CameraLensDirection.front) {
-        rotationCompensation = (sensorOrientation + rotationCompensation) % 360;
-      } else {
-        rotationCompensation =
-            (sensorOrientation - rotationCompensation + 360) % 360;
-      }
-
-      rotation = InputImageRotationValue.fromRawValue(rotationCompensation);
+    if (_customPaint != paint) {
+      _customPaint = paint;
+      changed = true;
     }
 
-    if (rotation == null) return null;
-
-    final format = InputImageFormatValue.fromRawValue(image.format.raw);
-    if (format == null ||
-        (Platform.isAndroid && format != InputImageFormat.nv21) ||
-        (Platform.isIOS && format != InputImageFormat.bgra8888)) {
-      return null;
+    if (_detectionText != text) {
+      _detectionText = text;
+      changed = true;
     }
 
-    if (image.planes.length != 1) return null;
-
-    final plane = image.planes.first;
-
-    return InputImage.fromBytes(
-      bytes: plane.bytes,
-      metadata: InputImageMetadata(
-        size: Size(image.width.toDouble(), image.height.toDouble()),
-        rotation: rotation,
-        format: format,
-        bytesPerRow: plane.bytesPerRow,
-      ),
-    );
+    if (changed) notifyListeners();
   }
 
   @override

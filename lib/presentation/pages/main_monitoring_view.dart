@@ -3,7 +3,6 @@ import 'package:driver_monitoring/core/constants/app_text_styles.dart';
 import 'package:driver_monitoring/presentation/providers/session_manager.dart';
 import 'package:driver_monitoring/core/utils/int_extension.dart';
 import 'package:driver_monitoring/presentation/providers/score_provider.dart';
-import 'package:driver_monitoring/presentation/widgets/app_bar.dart';
 import 'package:driver_monitoring/presentation/widgets/buttons/simple_button.dart';
 import 'package:driver_monitoring/presentation/widgets/fatigue_level_indicator.dart.dart';
 import 'package:driver_monitoring/presentation/widgets/info_card.dart';
@@ -61,8 +60,6 @@ class _MainMonitoringViewState extends State<MainMonitoringView>
           animation: _controller,
           builder: (context, _) {
             return Scaffold(
-              appBar: CustomAppBar(
-                  title: 'Monitoring Status'),
               backgroundColor: isFatigued
                   ? _colorAnimation.value
                   : Theme.of(context).colorScheme.surface,

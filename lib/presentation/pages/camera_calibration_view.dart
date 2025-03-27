@@ -1,8 +1,6 @@
-import 'package:camera/camera.dart';
 import 'package:driver_monitoring/presentation/providers/camera_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:driver_monitoring/presentation/widgets/app_bar.dart';
 
 class CameraCalibrationView extends StatelessWidget {
   const CameraCalibrationView({super.key});
@@ -13,36 +11,29 @@ class CameraCalibrationView extends StatelessWidget {
 
     final customPaint = cameraProvider.customPaint;
     final detectionText = cameraProvider.detectionText;
-    final controller = cameraProvider.controller;
 
     return Scaffold(
-      appBar: CustomAppBar(title: 'Camera Preview'),
-      body: controller == null || !controller.value.isInitialized
-          ? const Center(child: Text('Camera not initialized'))
-          : ValueListenableBuilder<CameraValue>(
-              valueListenable: controller,
-              builder: (context, value, child) {
-                if (!value.isInitialized) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+      body: ValueListenableBuilder<bool>(
+        valueListenable: cameraProvider.isCameraActive,
+        builder: (context, isActive, _) {
+          final preview = cameraProvider.previewWidget;
 
-                return Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    if (controller.value.isStreamingImages)
-                      CameraPreview(
-                        controller,
-                        child: customPaint,
-                      )
-                    else
-                      const Center(child: Text('Camera stopped')),
-                    _buildOverlayText(detectionText),
-                    _zoomSlider(cameraProvider),
-                    _exposureSlider(cameraProvider),
-                  ],
-                );
-              },
-            ),
+          if (!isActive || preview == null) {
+            return const Center(child: Text('Camera Preview not available'));
+          }
+
+          return Stack(
+            fit: StackFit.expand,
+            children: [
+              preview,
+              if (customPaint != null) customPaint,
+              _buildOverlayText(detectionText),
+              _zoomSlider(cameraProvider),
+              _exposureSlider(cameraProvider),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -81,7 +72,7 @@ class CameraCalibrationView extends StatelessWidget {
             value: provider.currentZoom,
             min: provider.minZoom,
             max: provider.maxZoom,
-            onChanged: (value) => provider.setZoomLevel(value),
+            onChanged: (value) => provider.setZoom(value),
           ),
         ],
       ),
@@ -101,7 +92,7 @@ class CameraCalibrationView extends StatelessWidget {
               value: provider.currentExposure,
               min: provider.minExposure,
               max: provider.maxExposure,
-              onChanged: (value) => provider.setExposureOffset(value),
+              onChanged: (value) => provider.setExposure(value),
             ),
           ),
         ],

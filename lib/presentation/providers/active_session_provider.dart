@@ -77,6 +77,7 @@ class ActiveSessionProvider extends ChangeNotifier {
       );
     }
   }
+  
 
   Future<void> _confirmStopSession() async {
     final confirmed = await showConfirmationDialog(

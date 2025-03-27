@@ -8,12 +8,10 @@ import 'package:driver_monitoring/core/utils/app_logger.dart';
 class MockSessionReportLocalDataSource implements SessionReportDataSource {
   final List<SessionReportModel> _reports = [];
 
-  /// Constructor - Inițializează clasa
   MockSessionReportLocalDataSource() {
     _loadMockData();
   }
 
-  /// ✅ Încarcă datele din assets
   Future<void> _loadMockData() async {
     try {
       final reportsJsonString = await rootBundle.loadString('assets/mock/mock_session_reports.json');
