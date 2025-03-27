@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:driver_monitoring/core/services/face_detection_service.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +11,9 @@ class CameraProvider extends ChangeNotifier {
   static List<CameraDescription> _cameras = [];
   CameraController? _controller;
   int _cameraIndex = -1;
+
+  CustomPaint? _customPaint;
+  String? _detectionText;
 
   double _currentZoomLevel = 1.0;
   double _minAvailableZoom = 1.0;
@@ -25,6 +29,9 @@ class CameraProvider extends ChangeNotifier {
   CameraController? get controller => _controller;
   bool get isCameraReady =>
       _controller != null && _controller!.value.isInitialized;
+
+  CustomPaint? get customPaint => _customPaint;
+  String? get detectionText => _detectionText;
 
   double get currentZoom => _currentZoomLevel;
   double get minZoom => _minAvailableZoom;
@@ -59,6 +66,17 @@ class CameraProvider extends ChangeNotifier {
       debugPrint('❌ Camera initialization error: $e');
     } finally {
       _isCameraStarting = false;
+    }
+  }
+
+  void updateFromFaceDetection(FaceDetectionService faceService) {
+    final newPaint = faceService.customPaint;
+    final newText = faceService.detectionText;
+
+    if (_customPaint != newPaint || _detectionText != newText) {
+      _customPaint = newPaint;
+      _detectionText = newText;
+      notifyListeners(); // ← important
     }
   }
 

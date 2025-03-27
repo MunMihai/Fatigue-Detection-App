@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:driver_monitoring/core/services/session_manager.dart';
+import 'package:driver_monitoring/presentation/providers/session_manager.dart';
 import 'package:driver_monitoring/core/utils/adjustment_utils.dart';
 import 'package:driver_monitoring/core/utils/app_logger.dart';
 import 'package:flutter/material.dart';

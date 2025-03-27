@@ -1,6 +1,6 @@
 import 'package:driver_monitoring/core/constants/app_spaceses.dart';
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
-import 'package:driver_monitoring/core/services/session_manager.dart';
+import 'package:driver_monitoring/presentation/providers/session_manager.dart';
 import 'package:driver_monitoring/presentation/providers/settings_provider.dart';
 import 'package:driver_monitoring/presentation/widgets/app_bar.dart';
 import 'package:driver_monitoring/presentation/widgets/buttons/arrow_button.dart';

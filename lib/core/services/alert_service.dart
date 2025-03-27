@@ -1,9 +1,8 @@
 import 'package:driver_monitoring/core/services/audio_service.dart';
 import 'package:driver_monitoring/core/utils/app_logger.dart';
 import 'package:driver_monitoring/domain/entities/alert.dart';
-import 'package:flutter/material.dart';
 
-class AlertManager extends ChangeNotifier {
+class AlertService {
   final List<Alert> _alerts = [];
   final Set<String> _activeAlertTypes = {};
   final AudioService _audioService = AudioService();
@@ -13,7 +12,6 @@ class AlertManager extends ChangeNotifier {
   bool isAlertActive(String type) => _activeAlertTypes.contains(type);
 
   bool get noActiveAlerts => _activeAlertTypes.isEmpty;
-
 
   void triggerAlert({
     required String type,
@@ -45,7 +43,7 @@ class AlertManager extends ChangeNotifier {
       }
 
       appLogger.i('🛑 Stopping ALL alerts: $_activeAlertTypes');
-      _activeAlertTypes.clear();
+      clearAlerts();
     } else {
       final wasRemoved = _activeAlertTypes.remove(type);
 
@@ -63,33 +61,19 @@ class AlertManager extends ChangeNotifier {
     } else {
       appLogger.i('ℹ️ Remaining active alerts: $_activeAlertTypes');
     }
-
-    notifyListeners();
   }
 
   void clearAlerts() {
     _alerts.clear();
     _activeAlertTypes.clear();
-
+    _audioService.stopAudio();
     appLogger.i('🗑️ All alerts cleared.');
-    notifyListeners();
   }
 
-  
   void _addAlert(Alert alert) {
     _alerts.add(alert);
     _activeAlertTypes.add(alert.type);
 
     appLogger.i('➕ Added alert: ${alert.type} | Severity: ${alert.severity}');
-    notifyListeners();
-  }
-
-  @override
-  void dispose() {
-    _audioService.stopAudio();
-    _audioService.dispose();
-
-    appLogger.i('🧹 AlertManager disposed.');
-    super.dispose();
   }
 }

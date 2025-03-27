@@ -8,9 +8,9 @@ import 'package:flutter/foundation.dart';
 import 'package:driver_monitoring/core/utils/app_logger.dart';
 import 'package:driver_monitoring/domain/entities/session_report.dart';
 import 'package:driver_monitoring/presentation/providers/settings_provider.dart';
-import 'session_timer.dart';
-import 'pause_manager.dart';
-import 'alert_manager.dart';
+import 'session_timer_provider.dart';
+import 'pause_provider.dart';
+import '../../core/services/alert_service.dart';
 
 class SessionManager extends ChangeNotifier {
   final SettingsProvider settingsProvider;
@@ -18,7 +18,7 @@ class SessionManager extends ChangeNotifier {
   final FaceDetectionService faceDetectionService;
   final SessionTimer sessionTimer;
   final PauseManager pauseManager;
-  final AlertManager alertManager;
+  final AlertService alertService;
 
   final int _faceDetectionTimeoutSec = 61;
 
@@ -45,7 +45,7 @@ class SessionManager extends ChangeNotifier {
     required this.faceDetectionService,
     required this.sessionTimer,
     required this.pauseManager,
-    required this.alertManager,
+    required this.alertService,
   });
 
   bool get isIdle => _appState == AppState.idle;
@@ -71,14 +71,14 @@ class SessionManager extends ChangeNotifier {
   }
 
   Future<SessionReport?> stopMonitoring() async {
-    if (!isActive && !isPaused) return null;
+    if (isIdle) return null;
 
     _updateAppState(AppState.stopping);
     appLogger.i('[SessionManager] Stopping session...');
 
     _cleanupTimers();
     pauseManager.stopPause();
-    alertManager.stopAlert();
+    alertService.stopAlert();
 
     final session = _finalizeSession();
 
@@ -104,8 +104,10 @@ class SessionManager extends ChangeNotifier {
   }
 
   Future<void> _setupLiveFaceMonitoring() async {
-    cameraProvider.updateImageCallback((inputImage) {
-      faceDetectionService.processImage(inputImage);
+    cameraProvider.updateImageCallback((inputImage) async {
+      await faceDetectionService.processImage(inputImage);
+
+      cameraProvider.updateFromFaceDetection(faceDetectionService);
 
       _handleAlert(
         type: AlertType.drowsiness.name,
@@ -136,24 +138,24 @@ class SessionManager extends ChangeNotifier {
   }
 
   void _triggerAlert(String type, double severity) {
-    if (!isActive || alertManager.isAlertActive(type)) return;
+    if (!isActive || alertService.isAlertActive(type)) return;
 
     appLogger.w('[SessionManager] Trigger alert: $type');
 
-    alertManager.triggerAlert(type: type, severity: severity);
+    alertService.triggerAlert(type: type, severity: severity);
     onNewAlert?.call(severity);
 
     _updateAppState(AppState.alertness);
   }
 
   void _stopAlert(String type) {
-    if (!alertManager.isAlertActive(type)) return;
+    if (!alertService.isAlertActive(type)) return;
 
     appLogger.i('[SessionManager] Stop alert: $type');
 
-    alertManager.stopAlert(type: type);
+    alertService.stopAlert(type: type);
 
-    if (alertManager.noActiveAlerts) {
+    if (alertService.noActiveAlerts) {
       _updateAppState(AppState.active);
     }
   }
@@ -184,7 +186,7 @@ class SessionManager extends ChangeNotifier {
     _hasTriggeredTimeout = true;
     appLogger.w('[SessionManager] Timer expired. Triggering break alert.');
 
-    alertManager.triggerAlert(type: AlertType.sessionExpired.name, severity: 0);
+    alertService.triggerAlert(type: AlertType.sessionExpired.name, severity: 0);
     onSessionTimeout?.call();
   }
 
@@ -205,14 +207,14 @@ class SessionManager extends ChangeNotifier {
     _notifiedThirtyMinutes = false;
     _notifiedFifteenMinutes = false;
 
-    alertManager.clearAlerts();
+    alertService.clearAlerts();
     pauseManager.reset();
   }
 
   SessionReport? _finalizeSession() {
     final session = _currentSession?.copyWith(
       durationMinutes: sessionTimer.elapsedTime.inMinutes,
-      alerts: alertManager.alerts,
+      alerts: alertService.alerts,
     );
 
     _currentSession = null;
@@ -230,13 +232,16 @@ class SessionManager extends ChangeNotifier {
     sessionTimer.addListener(_onTimerTick);
 
     _faceDetectionTimer = Timer.periodic(const Duration(seconds: 5), (_) {
-      final elapsed = DateTime.now().difference(faceDetectionService.lastFaceDetectedTime);
+      final elapsed =
+          DateTime.now().difference(faceDetectionService.lastFaceDetectedTime);
 
       if (elapsed.inSeconds >= _faceDetectionTimeoutSec && !isPaused) {
-        appLogger.w('[SessionManager] Face not detected for $elapsed. Stopping session.');
+        appLogger.w(
+            '[SessionManager] Face not detected for $elapsed. Stopping session.');
         stopMonitoring();
       } else {
-        appLogger.i('[SessionManager] Last face detected ${elapsed.inSeconds} seconds ago.');
+        appLogger.i(
+            '[SessionManager] Last face detected ${elapsed.inSeconds} seconds ago.');
       }
     });
   }

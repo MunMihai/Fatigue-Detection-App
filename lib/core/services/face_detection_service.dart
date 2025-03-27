@@ -4,23 +4,24 @@ import 'package:driver_monitoring/core/utils/face_detector_painter.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 
-class FaceDetectionService extends ChangeNotifier {
-  static const int _minProcessDelayMs = 300;
+class FaceDetectionService {
+  static const int _minProcessDelayMs = 100;
+
+  static const double _eyeOpenTreshold = 0.4;
+  static const double _eyeProbabilityDifferenceThreshold = 0.3;
   static const double _yawnOpenThreshold = 0.4;
   static const double _noseDistanceThreshold = 1.2;
-  static const double _eyeOpenTreshold = 0.4;
-  static const double _eyeProbabilityDifferenceThreshold = 0.2;
-
-  final List<double> _leftEyeProbabilities = [];
-  final List<double> _rightEyeProbabilities = [];
+  static const double _yawToleranceRatio = 0.4;
 
   final int _windowSize = 3;
-  final double _saltPepperThreshold = 0.3; 
+  final double _saltPepperThreshold = 0.3;
 
   final CameraLensDirection _cameraLensDirection = CameraLensDirection.front;
   final FaceDetector _faceDetector;
 
-  bool _canProcess = true;
+  final List<double> _leftEyeProbabilities = [];
+  final List<double> _rightEyeProbabilities = [];
+
   bool _isProcessing = false;
 
   CustomPaint? _customPaint;
@@ -40,7 +41,7 @@ class FaceDetectionService extends ChangeNotifier {
           options: FaceDetectorOptions(
             enableContours: true,
             enableLandmarks: true,
-            performanceMode: FaceDetectorMode.accurate,
+            performanceMode: FaceDetectorMode.fast,
             enableClassification: true,
           ),
         );
@@ -48,7 +49,6 @@ class FaceDetectionService extends ChangeNotifier {
   bool get closedEyesDetected =>
       closedEyesFrameCounter >= _closedEyesFrameThreshold;
   bool get yawningDetected => yawnFrameCounter >= _yawnFrameThreshold;
-
   DateTime get lastFaceDetectedTime => _lastFaceDetectedTime;
   CustomPaint? get customPaint => _customPaint;
   String? get detectionText => _detectionText;
@@ -65,11 +65,12 @@ class FaceDetectionService extends ChangeNotifier {
     _yawnFrameThreshold = (7 - sensitivity).clamp(2, 7);
 
     _lastFaceDetectedTime = DateTime.now();
-    notifyListeners();
   }
 
   Future<void> processImage(InputImage inputImage) async {
-    if (!_canProcess || _isProcessing) return;
+    if (_isProcessing) {
+      return;
+    }
 
     final currentTime = DateTime.now();
     if (_lastProcessTime != null &&
@@ -96,7 +97,7 @@ class FaceDetectionService extends ChangeNotifier {
     final yawnStatusText = _processYawning(face);
 
     String eyeStatusText = '';
-    if (!yawningDetected) {
+    if (yawnFrameCounter <= 0) {
       eyeStatusText = _processEyeState(face);
     } else {
       closedEyesFrameCounter = 0;
@@ -107,14 +108,12 @@ class FaceDetectionService extends ChangeNotifier {
     _updatePainter(inputImage, face);
 
     _isProcessing = false;
-    notifyListeners();
   }
 
   void _handleNoFaceDetected() {
     _detectionText = 'No face detected';
     _customPaint = null;
     _isProcessing = false;
-    notifyListeners();
   }
 
   Face _selectPrimaryFace(List<Face> faces) {
@@ -170,8 +169,17 @@ class FaceDetectionService extends ChangeNotifier {
     final leftMouth = landmarks[FaceLandmarkType.rightMouth]?.position;
     final rightMouth = landmarks[FaceLandmarkType.leftMouth]?.position;
     final noseBase = landmarks[FaceLandmarkType.noseBase]?.position;
+    final leftCheek = landmarks[FaceLandmarkType.leftCheek]?.position;
+    final rightCheek = landmarks[FaceLandmarkType.rightCheek]?.position;
 
-    if (_areLandmarksValid([bottomMouth, leftMouth, rightMouth, noseBase])) {
+    if (_areLandmarksValid([
+      bottomMouth,
+      leftMouth,
+      rightMouth,
+      noseBase,
+      leftCheek,
+      rightCheek
+    ])) {
       final mouthWidth = (leftMouth!.x - rightMouth!.x).abs();
       final mouthHeight =
           (bottomMouth!.y - ((leftMouth.y + rightMouth.y) / 2)).abs();
@@ -182,6 +190,18 @@ class FaceDetectionService extends ChangeNotifier {
 
       final isYawning = (mouthOpenRatio > _yawnOpenThreshold) &&
           (noseMouthRatio > _noseDistanceThreshold);
+
+      final cheeksDistance = (leftCheek!.x - rightCheek!.x).abs();
+      final faceCenterX = (leftCheek.x + rightCheek.x) / 2;
+      final noseOffset = (noseBase.x - faceCenterX).abs();
+      final isHeadFacingForward =
+          noseOffset < (_yawToleranceRatio * cheeksDistance);
+
+      if (!isHeadFacingForward) {
+        final warning = '🚫 Head is turned – skipping yawning detection';
+        appLogger.i(warning);
+        return warning;
+      }
 
       if (isYawning) {
         yawnFrameCounter++;
@@ -246,12 +266,5 @@ class FaceDetectionService extends ChangeNotifier {
     } else {
       _customPaint = null;
     }
-  }
-
-  @override
-  void dispose() {
-    _canProcess = false;
-    _faceDetector.close();
-    super.dispose();
   }
 }

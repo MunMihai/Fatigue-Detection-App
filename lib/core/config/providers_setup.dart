@@ -5,11 +5,11 @@ import 'package:driver_monitoring/presentation/providers/camera_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:driver_monitoring/core/services/alert_manager.dart';
-import 'package:driver_monitoring/core/services/pause_manager.dart';
+import 'package:driver_monitoring/core/services/alert_service.dart';
+import 'package:driver_monitoring/presentation/providers/pause_provider.dart';
 import 'package:driver_monitoring/core/services/permissions_service.dart';
-import 'package:driver_monitoring/core/services/session_manager.dart';
-import 'package:driver_monitoring/core/services/session_timer.dart';
+import 'package:driver_monitoring/presentation/providers/session_manager.dart';
+import 'package:driver_monitoring/presentation/providers/session_timer_provider.dart';
 
 import 'package:driver_monitoring/data/datasources/drift_sessin_report_local_datasource.dart';
 import 'package:driver_monitoring/data/datasources/local/database_provider.dart';
@@ -67,37 +67,31 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
         ChangeNotifierProvider(
           create: (_) => SettingsProvider()..loadSettings(),
         ),
-
         Provider<PermissionsService>(
           lazy: false,
           create: (_) => PermissionsService(),
         ),
-
         ChangeNotifierProvider(create: (_) => CameraProvider()),
-        ChangeNotifierProvider(create: (_) => FaceDetectionService()),
-
-        ChangeNotifierProxyProvider2<SettingsProvider, CameraProvider, SessionManager>(
+        ChangeNotifierProxyProvider2<SettingsProvider, CameraProvider,
+            SessionManager>(
           create: (context) {
             final settings = context.read<SettingsProvider>();
             final camera = context.read<CameraProvider>();
-            final faceDetection = context.read<FaceDetectionService>();
 
             return SessionManager(
               settingsProvider: settings,
               cameraProvider: camera,
-              faceDetectionService: faceDetection,
+              faceDetectionService: FaceDetectionService(),
               sessionTimer: SessionTimer(),
               pauseManager: PauseManager(),
-              alertManager: AlertManager(),
+              alertService: AlertService(),
             );
           },
           update: (_, __, ___, sessionManager) => sessionManager!,
         ),
-
         ChangeNotifierProvider<ScoreProvider>(
           create: (context) => ScoreProvider(context.read<SessionManager>()),
         ),
-
         ChangeNotifierProxyProvider<SettingsProvider, SessionReportProvider>(
           create: (_) => SessionReportProvider(
             getReportsUseCase: getReportsUseCase,

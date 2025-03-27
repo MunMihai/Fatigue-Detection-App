@@ -2,7 +2,6 @@ import 'package:camera/camera.dart';
 import 'package:driver_monitoring/presentation/providers/camera_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:driver_monitoring/core/services/face_detection_service.dart';
 import 'package:driver_monitoring/presentation/widgets/app_bar.dart';
 
 class CameraCalibrationView extends StatelessWidget {
@@ -11,8 +10,9 @@ class CameraCalibrationView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cameraProvider = context.watch<CameraProvider>();
-    final faceDetectionProvider = context.watch<FaceDetectionService>();
 
+    final customPaint = cameraProvider.customPaint;
+    final detectionText = cameraProvider.detectionText;
     final controller = cameraProvider.controller;
 
     return Scaffold(
@@ -32,11 +32,11 @@ class CameraCalibrationView extends StatelessWidget {
                     if (controller.value.isStreamingImages)
                       CameraPreview(
                         controller,
-                        child: faceDetectionProvider.customPaint,
+                        child: customPaint,
                       )
                     else
                       const Center(child: Text('Camera stopped')),
-                    _buildOverlayText(faceDetectionProvider.detectionText),
+                    _buildOverlayText(detectionText),
                     _zoomSlider(cameraProvider),
                     _exposureSlider(cameraProvider),
                   ],

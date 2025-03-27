@@ -18,7 +18,6 @@ class PauseManager extends ChangeNotifier {
     return _totalPauseDuration;
   }
 
-  /// 🟢 Pornește pauza
   void startPause() {
     if (_isPaused) return;
 
@@ -30,7 +29,6 @@ class PauseManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 🔵 Oprește pauza
   void stopPause() {
     if (!_isPaused || _pauseStartTime == null) return;
 
@@ -44,7 +42,6 @@ class PauseManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 🟣 Reset complet
   void reset() {
     final wasPausedOrNotEmpty = _isPaused || _totalPauseDuration != Duration.zero;
 
@@ -59,7 +56,6 @@ class PauseManager extends ChangeNotifier {
     }
   }
 
-  /// Intern: Pornește timer-ul pentru actualizare UI
   void _startPauseTimer() {
     _pauseTimer?.cancel();
     _pauseTimer = Timer.periodic(const Duration(seconds: 1), (_) {
@@ -67,7 +63,6 @@ class PauseManager extends ChangeNotifier {
     });
   }
 
-  /// Intern: Oprește timer-ul
   void _stopPauseTimer() {
     _pauseTimer?.cancel();
     _pauseTimer = null;

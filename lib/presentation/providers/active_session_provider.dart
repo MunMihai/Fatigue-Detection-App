@@ -3,7 +3,7 @@ import 'package:driver_monitoring/domain/entities/session_report.dart';
 import 'package:driver_monitoring/presentation/providers/score_provider.dart';
 import 'package:driver_monitoring/presentation/widgets/pulsing_alert_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:driver_monitoring/core/services/session_manager.dart';
+import 'package:driver_monitoring/presentation/providers/session_manager.dart';
 import 'package:driver_monitoring/core/enum/app_state.dart';
 import 'package:driver_monitoring/core/utils/app_logger.dart';
 import 'package:driver_monitoring/core/utils/show_confiramtion_dialog.dart';
@@ -40,8 +40,7 @@ class ActiveSessionProvider extends ChangeNotifier {
       if (!context.mounted) return;
 
       appLogger.i('[ActiveSessionProvider] Starting monitoring...');
-      await sessionManager
-          .startMonitoring(); 
+      await sessionManager.startMonitoring();
     });
   }
 
@@ -62,7 +61,7 @@ class ActiveSessionProvider extends ChangeNotifier {
     final appState = sessionManager.appState;
 
     if (index == 1) {
-      _stopSessionFlow();
+      _confirmStopSession();
       return;
     }
 
@@ -79,9 +78,26 @@ class ActiveSessionProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> _onSessionTimeout() async {
-    if (!context.mounted) return;
+  Future<void> _confirmStopSession() async {
+    final confirmed = await showConfirmationDialog(
+      context: context,
+      title: 'Stop Monitoring',
+      confirmText: 'STOP',
+      cancelText: 'Cancel',
+      message:
+          'Are you sure you want to stop monitoring?\nStopping monitoring will interrupt all alerts and stop recording the current session.',
+      showIcon: false,
+    );
 
+    if (!confirmed) {
+      appLogger.i('[ActiveSessionProvider] Stop session canceled by user.');
+      return;
+    }
+
+    await _stopSessionFlow();
+  }
+
+  Future<void> _onSessionTimeout() async {
     appLogger.i('[ActiveSessionProvider] Handling session timeout...');
 
     final shouldStop = await showConfirmationDialog(
@@ -94,25 +110,14 @@ class ActiveSessionProvider extends ChangeNotifier {
       showIcon: false,
     );
 
-    if (!context.mounted) return;
-
-    if (shouldStop) {
-      appLogger.i(
-          '[ActiveSessionProvider] User chose to stop session after timeout.');
-
-      _stopSessionFlow();
-    } else {
-      appLogger.i('[ActiveSessionProvider] User chose to continue session.');
-
-      sessionManager.alertManager
-          .stopAlert(type: AlertType.sessionExpired.name);
-
-      if (sessionManager.appState == AppState.alertness) {
-        sessionManager.resumeMonitoring();
-      }
-
-      notifyListeners();
+    if (!shouldStop) {
+      appLogger.i('[ActiveSessionProvider] Stop session canceled by user.');
+      sessionManager.alertService.stopAlert(type: AlertType.sessionExpired.name);
+      sessionManager.resumeMonitoring();
+      return;
     }
+
+    await _stopSessionFlow();
   }
 
   Future<void> _onTimeRemainingNotification(int minutesLeft) async {
@@ -170,7 +175,7 @@ class ActiveSessionProvider extends ChangeNotifier {
 
       final finishedSession = sessionManager.currentSession?.copyWith(
         durationMinutes: sessionManager.sessionTimer.elapsedTime.inMinutes,
-        alerts: sessionManager.alertManager.alerts,
+        alerts: sessionManager.alertService.alerts,
       );
 
       await _saveSessionReport(finishedSession);
@@ -183,21 +188,6 @@ class ActiveSessionProvider extends ChangeNotifier {
   }
 
   Future<void> _stopSessionFlow() async {
-    final confirmed = await showConfirmationDialog(
-      context: context,
-      title: 'Stop Monitoring',
-      confirmText: 'STOP',
-      cancelText: 'Cancel',
-      message:
-          'Are you sure you want to stop monitoring?\n Stopping monitoring will interrupt all alerts and stop recording the current session.',
-      showIcon: false,
-    );
-
-    if (!confirmed) {
-      appLogger.i('[ActiveSessionProvider] Stop session canceled by user.');
-      return;
-    }
-
     _hasSavedSession = true;
     final finishedSession = await sessionManager.stopMonitoring();
 
