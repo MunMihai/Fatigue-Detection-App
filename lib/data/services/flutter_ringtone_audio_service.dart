@@ -1,7 +1,8 @@
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:driver_monitoring/core/utils/app_logger.dart';
+import 'package:driver_monitoring/domain/services/audio_service.dart';
 
-class AudioService {
+class FlutterRingtoneAudioService implements AudioService {
   bool _isAlertActive = false;
   DateTime? _lastAlertTime;
 
@@ -9,12 +10,13 @@ class AudioService {
   final String alertSoundAsset;
   final double volume;
 
-  AudioService({
+  FlutterRingtoneAudioService({
     Duration cooldown = const Duration(seconds: 2),
     this.alertSoundAsset = 'assets/sounds/warning_1.mp3',
     this.volume = 1.0,
   }) : _alertCooldown = cooldown;
 
+  @override
   Future<void> playAudio() async {
     final now = DateTime.now();
 
@@ -41,6 +43,7 @@ class AudioService {
     }
   }
 
+  @override
   void stopAudio() {
     if (!_isAlertActive) {
       appLogger.d('✅ No active alert to stop.');
@@ -48,13 +51,8 @@ class AudioService {
     }
 
     _isAlertActive = false;
-
     FlutterRingtonePlayer().stop();
     appLogger.i('🛑 Audio alert stopped.');
-  }
-
-  void dispose() {
-    stopAudio();
   }
 
   bool _isOnCooldown(DateTime now) {
@@ -64,14 +62,12 @@ class AudioService {
 
   Future<void> _playCustomAlert() async {
     appLogger.i('🔊 Playing custom asset: $alertSoundAsset');
-
     await FlutterRingtonePlayer().play(
       fromAsset: alertSoundAsset,
       looping: true,
       volume: volume,
       asAlarm: true,
     );
-
     appLogger.i('✅ Custom asset playing successfully!');
   }
 

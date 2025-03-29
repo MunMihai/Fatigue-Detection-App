@@ -1,10 +1,12 @@
 import 'package:camera/camera.dart';
 import 'package:driver_monitoring/core/utils/app_logger.dart';
 import 'package:driver_monitoring/core/utils/face_detector_painter.dart';
+import 'package:driver_monitoring/core/utils/salt_and_papper_filter.dart';
+import 'package:driver_monitoring/domain/services/face_detection_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 
-class FaceDetectionService {
+class MLKitFaceDetectionService implements FaceDetectionService {
   static const int _minProcessDelayMs = 100;
 
   static const double _eyeOpenTreshold = 0.4;
@@ -36,7 +38,7 @@ class FaceDetectionService {
   DateTime _lastFaceDetectedTime = DateTime.now();
   DateTime? _lastProcessTime;
 
-  FaceDetectionService()
+  MLKitFaceDetectionService()
       : _faceDetector = FaceDetector(
           options: FaceDetectorOptions(
             enableContours: true,
@@ -46,13 +48,19 @@ class FaceDetectionService {
           ),
         );
 
+  @override
   bool get closedEyesDetected =>
       closedEyesFrameCounter >= _closedEyesFrameThreshold;
+  @override
   bool get yawningDetected => yawnFrameCounter >= _yawnFrameThreshold;
+  @override
   DateTime get lastFaceDetectedTime => _lastFaceDetectedTime;
+  @override
   CustomPaint? get customPaint => _customPaint;
+  @override
   String? get detectionText => _detectionText;
 
+  @override
   void reset(int sensitivity) {
     appLogger.i('[FaceDetectionService] Resetting...');
     closedEyesFrameCounter = 0;
@@ -62,11 +70,12 @@ class FaceDetectionService {
     _detectionText = '';
 
     _closedEyesFrameThreshold = (11 - sensitivity);
-    _yawnFrameThreshold = (7 - sensitivity).clamp(2, 7);
+    _yawnFrameThreshold = (7 - sensitivity).clamp(3, 7);
 
     _lastFaceDetectedTime = DateTime.now();
   }
 
+  @override
   Future<void> processImage(InputImage inputImage) async {
     if (_isProcessing) {
       return;
@@ -129,8 +138,8 @@ class FaceDetectionService {
       _addToWindow(_leftEyeProbabilities, leftEyeOpenProb);
       _addToWindow(_rightEyeProbabilities, rightEyeOpenProb);
 
-      final filteredLeft = _applySaltPepperFilter(_leftEyeProbabilities);
-      final filteredRight = _applySaltPepperFilter(_rightEyeProbabilities);
+      final filteredLeft = SaltAndPaperFilter.applyFilter(_leftEyeProbabilities, _saltPepperThreshold);
+      final filteredRight = SaltAndPaperFilter.applyFilter(_rightEyeProbabilities, _saltPepperThreshold);
 
       final avgLeftEyeOpenProb = _average(filteredLeft);
       final avgRightEyeOpenProb = _average(filteredRight);
@@ -229,19 +238,6 @@ class FaceDetectionService {
     if (list.length > _windowSize) {
       list.removeAt(0);
     }
-  }
-
-  List<double> _applySaltPepperFilter(List<double> list) {
-    if (list.isEmpty) return [];
-
-    final avg = _average(list);
-
-    final filtered = list.where((value) {
-      final diff = (value - avg).abs();
-      return diff <= _saltPepperThreshold;
-    }).toList();
-
-    return filtered.isEmpty ? list : filtered;
   }
 
   double _average(List<double> list) {

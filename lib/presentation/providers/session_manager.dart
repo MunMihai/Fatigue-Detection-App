@@ -2,7 +2,8 @@ import 'dart:async';
 import 'package:camera/camera.dart';
 import 'package:driver_monitoring/core/enum/alert_type.dart';
 import 'package:driver_monitoring/core/enum/app_state.dart';
-import 'package:driver_monitoring/core/services/face_detection_service.dart';
+import 'package:driver_monitoring/domain/services/alert_service.dart';
+import 'package:driver_monitoring/domain/services/face_detection_service.dart';
 import 'package:driver_monitoring/presentation/providers/camera_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:driver_monitoring/core/utils/app_logger.dart';
@@ -11,7 +12,6 @@ import 'package:driver_monitoring/presentation/providers/settings_provider.dart'
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 import 'session_timer_provider.dart';
 import 'pause_provider.dart';
-import '../../core/services/alert_service.dart';
 
 class SessionManager extends ChangeNotifier {
   final SettingsProvider settingsProvider;
@@ -22,6 +22,9 @@ class SessionManager extends ChangeNotifier {
   final AlertService alertService;
 
   final int _faceDetectionTimeoutSec = 61;
+  final List<DateTime> _yawnTimestamps = [];
+
+  bool _isYawningActive = false;
 
   AppState _appState = AppState.idle;
   AppState get appState => _appState;
@@ -87,6 +90,9 @@ class SessionManager extends ChangeNotifier {
 
     final session = _finalizeSession();
 
+    _yawnTimestamps.clear();
+    _isYawningActive = false;
+
     await cameraProvider.stopCamera();
 
     _updateAppState(AppState.idle);
@@ -128,7 +134,8 @@ class SessionManager extends ChangeNotifier {
       _handleAlert(
         type: AlertType.yawning.name,
         severity: 180,
-        conditionMet: faceDetectionService.yawningDetected,
+        conditionMet:
+            _shouldTriggerYawnAlert(faceDetectionService.yawningDetected),
       );
     });
   }
@@ -143,6 +150,24 @@ class SessionManager extends ChangeNotifier {
     } else {
       _stopAlert(type);
     }
+  }
+
+  bool _shouldTriggerYawnAlert(bool isYawningNow) {
+    final currentTime = DateTime.now();
+
+    _yawnTimestamps.removeWhere(
+        (timestamp) => currentTime.difference(timestamp).inSeconds >= 60);
+
+    if (isYawningNow) {
+      if (!_isYawningActive) {
+        _yawnTimestamps.add(currentTime);
+        _isYawningActive = true;
+      }
+    } else {
+      _isYawningActive = false;
+    }
+
+    return _yawnTimestamps.length >= 3 && _isYawningActive;
   }
 
   void _triggerAlert(String type, double severity) {

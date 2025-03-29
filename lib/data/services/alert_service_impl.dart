@@ -1,18 +1,26 @@
-import 'package:driver_monitoring/core/services/audio_service.dart';
-import 'package:driver_monitoring/core/utils/app_logger.dart';
 import 'package:driver_monitoring/domain/entities/alert.dart';
+import 'package:driver_monitoring/domain/services/alert_service.dart';
+import 'package:driver_monitoring/core/utils/app_logger.dart';
+import 'package:driver_monitoring/domain/services/audio_service.dart';
 
-class AlertService {
+class AlertServiceImpl implements AlertService {
   final List<Alert> _alerts = [];
   final Set<String> _activeAlertTypes = {};
-  final AudioService _audioService = AudioService();
+  final AudioService _audioService;
 
+  AlertServiceImpl({required AudioService audioService})
+      : _audioService = audioService;
+
+  @override
   List<Alert> get alerts => List.unmodifiable(_alerts);
 
+  @override
   bool isAlertActive(String type) => _activeAlertTypes.contains(type);
 
+  @override
   bool get noActiveAlerts => _activeAlertTypes.isEmpty;
 
+  @override
   void triggerAlert({
     required String type,
     double severity = 0.0,
@@ -35,6 +43,7 @@ class AlertService {
     _audioService.playAudio();
   }
 
+  @override
   void stopAlert({String? type}) {
     if (type == null) {
       if (noActiveAlerts) {
@@ -49,6 +58,7 @@ class AlertService {
 
       if (!wasRemoved) {
         appLogger.w('⚠️ Tried to stop alert "$type", but it was not active.');
+        _audioService.stopAudio();
         return;
       }
 
@@ -63,6 +73,7 @@ class AlertService {
     }
   }
 
+  @override
   void clearAlerts() {
     _alerts.clear();
     _activeAlertTypes.clear();

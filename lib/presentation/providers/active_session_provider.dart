@@ -20,7 +20,16 @@ class ActiveSessionProvider extends ChangeNotifier {
   bool _hasSavedSession = false;
   bool _isAlertDialogShown = false;
 
-  int selectedIndex = 0;
+  int _selectedIndex = 0;
+
+  int get selectedIndex => _selectedIndex;
+
+  set selectedIndex(int index) {
+    if (_selectedIndex != index) {
+      _selectedIndex = index;
+      notifyListeners();
+    }
+  }
 
   ActiveSessionProvider({
     required this.sessionManager,
@@ -77,7 +86,6 @@ class ActiveSessionProvider extends ChangeNotifier {
       );
     }
   }
-  
 
   Future<void> _confirmStopSession() async {
     final confirmed = await showConfirmationDialog(
@@ -113,7 +121,8 @@ class ActiveSessionProvider extends ChangeNotifier {
 
     if (!shouldStop) {
       appLogger.i('[ActiveSessionProvider] Stop session canceled by user.');
-      sessionManager.alertService.stopAlert(type: AlertType.sessionExpired.name);
+      sessionManager.alertService
+          .stopAlert(type: AlertType.sessionExpired.name);
       sessionManager.resumeMonitoring();
       return;
     }

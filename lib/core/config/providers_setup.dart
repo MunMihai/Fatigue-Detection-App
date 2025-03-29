@@ -1,5 +1,3 @@
-import 'package:driver_monitoring/core/services/alert_service.dart';
-import 'package:driver_monitoring/core/services/face_detection_service.dart';
 import 'package:driver_monitoring/core/services/permissions_service.dart';
 import 'package:driver_monitoring/data/datasources/drift_sessin_report_local_datasource.dart';
 import 'package:driver_monitoring/data/datasources/local/database_provider.dart';
@@ -7,7 +5,13 @@ import 'package:driver_monitoring/data/datasources/phone_camera_datasource.dart'
 import 'package:driver_monitoring/data/datasources/session_report_datasource.dart';
 import 'package:driver_monitoring/data/repositories/camera_repository_impl.dart';
 import 'package:driver_monitoring/data/repositories/session_report_repositiry_impl.dart';
+import 'package:driver_monitoring/data/services/alert_service_impl.dart';
+import 'package:driver_monitoring/data/services/flutter_ringtone_audio_service.dart';
+import 'package:driver_monitoring/data/services/mlkit_face_detection_service.dart';
 import 'package:driver_monitoring/domain/repositories/session_report_repository.dart';
+import 'package:driver_monitoring/domain/services/alert_service.dart';
+import 'package:driver_monitoring/domain/services/audio_service.dart';
+import 'package:driver_monitoring/domain/services/face_detection_service.dart';
 import 'package:driver_monitoring/domain/usecases/add_report_usecase.dart';
 import 'package:driver_monitoring/domain/usecases/delete_report_usecase.dart';
 import 'package:driver_monitoring/domain/usecases/get_reports_usecase.dart';
@@ -35,9 +39,12 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
   late final SessionReportDataSource _reportDataSource;
   late final SessionReportRepository _sessionReportRepository;
 
-  // Instanțe persistente pentru cameră
   late final PhoneCameraDataSource _cameraDataSource;
   late final CameraProvider _cameraProvider;
+
+  late final FaceDetectionService _faceDetectionService;
+  late final AlertService _alertService;
+  late final AudioService _audioService;
 
   @override
   void initState() {
@@ -48,6 +55,9 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
     _cameraDataSource = PhoneCameraDataSource();
     final cameraRepo = CameraRepositoryImpl(_cameraDataSource);
     _cameraProvider = CameraProvider(cameraRepo);
+    _faceDetectionService = MLKitFaceDetectionService();
+    _audioService = FlutterRingtoneAudioService();
+    _alertService = AlertServiceImpl(audioService: _audioService);
   }
 
   void _initDatabase() {
@@ -77,37 +87,40 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
           lazy: false,
           create: (_) => PermissionsService(),
         ),
-
-        /// 🔄 Păstrăm instanța de cameră (NU se recreează la fiecare build)
         ChangeNotifierProvider<CameraProvider>.value(
           value: _cameraProvider,
         ),
-
-        /// 🔁 SessionManager legat de Settings și Camera
+        Provider<FaceDetectionService>.value(
+          value: _faceDetectionService,
+        ),
+        Provider<AudioService>.value(
+          value: _audioService,
+        ),
+        Provider<AlertService>.value(
+          value: _alertService,
+        ),
         ChangeNotifierProxyProvider2<SettingsProvider, CameraProvider,
             SessionManager>(
           create: (context) {
             final settings = context.read<SettingsProvider>();
             final camera = _cameraProvider;
+            final faceDetection = context.read<FaceDetectionService>();
+            final alertService = context.read<AlertService>();
 
             return SessionManager(
               settingsProvider: settings,
               cameraProvider: camera,
-              faceDetectionService: FaceDetectionService(),
+              faceDetectionService: faceDetection,
               sessionTimer: SessionTimer(),
               pauseManager: PauseManager(),
-              alertService: AlertService(),
+              alertService: alertService,
             );
           },
           update: (_, __, ___, sessionManager) => sessionManager!,
         ),
-
-        /// 🧠 Score provider
         ChangeNotifierProvider<ScoreProvider>(
           create: (context) => ScoreProvider(context.read<SessionManager>()),
         ),
-
-        /// 📋 Rapoarte sesiune
         ChangeNotifierProxyProvider<SettingsProvider, SessionReportProvider>(
           create: (_) => SessionReportProvider(
             getReportsUseCase: getReportsUseCase,

@@ -2,8 +2,8 @@ import 'package:driver_monitoring/presentation/providers/camera_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class CameraCalibrationView extends StatelessWidget {
-  const CameraCalibrationView({super.key});
+class CameraPreviewView extends StatelessWidget {
+  const CameraPreviewView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,12 @@ class CameraCalibrationView extends StatelessWidget {
           final preview = cameraProvider.previewWidget;
 
           if (!isActive || preview == null) {
-            return const Center(child: Text('Camera Preview not available'));
+            return const Center(
+              child: CircularProgressIndicator(
+                color: Colors.white,
+                strokeWidth: 3,
+              ),
+            );
           }
 
           return Stack(
