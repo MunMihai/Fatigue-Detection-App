@@ -1,3 +1,5 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +10,7 @@ class SensibilitySlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = AppLocalizations.of(context)!;
     return Consumer<SettingsProvider>(
       builder: (context, settingsProvider, _) {
         final sensitivity = settingsProvider.sessionSensitivity;
@@ -15,7 +18,7 @@ class SensibilitySlider extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Detection Sensitivity', style: AppTextStyles.h4),
+            Text(tr.detectionSensitivity, style: AppTextStyles.h4),
             Slider(
               value: sensitivity.toDouble(),
               min: 1,
@@ -27,7 +30,7 @@ class SensibilitySlider extends StatelessWidget {
               },
             ),
             Text(
-              'Current sensitivity: $sensitivity',
+              '${tr.currentSensitivity}: $sensitivity',
               style: AppTextStyles.subtitle,
             ),
           ],

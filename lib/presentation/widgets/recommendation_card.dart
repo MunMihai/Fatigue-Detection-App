@@ -38,12 +38,12 @@ class RecommendationCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  fatigueLevel.recommendationTitle,
+                  fatigueLevel.recommendationTitle(context),
                   style: AppTextStyles.h4
                 ),
                 AppSpaceses.verticalTiny,
                 Text(
-                  fatigueLevel.recommendationDescription,
+                  fatigueLevel.recommendationDescription(context),
                   style: AppTextStyles.subtitle
                 ),
               ],

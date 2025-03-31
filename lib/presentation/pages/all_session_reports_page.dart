@@ -1,3 +1,5 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:driver_monitoring/core/constants/app_spaceses.dart';
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
 import 'package:driver_monitoring/core/utils/color_scheme_extensions.dart';
@@ -30,7 +32,7 @@ class _AllSessionReportsPageState extends State<AllSessionReportsPage> {
 
     List<SessionReport> filtered = reports.where((session) {
       return session.timestamp.toIso8601String().contains(query) ||
-          session.fatigueLevelLabel.toLowerCase().contains(query);
+          session.fatigueLevelLabel(context).toLowerCase().contains(query);
     }).toList();
 
     switch (_selectedSortOption) {
@@ -54,6 +56,7 @@ class _AllSessionReportsPageState extends State<AllSessionReportsPage> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<SessionReportProvider>();
+    final tr = AppLocalizations.of(context)!;
     final reports = provider.reports;
     final filteredReports = getFilteredReports(reports, _searchQuery);
 
@@ -63,7 +66,7 @@ class _AllSessionReportsPageState extends State<AllSessionReportsPage> {
           icon: const Icon(Icons.close),
           onPressed: () => context.pop(),
         ),
-        title: 'All Sessions',
+        title: tr.allSessions,
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 25),
@@ -71,11 +74,10 @@ class _AllSessionReportsPageState extends State<AllSessionReportsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AppSpaceses.verticalSmall,
-            /// 📋 Opțiuni de sortare
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Sort by:', style: AppTextStyles.filterText),
+                Text(tr.sortBy, style: AppTextStyles.filterText),
                 DropdownButton<SortOption>(
                   value: _selectedSortOption,
                   onChanged: (SortOption? newValue) {
@@ -85,22 +87,22 @@ class _AllSessionReportsPageState extends State<AllSessionReportsPage> {
                       });
                     }
                   },
-                  items: const [
+                  items: [
                     DropdownMenuItem(
                       value: SortOption.dateDesc,
-                      child: Text('Date ↓'),
+                      child: Text(tr.dateDesc),
                     ),
                     DropdownMenuItem(
                       value: SortOption.dateAsc,
-                      child: Text('Date ↑'),
+                      child: Text(tr.dateAsc),
                     ),
                     DropdownMenuItem(
                       value: SortOption.durationDesc,
-                      child: Text('Duration ↓'),
+                      child: Text(tr.durationDesc),
                     ),
                     DropdownMenuItem(
                       value: SortOption.durationAsc,
-                      child: Text('Duration ↑'),
+                      child: Text(tr.durationAsc),
                     ),
                   ],
                 ),
@@ -109,7 +111,6 @@ class _AllSessionReportsPageState extends State<AllSessionReportsPage> {
 
             AppSpaceses.verticalSmall,
 
-            /// 🔎 Câmp de căutare
             TextField(
               onChanged: (value) {
                 setState(() {
@@ -118,7 +119,7 @@ class _AllSessionReportsPageState extends State<AllSessionReportsPage> {
               },
               style: AppTextStyles.filterText,
               decoration: InputDecoration(
-                hintText: 'Filter by date or fatigue level...',
+                hintText: tr.filterHint,
                 filled: true,
                 fillColor: Theme.of(context).colorScheme.searchBar,
                 contentPadding: const EdgeInsets.all(8),
@@ -131,13 +132,11 @@ class _AllSessionReportsPageState extends State<AllSessionReportsPage> {
 
             AppSpaceses.verticalMedium,
 
-
-            /// 🔄 Lista de sesiuni
             Expanded(
               child: provider.isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : filteredReports.isEmpty
-                      ? const Center(child: Text('No sessions found.'))
+                      ? Center(child: Text(tr.noSessionsFound))
                       : ListView.builder(
                           itemCount: filteredReports.length,
                           itemBuilder: (context, index) {

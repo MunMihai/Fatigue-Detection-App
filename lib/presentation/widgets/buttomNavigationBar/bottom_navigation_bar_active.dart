@@ -1,3 +1,5 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:flutter/material.dart';
 import 'package:driver_monitoring/presentation/providers/active_session_provider.dart';
 import 'package:driver_monitoring/core/utils/color_scheme_extensions.dart';
@@ -14,6 +16,7 @@ class BottomNavBarActive extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sessionProvider = context.read<ActiveSessionProvider>();
+    final tr = AppLocalizations.of(context)!;
 
     return BottomNavigationBar(
       backgroundColor: Theme.of(context).colorScheme.primary,
@@ -26,7 +29,7 @@ class BottomNavBarActive extends StatelessWidget {
         BottomNavigationBarItem(
           icon: const Icon(Icons.visibility_outlined),
           activeIcon: const Icon(Icons.visibility),
-          label: 'Main',
+          label: tr.mainTab,
         ),
         BottomNavigationBarItem(
           icon: Stack(alignment: Alignment.center, children: [
@@ -48,12 +51,12 @@ class BottomNavBarActive extends StatelessWidget {
               color: const Color(0xFFF00004),
             )
           ]),
-          label: 'Exit',
+          label: tr.exitTab,
         ),
         BottomNavigationBarItem(
           icon: const Icon(Icons.settings_applications_outlined),
           activeIcon: const Icon(Icons.settings_applications),
-          label: 'Calibration',
+          label: tr.cameraTab,
         ),
       ],
     );

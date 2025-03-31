@@ -3,9 +3,11 @@ import 'package:driver_monitoring/core/utils/app_logger.dart';
 import 'package:driver_monitoring/core/utils/date_time_extension.dart';
 import 'package:driver_monitoring/domain/entities/alert.dart';
 import 'package:driver_monitoring/domain/entities/alert_density_point.dart';
+import 'package:flutter/material.dart';
 
 class ChartDataUtils {
   static List<AlertDensityPoint> generateSessionScorePoints({
+    required BuildContext context, 
     required List<Alert> sortedAlerts,
     required DateTime sessionStartTime,
     required int durationMinutes,
@@ -15,7 +17,6 @@ class ChartDataUtils {
 
     if (durationMinutes <= 0) return points;
 
-    // 🔧 Indexare după minute
     final alertsByMinute = <int, List<Alert>>{};
 
     for (var alert in sortedAlerts) {
@@ -65,7 +66,7 @@ class ChartDataUtils {
       }
 
       appLogger.d(
-        '📊 Score Point [$nr]: time=${currentTime.toFormattedTime()} | alerts=${alertsAtThisMinute?.length ?? 0} | cumulativeSeverity=$cumulativeSeverity | score=$score',
+        '📊 Score Point [$nr]: time=${currentTime.toFormattedTime(context)} | alerts=${alertsAtThisMinute?.length ?? 0} | cumulativeSeverity=$cumulativeSeverity | score=$score',
       );
 
       points.add(
@@ -74,7 +75,7 @@ class ChartDataUtils {
           density: score,
           alertType:
               alertsAtThisMinute?.map((a) => a.type).join(', ') ?? 'None',
-          alertTime: currentTime.toFormattedTime(),
+          alertTime: currentTime.toFormattedTime(context),
           timeLabel: '${elapsedMinute}min',
           minute: elapsedMinute,
         ),

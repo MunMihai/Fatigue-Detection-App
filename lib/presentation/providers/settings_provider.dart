@@ -11,6 +11,7 @@ class SettingsProvider extends ChangeNotifier {
   int _savedHours = 0;
   int _savedMinutes = 0;
   int _sessionSensitivity = 5;
+  String _languageCode = 'en';
 
   bool get isCounterEnabled => _isCounterEnabled;
   bool get isReportsSectionEnabled => _isReportsSectionEnabled;
@@ -18,8 +19,8 @@ class SettingsProvider extends ChangeNotifier {
   int get savedHours => _savedHours;
   int get savedMinutes => _savedMinutes;
   int get sessionSensitivity => _sessionSensitivity;
+  String get languageCode => _languageCode;
 
-  /// Inițializare settings + încărcare valori
   Future<void> loadSettings() async {
     _prefs = await SharedPreferences.getInstance();
 
@@ -29,6 +30,7 @@ class SettingsProvider extends ChangeNotifier {
     _savedHours = _prefs.getInt('alarm_time_hours') ?? 2;
     _savedMinutes = _prefs.getInt('alarm_time_minutes') ?? 0;
     _sessionSensitivity = _prefs.getInt('_session_sensibility') ?? 5;
+    _languageCode = _prefs.getString('language_code') ?? 'en';
 
     appLogger.i('🔧 Settings loaded');
     appLogger.i('   ▸ Counter enabled: $_isCounterEnabled');
@@ -36,6 +38,7 @@ class SettingsProvider extends ChangeNotifier {
     appLogger.i('   ▸ Retention months: $_retentionMonths');
     appLogger.i('   ▸ Alarm time: $_savedHours h $_savedMinutes min');
     appLogger.i('   ▸ Sensibility: $_sessionSensitivity');
+    appLogger.i('   ▸ Language code: $_languageCode');
 
     notifyListeners();
   }
@@ -66,6 +69,15 @@ class SettingsProvider extends ChangeNotifier {
     await _prefs.setInt('alarm_time_minutes', _savedMinutes);
 
     appLogger.i('⏰ Alarm time updated → $_savedHours h $_savedMinutes min');
+
+    notifyListeners();
+  }
+
+  Future<void> updateLanguageCode(String newCode) async {
+    _languageCode = newCode;
+    await _prefs.setString('language_code', newCode);
+
+    appLogger.i('🌐 Language updated → $_languageCode');
 
     notifyListeners();
   }

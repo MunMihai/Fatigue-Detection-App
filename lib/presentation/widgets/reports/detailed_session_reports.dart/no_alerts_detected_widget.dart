@@ -1,3 +1,5 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:flutter/material.dart';
 import 'package:driver_monitoring/core/constants/app_spaceses.dart';
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
@@ -7,8 +9,9 @@ class NoAlertsDetectedWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = AppLocalizations.of(context)!;
     return Container(
-      height: 200,
+      // height: 200,
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
@@ -29,12 +32,13 @@ class NoAlertsDetectedWidget extends StatelessWidget {
           ),
           AppSpaceses.verticalSmall,
           Text(
-            'No alerts detected!',
+            tr.noAlertsDetected,
             style: AppTextStyles.h3,
+            textAlign: TextAlign.center,
           ),
           AppSpaceses.verticalTiny,
           Text(
-            'This session went perfectly.',
+            tr.sessionWentPerfectly,
             style: AppTextStyles.subtitle,
             textAlign: TextAlign.center,
           ),

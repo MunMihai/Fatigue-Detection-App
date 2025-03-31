@@ -1,4 +1,7 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:driver_monitoring/presentation/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'core/config/providers_setup.dart';
 import 'core/constants/app_color_scheme.dart';
@@ -19,15 +22,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'Monitoring App',
-      theme: ThemeData(
-        colorScheme: darkColorScheme,
-        useMaterial3: true,
-      ),
-      debugShowCheckedModeBanner: false,
-      routerConfig: AppRouter.router,
-      builder: (context, child) => SafeArea(child: child ?? const SizedBox()),
+    return Consumer<SettingsProvider>(
+      builder: (context, settings, _) {
+        return MaterialApp.router(
+          title: 'Driver Guard',
+          locale: Locale(settings.languageCode), 
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          theme: ThemeData(
+            colorScheme: darkColorScheme,
+            useMaterial3: true,
+          ),
+          debugShowCheckedModeBanner: false,
+          routerConfig: AppRouter.router,
+          builder: (context, child) =>
+              SafeArea(child: child ?? const SizedBox()),
+        );
+      },
     );
   }
 }

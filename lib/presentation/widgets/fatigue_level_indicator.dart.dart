@@ -40,7 +40,7 @@ class FatigueLevelIndicator extends StatelessWidget {
           ),
         ),
         AppSpaceses.verticalTiny,
-        Text(fatigueLevel.label,
+        Text(fatigueLevel.label(context),
             style: AppTextStyles.subtitle
                 .copyWith(color: fatigueLevel.color(context))),
       ],

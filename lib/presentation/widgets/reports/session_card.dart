@@ -17,7 +17,6 @@ class SessionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        // Navigare către pagina detaliată, folosind id-ul
         context.push('/reports/session/${sessionReport.id}');
       },
       child: Container(
@@ -27,7 +26,6 @@ class SessionCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            /// Icon-ul sesiunii
             Container(
               width: 60,
               height: 60,
@@ -41,18 +39,17 @@ class SessionCard extends StatelessWidget {
 
             const SizedBox(width: 20),
 
-            /// Info sesiune
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    sessionReport.timestamp.toFormattedDate(),
+                    sessionReport.timestamp.toFormattedDate(context),
                     style: AppTextStyles.h4,
                   ),
                   AppSpaceses.verticalTiny,
                   Text(
-                    sessionReport.fatigueLevelLabel,
+                    sessionReport.fatigueLevelLabel(context),
                     style: AppTextStyles.subtitle,
                   ),
                 ],

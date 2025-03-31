@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:driver_monitoring/presentation/pages/camera_preview_view.dart';
 import 'package:driver_monitoring/presentation/pages/main_monitoring_view.dart';
@@ -39,6 +40,7 @@ class _ActiveMonitoringWrapperPageState
   @override
   Widget build(BuildContext context) {
     final activeSessionProvider = context.watch<ActiveSessionProvider>();
+    
     final index = activeSessionProvider.selectedIndex;
     final pageIndex = index == 1 ? 2 : index;
 
@@ -90,11 +92,13 @@ class _ActiveMonitoringWrapperPageState
   }
 
   PreferredSizeWidget? _buildAppBar(int index) {
+    final tr = AppLocalizations.of(context)!;
+
     switch (index) {
       case 0:
-        return CustomAppBar(title: 'Monitoring Status');
+        return CustomAppBar(title: tr.monitoringStatus);
       case 2:
-        return CustomAppBar(title: 'Camera Preview');
+        return CustomAppBar(title: tr.cameraPreview);
       default:
         return null;
     }

@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-import 'session_report_table.dart'; // pentru foreign key pe reportId
+import 'session_report_table.dart'; 
 
 class AlertTable extends Table {
   TextColumn get id => text()();

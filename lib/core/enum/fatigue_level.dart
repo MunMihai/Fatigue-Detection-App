@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 enum FatigueLevel { normal, good, moderate, high, extreme }
 
 extension FatigueLevelExtension on FatigueLevel {
-  String get label {
+  String label(BuildContext context) {
+    final tr = AppLocalizations.of(context)!;
+
     switch (this) {
       case FatigueLevel.normal:
-        return 'Normal';
+        return tr.fatigueLevelNormal;
       case FatigueLevel.good:
-        return 'Good';
+        return tr.fatigueLevelGood;
       case FatigueLevel.moderate:
-        return 'Moderate';
+        return tr.fatigueLevelModerate;
       case FatigueLevel.high:
-        return 'High';
+        return tr.fatigueLevelHigh;
       case FatigueLevel.extreme:
-        return 'Extreme';
+        return tr.fatigueLevelExtreme;
     }
   }
 
@@ -47,33 +50,37 @@ extension FatigueLevelExtension on FatigueLevel {
     }
   }
 
-  String get recommendationTitle {
+  String recommendationTitle(context) {
+    final tr = AppLocalizations.of(context)!;
+
     switch (this) {
       case FatigueLevel.normal:
-        return 'Stay Focused';
+        return tr.fatigueRecTitleNormal;
       case FatigueLevel.good:
-        return 'Maintain Awareness';
+        return tr.fatigueRecTitleGood;
       case FatigueLevel.moderate:
-        return 'Be Cautious';
+        return tr.fatigueRecTitleModerate;
       case FatigueLevel.high:
-        return 'Take a Break';
+        return tr.fatigueRecTitleHigh;
       case FatigueLevel.extreme:
-        return 'Stop Driving!';
+        return tr.fatigueRecTitleExtreme;
     }
   }
 
-  String get recommendationDescription {
+  String recommendationDescription(context) {
+    final tr = AppLocalizations.of(context)!;
+
     switch (this) {
       case FatigueLevel.normal:
-        return 'Keep your eyes on the road while we keep ours on you. Stay focused and drive safely!';
+        return tr.fatigueRecDescNormal;
       case FatigueLevel.good:
-        return 'Take deep breaths and ensure proper ventilation. Fresh air can help you stay alert!';
+        return tr.fatigueRecDescGood;
       case FatigueLevel.moderate:
-        return 'Your reaction time is slowing. Take a short break and grab a strong coffee!';
+        return tr.fatigueRecDescModerate;
       case FatigueLevel.high:
-        return 'Your alertness is low. Take a break now—coffee might help, but rest is key!';
+        return tr.fatigueRecDescHigh;
       case FatigueLevel.extreme:
-        return 'Extreme fatigue detected! Stop driving immediately and rest before continuing.';
+        return tr.fatigueRecDescExtreme;
     }
   }
 

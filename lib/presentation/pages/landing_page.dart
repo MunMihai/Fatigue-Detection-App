@@ -1,7 +1,8 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:driver_monitoring/core/constants/app_gifs.dart';
 import 'package:driver_monitoring/core/constants/app_spaceses.dart';
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
-// import 'package:driver_monitoring/core/services/camera_manager.dart';
 import 'package:driver_monitoring/core/services/permissions_service.dart';
 import 'package:driver_monitoring/core/utils/color_scheme_extensions.dart';
 import 'package:driver_monitoring/presentation/widgets/buttons/simple_button.dart';
@@ -15,39 +16,37 @@ class LandingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = AppLocalizations.of(context)!;
     return Scaffold(
       body: Center(
         child: ListView(
-          // mainAxisAlignment: MainAxisAlignment.start,
           children: [
             AppSpaceses.verticalLarge,
             Container(
-              width: double.infinity, // Ocupă toată lățimea ecranului
+              width: double.infinity,
               decoration: BoxDecoration(
                   color: Colors.black,
                   border: Border.symmetric(
                     horizontal: BorderSide(
-                      color: Colors.black, // Culoarea borderului
-                      width: 30, // Grosimea borderului sus și jos
+                      color: Colors.black,
+                      width: 30,
                     ),
                   )),
               child: Image.asset(AppGIFs.splashGif,
-                  fit: BoxFit.cover,
-                  gaplessPlayback: true // Asigură că imaginea umple containerul
-                  ),
+                  fit: BoxFit.cover, gaplessPlayback: true),
             ),
             AppSpaceses.verticalLarge,
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 25.0),
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Column(
                 children: [
                   Text(
-                    'Start your journey',
+                    tr.startYourJourney,
                     style: AppTextStyles.h1,
                   ),
                   AppSpaceses.verticalLarge,
                   Text(
-                    'To help you stay safe on the road, we\'ll monitor for signs of fatigue and offer a reminder to take a break if needed.',
+                    tr.journeyDescription,
                     style: AppTextStyles.regular_24,
                     textAlign: TextAlign.center,
                   ),
@@ -58,23 +57,22 @@ class LandingPage extends StatelessWidget {
             FractionallySizedBox(
               widthFactor: 0.9,
               child: PrimaryButton(
-                  title: 'Start navigation',
+                  title: tr.startNavigation,
                   onPressed: () async {
-                    final permissionsService = context.read<PermissionsService>();
-                    // final cameraManager = context.read<CameraManager>();
-              
+                    final permissionsService =
+                        context.read<PermissionsService>();
+
                     final permissionStatus = await permissionsService
                         .requestCameraPermissionWithStatus();
-              
+
                     if (!context.mounted) return;
-              
+
                     switch (permissionStatus) {
                       case PermissionStatus.granted:
-                        // await cameraManager.initializeCamera();
                         if (!context.mounted) return;
                         context.go('/');
                         break;
-              
+
                       case PermissionStatus.permanentlyDenied:
                         final opened = await openAppSettings();
                         if (!context.mounted) return;
@@ -82,18 +80,19 @@ class LandingPage extends StatelessWidget {
                           SnackBar(
                             content: Text(
                               opened
-                                  ? 'Please enable camera permission in settings.'
-                                  : 'Could not open app settings.',
+                                  ? tr.enableCameraInSettings
+                                  : tr.couldNotOpenSettings,
                             ),
                           ),
                         );
                         break;
-              
+
                       default:
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content:
-                                Text('Camera permission is required to proceed.'),
+                          SnackBar(
+                            content: Text(
+                              tr.cameraPermissionRequired,
+                            ),
                           ),
                         );
                     }
@@ -101,7 +100,7 @@ class LandingPage extends StatelessWidget {
             ),
             AppSpaceses.verticalLarge,
             FractionallySizedBox(
-              widthFactor: 0.6, 
+              widthFactor: 0.6,
               child: ElevatedButton(
                 onPressed: () => context.push('/faqs'),
                 style: ElevatedButton.styleFrom(
@@ -109,10 +108,10 @@ class LandingPage extends StatelessWidget {
                       Theme.of(context).colorScheme.secondaryButton,
                   foregroundColor:
                       Theme.of(context).colorScheme.onSecondaryButton,
-                  minimumSize: const Size(0, 40), 
+                  minimumSize: const Size(0, 40),
                 ),
                 child: Text(
-                  'Check FAQs',
+                  tr.checkFaqs,
                   style: AppTextStyles.h3,
                 ),
               ),

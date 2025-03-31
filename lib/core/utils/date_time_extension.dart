@@ -1,13 +1,16 @@
 import 'package:intl/intl.dart';
+import 'package:flutter/material.dart';
 
 extension DateTimeFormat on DateTime {
-  String toFormattedDate() {
-    final formatter = DateFormat('MMMM dd, yyyy');
+  String toFormattedDate(BuildContext context) {
+    final locale = Localizations.localeOf(context).toString();
+    final formatter = DateFormat('MMMM dd, yyyy', locale);
     return formatter.format(this);
   }
 
-  String toFormattedTime() {
-    final formatter = DateFormat('hh:mm');
+  String toFormattedTime(BuildContext context) {
+    final locale = Localizations.localeOf(context).toString();
+    final formatter = DateFormat('hh:mm', locale);
     return formatter.format(this);
   }
 }

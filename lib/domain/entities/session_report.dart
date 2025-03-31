@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import 'alert.dart';
 import 'package:driver_monitoring/core/enum/fatigue_level.dart';
 
@@ -19,7 +21,7 @@ class SessionReport {
   });
 
   FatigueLevel get fatigueLevel => FatigueLevelExtension.fromScore(highestSeverityScore);
-  String get fatigueLevelLabel => fatigueLevel.label; 
+  String fatigueLevelLabel(BuildContext context) => fatigueLevel.label(context); 
 
    SessionReport copyWith({
     String? id,

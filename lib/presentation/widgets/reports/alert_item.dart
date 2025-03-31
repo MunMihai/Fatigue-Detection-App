@@ -26,14 +26,14 @@ class AlertItem extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              alert.timestamp.toFormattedTime(),
+              alert.timestamp.toFormattedTime(context),
               style: AppTextStyles.h4,
             ),
           ),
           AppSpaceses.horizontalMedium,
           Expanded(
             child: Text(
-              AlertType.values.byName(alert.type).description,
+              AlertType.values.byName(alert.type).localizedDescription(context),
               // alert.type,
               style: AppTextStyles.h4,
             ),

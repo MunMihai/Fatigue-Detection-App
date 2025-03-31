@@ -1,3 +1,5 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:driver_monitoring/core/constants/app_spaceses.dart';
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
 import 'package:driver_monitoring/presentation/providers/session_report_provider.dart';
@@ -13,9 +15,10 @@ class ReportsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: CustomAppBar(
-        title: 'Reports',
+        title: tr.reports,
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 25),
@@ -30,7 +33,7 @@ class ReportsView extends StatelessWidget {
             }
 
             if (reports.isEmpty) {
-              return const Center(child: Text('No reports found.'));
+              return Center(child: Text(tr.noReportsFound));
             }
 
             return ListView(
@@ -40,10 +43,10 @@ class ReportsView extends StatelessWidget {
     Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text('Sessions', style: AppTextStyles.h2),
+        Text(tr.sessions, style: AppTextStyles.h2),
         GestureDetector(
           onTap: () => context.push('/allSessions'),
-          child: Text('View All', style: AppTextStyles.h4),
+          child: Text(tr.viewAll, style: AppTextStyles.h4),
         ),
       ],
     ),

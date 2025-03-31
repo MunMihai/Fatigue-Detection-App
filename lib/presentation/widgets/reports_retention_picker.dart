@@ -1,3 +1,5 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
 import 'package:flutter/material.dart';
 
@@ -20,6 +22,7 @@ class ReportsRetentionPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = AppLocalizations.of(context)!;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -27,8 +30,8 @@ class ReportsRetentionPicker extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Save Reports For', style: AppTextStyles.h4),
-            Text('Tap to set', style: AppTextStyles.subtitle),
+            Text(tr.saveReportsFor, style: AppTextStyles.h4),
+            Text(tr.tapToSet, style: AppTextStyles.subtitle),
           ],
         ),
 
@@ -43,7 +46,7 @@ class ReportsRetentionPicker extends StatelessWidget {
                   onPressed: onIncrementByMonth,
                   onLongPress: onIncrementByYear,
                 ),
-                Text('$months months', style: AppTextStyles.h4),
+                Text('$months ${tr.months}', style: AppTextStyles.h4),
                 IconButton(
                   icon: const Icon(Icons.arrow_drop_down),
                   iconSize: 30,

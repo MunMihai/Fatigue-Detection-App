@@ -1,19 +1,24 @@
-extension MinuteFormat on int {
-  String toHoursAndMinutes() {
-    int hours = this ~/ 60; // Diviziune întreagă pentru ore
-    int minutes = this % 60; // Rămășița este minutul rămas
+import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-    return '${hours}h ${minutes.toString().padLeft(2, '0')}min';
+extension MinuteFormat on int {
+  String toHoursAndMinutes(BuildContext context) {
+    final tr = AppLocalizations.of(context)!;
+    int hours = this ~/ 60;
+    int minutes = this % 60;
+
+    return '$hours${tr.hours} ${minutes.toString().padLeft(2, '0')}${tr.minutes}';
   }
 }
 
 extension MinuteFormatWithSeconds on int {
-  String toHoursMinutesAndSeconds() {
-    int hours = this ~/ 3600; // Diviziune întreagă pentru ore
-    int minutes = (this % 3600) ~/ 60; // Rămășița pentru minute
-    int seconds = this % 60; // Rămășița pentru secunde
+  String toHoursMinutesAndSeconds(BuildContext context) {
+    final tr = AppLocalizations.of(context)!;
 
-    return '${hours}h ${minutes.toString().padLeft(2, '0')}min ${seconds.toString().padLeft(2, '0')}sec';
+    int hours = this ~/ 3600;
+    int minutes = (this % 3600) ~/ 60;
+    int seconds = this % 60;
+
+    return '$hours${tr.hours} ${minutes.toString().padLeft(2, '0')}${tr.minutes} ${seconds.toString().padLeft(2, '0')}${tr.seconds}';
   }
 }
-

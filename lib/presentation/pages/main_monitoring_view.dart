@@ -1,3 +1,5 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:driver_monitoring/core/constants/app_spaceses.dart';
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
 import 'package:driver_monitoring/presentation/providers/session_manager.dart';
@@ -48,6 +50,7 @@ class _MainMonitoringViewState extends State<MainMonitoringView>
     return Consumer2<SessionManager, ScoreProvider>(
       builder: (context, sessionManager, scoreProvider, child) {
         final score = scoreProvider.score;
+        final tr = AppLocalizations.of(context)!;
 
         final isPaused = sessionManager.isPaused;
         final elapsedTime = sessionManager.sessionTimer.elapsedTime;
@@ -68,11 +71,11 @@ class _MainMonitoringViewState extends State<MainMonitoringView>
                 child: ListView(
                   children: [
                     AppSpaceses.verticalLarge,
-                    Text('Fatigue Level', style: AppTextStyles.h2),
+                    Text(tr.fatigueLevel, style: AppTextStyles.h2),
                     AppSpaceses.verticalSmall,
                     FatigueLevelIndicator(score: score),
                     AppSpaceses.verticalLarge,
-                    Text('Recommendations', style: AppTextStyles.h2),
+                    Text(tr.recommendations, style: AppTextStyles.h2),
                     AppSpaceses.verticalMedium,
                     RecommendationCard(score: score),
                     AppSpaceses.verticalLarge,
@@ -80,14 +83,14 @@ class _MainMonitoringViewState extends State<MainMonitoringView>
                       children: [
                         Expanded(
                           child: InfoCard(
-                            title: 'Break Time',
-                            value: breakTime.inMinutes.toHoursAndMinutes(),
+                            title: tr.breakTime,
+                            value: breakTime.inMinutes.toHoursAndMinutes(context),
                           ),
                         ),
                         AppSpaceses.horizontalSmall,
                         Expanded(
                           child: InfoCard(
-                            title: 'Breaks',
+                            title: tr.breaks,
                             value: '$breaksCount',
                           ),
                         ),
@@ -95,15 +98,15 @@ class _MainMonitoringViewState extends State<MainMonitoringView>
                     ),
                     AppSpaceses.verticalSmall,
                     InfoCard(
-                      title: 'Total Session Time',
-                      value: elapsedTime.inSeconds.toHoursMinutesAndSeconds(),
+                      title: tr.totalSessionTime,
+                      value: elapsedTime.inSeconds.toHoursMinutesAndSeconds(context),
                       height: 100,
                       width: 340,
                     ),
                     AppSpaceses.verticalMedium,
                     PrimaryButton(
                       title:
-                          isPaused ? 'RESUME Monitoring' : 'PAUSE Monitoring',
+                          isPaused ? tr.resumeMonitoring : tr.pauseMonitoring,
                       onPressed: () async {
                         if (isPaused) {
                           await sessionManager.resumeMonitoring();

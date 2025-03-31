@@ -1,3 +1,5 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:driver_monitoring/core/utils/color_scheme_extensions.dart';
 import 'package:driver_monitoring/presentation/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +17,7 @@ class BottomNavBarIDLE extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = AppLocalizations.of(context)!;
     return Consumer<SettingsProvider>(
       builder: (context, settingsProvider, _) {
         final isReportsEnabled = settingsProvider.isReportsSectionEnabled;
@@ -32,10 +35,10 @@ class BottomNavBarIDLE extends StatelessWidget {
             onItemTapped(index);
           },
           items: [
-            const BottomNavigationBarItem(
+            BottomNavigationBarItem(
               icon: Icon(Icons.home_outlined),
               activeIcon: Icon(Icons.home),
-              label: 'Home',
+              label: tr.homeTab,
             ),
             BottomNavigationBarItem(
               icon: Icon(
@@ -48,12 +51,12 @@ class BottomNavBarIDLE extends StatelessWidget {
                 isReportsEnabled ? Icons.bar_chart : Icons.lock,
                 color: isReportsEnabled ? null : Colors.grey.shade600,
               ),
-              label: isReportsEnabled ? 'Reports' : 'Enable in Settings',
+              label: isReportsEnabled ? tr.reportsTab : tr.enableInSettingsTab,
             ),
-            const BottomNavigationBarItem(
+            BottomNavigationBarItem(
               icon: Icon(Icons.settings_outlined),
               activeIcon: Icon(Icons.settings),
-              label: 'Settings',
+              label: tr.settingsTab,
             ),
           ],
         );

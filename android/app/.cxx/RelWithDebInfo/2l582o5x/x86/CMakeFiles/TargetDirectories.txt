@@ -1,0 +1,2 @@
+D:/Universitate/Semestrul_8/App/driver_monitoring/android/app/.cxx/RelWithDebInfo/2l582o5x/x86/CMakeFiles/edit_cache.dir
+D:/Universitate/Semestrul_8/App/driver_monitoring/android/app/.cxx/RelWithDebInfo/2l582o5x/x86/CMakeFiles/rebuild_cache.dir

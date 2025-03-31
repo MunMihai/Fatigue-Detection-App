@@ -1,3 +1,5 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:driver_monitoring/core/enum/alert_type.dart';
 import 'package:driver_monitoring/domain/entities/session_report.dart';
 import 'package:driver_monitoring/presentation/providers/score_provider.dart';
@@ -19,7 +21,7 @@ class ActiveSessionProvider extends ChangeNotifier {
 
   bool _hasSavedSession = false;
   bool _isAlertDialogShown = false;
-
+  late AppLocalizations _tr;
   int _selectedIndex = 0;
 
   int get selectedIndex => _selectedIndex;
@@ -39,7 +41,7 @@ class ActiveSessionProvider extends ChangeNotifier {
   }) {
     appLogger.i('[ActiveSessionProvider] CREATED');
     WakelockPlus.enable();
-
+    _tr = AppLocalizations.of(context)!;
     sessionManager.addListener(_handleSessionStateChange);
 
     sessionManager.onSessionTimeout = _onSessionTimeout;
@@ -82,7 +84,7 @@ class ActiveSessionProvider extends ChangeNotifier {
     } else {
       appLogger.w('No active session!');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No active session!')),
+        SnackBar(content: Text(_tr.noActiveSession)),
       );
     }
   }
@@ -90,11 +92,10 @@ class ActiveSessionProvider extends ChangeNotifier {
   Future<void> _confirmStopSession() async {
     final confirmed = await showConfirmationDialog(
       context: context,
-      title: 'Stop Monitoring',
-      confirmText: 'STOP',
-      cancelText: 'Cancel',
-      message:
-          'Are you sure you want to stop monitoring?\nStopping monitoring will interrupt all alerts and stop recording the current session.',
+      title: _tr.stopMonitoring,
+      confirmText: _tr.stopButton,
+      cancelText: _tr.cancelButton,
+      message: _tr.stopMonitoringMessage,
       showIcon: false,
     );
 
@@ -111,11 +112,10 @@ class ActiveSessionProvider extends ChangeNotifier {
 
     final shouldStop = await showConfirmationDialog(
       context: context,
-      title: 'Out Of Time',
-      message:
-          'The allocated monitoring time has expired!\n Do you want to stop monitoring session or continue?',
-      confirmText: 'STOP',
-      cancelText: 'CONTINUE',
+      title: _tr.outOfTime,
+      message: _tr.outOfTimeMessage,
+      confirmText: _tr.stopButton,
+      cancelText: _tr.cancelButton,
       showIcon: false,
     );
 
@@ -138,10 +138,9 @@ class ActiveSessionProvider extends ChangeNotifier {
 
     await showConfirmationDialog(
       context: context,
-      title: 'Time Reminder',
-      cancelText: 'OK',
-      message:
-          'You have $minutesLeft minutes remaining before the monitoring session ends!',
+      title: _tr.timeReminder,
+      cancelText: _tr.okButton,
+      message: _tr.timeReminderMessage(minutesLeft),
       showIcon: false,
     );
   }
@@ -219,13 +218,15 @@ class ActiveSessionProvider extends ChangeNotifier {
       if (!context.mounted) return false;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(
-                'Session saved successfully! with severity ${finishedSession.highestSeverityScore}')),
+          content: Text(
+            _tr.sessionSavedWithScore,
+          ),
+        ),
       );
       return true;
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No active session to stop!')),
+        SnackBar(content: Text(_tr.noActiveSessionToStop)),
       );
       return false;
     }

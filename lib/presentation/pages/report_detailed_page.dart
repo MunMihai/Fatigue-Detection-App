@@ -1,3 +1,5 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:driver_monitoring/core/utils/date_time_extension.dart';
 import 'package:driver_monitoring/core/utils/int_extension.dart';
 import 'package:driver_monitoring/domain/entities/session_report.dart';
@@ -20,13 +22,14 @@ class ReportDetailedPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = AppLocalizations.of(context)!; 
     return Scaffold(
       appBar: CustomAppBar(
           leading: IconButton(
             icon: const Icon(Icons.close),
             onPressed: () => context.pop(),
           ),
-          title: sessionReport.timestamp.toFormattedDate()),
+          title: sessionReport.timestamp.toFormattedDate(context)),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 25),
         child: ListView(
@@ -36,14 +39,14 @@ class ReportDetailedPage extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Started at: ${sessionReport.timestamp.toFormattedTime()}',
+                Text('${tr.startedAt}: ${sessionReport.timestamp.toFormattedTime(context)}',
                     style: AppTextStyles.timer),
                 Text(
-                    'Duration for: ${sessionReport.durationMinutes.toHoursAndMinutes()}',
+                    '${tr.durationFor}: ${sessionReport.durationMinutes.toHoursAndMinutes(context)}',
                     style: AppTextStyles.timer),
-                Text('Fatigue level: ${sessionReport.fatigueLevelLabel}',
+                Text('${tr.fatigueLevel}: ${sessionReport.fatigueLevelLabel(context)}',
                     style: AppTextStyles.timer),
-                Text('Retention for: ${sessionReport.retentionMonths} months',
+                Text('${tr.retentionFor}: ${sessionReport.retentionMonths} ${tr.months}',
                     style: AppTextStyles.timer),
               ],
             ),
@@ -58,8 +61,7 @@ class ReportDetailedPage extends StatelessWidget {
 
             AppSpaceses.verticalLarge,
 
-            /// Lista de alerte
-            Text('Alerts', style: AppTextStyles.h2),
+            Text(tr.alerts, style: AppTextStyles.h2),
 
             AppSpaceses.verticalMedium,
 

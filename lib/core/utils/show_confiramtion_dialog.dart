@@ -113,6 +113,7 @@ Future<bool> showConfirmationDialog({
 
               return Column(
                 mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   if (showIcon)
                     Icon(
@@ -124,6 +125,7 @@ Future<bool> showConfirmationDialog({
                   Text(
                     title,
                     style: AppTextStyles.h3,
+                    textAlign: TextAlign.center,
                   ),
                   AppSpaceses.verticalTiny,
                   Text(

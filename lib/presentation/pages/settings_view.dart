@@ -1,3 +1,5 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:driver_monitoring/core/constants/app_spaceses.dart';
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
 import 'package:driver_monitoring/presentation/providers/settings_provider.dart';
@@ -14,22 +16,22 @@ class SettingsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settingsProvider = context.watch<SettingsProvider>();
+    final tr = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: CustomAppBar(
-        title: 'Sistem Settings',
+        title: tr.settingsTitle,
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: ListView(
-          // crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AppSpaceses.verticalSmall,
-            Text('Fatigue Counter', style: AppTextStyles.h2),
+            Text(tr.fatigueCounter, style: AppTextStyles.h2),
             AppSpaceses.verticalMedium,
             CustomSwitchTile(
-              title: 'Enable Counter',
-              subtitle: 'Toggle on/off',
+              title: tr.enableCounter,
+              subtitle: tr.toggleOnOff,
               value: settingsProvider.isCounterEnabled,
               onChanged: settingsProvider.toggleCounter,
             ),
@@ -40,11 +42,11 @@ class SettingsView extends StatelessWidget {
                 onChanged: settingsProvider.updateTime,
               ),
             AppSpaceses.verticalLarge,
-            Text('Preferences', style: AppTextStyles.h2),
+            Text(tr.preferences, style: AppTextStyles.h2),
             AppSpaceses.verticalMedium,
             CustomSwitchTile(
-              title: 'Show Reports Section',
-              subtitle: 'Toggle to show/hide',
+              title: tr.showReportsSection,
+              subtitle: tr.toggleShowHide,
               value: settingsProvider.isReportsSectionEnabled,
               onChanged: settingsProvider.toggleReportsSection,
             ),

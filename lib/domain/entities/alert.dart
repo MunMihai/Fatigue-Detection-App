@@ -1,10 +1,11 @@
 import 'package:driver_monitoring/core/enum/fatigue_level.dart';
+import 'package:flutter/widgets.dart';
 
 class Alert {
   final String id;
   final String type;
   final DateTime timestamp;
-  final double severity; // coeficientul la momentul alertei
+  final double severity; 
 
   Alert({
     required this.id,
@@ -14,5 +15,5 @@ class Alert {
   });
 
   FatigueLevel get fatigueLevel => FatigueLevelExtension.fromScore(severity);
-  String get fatigueLevelLabel => fatigueLevel.label; 
+  String fatigueLevelLabel(BuildContext context) => fatigueLevel.label(context); 
 }

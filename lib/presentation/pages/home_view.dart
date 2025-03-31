@@ -1,4 +1,6 @@
 import 'package:driver_monitoring/core/constants/app_spaceses.dart';
+import 'package:driver_monitoring/presentation/widgets/language_selector.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
 import 'package:driver_monitoring/presentation/providers/session_manager.dart';
 import 'package:driver_monitoring/presentation/providers/settings_provider.dart';
@@ -18,67 +20,61 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sessionManager = context.watch<SessionManager>();
+    final tr = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: CustomAppBar(title: 'Home'),
+      appBar: CustomAppBar(
+        title: tr.homeTitle,
+        actions: [
+          LanguageSelector(),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 25),
         child: ListView(
           children: [
             AppSpaceses.verticalLarge,
-
-            Text('Set Up your system', style: AppTextStyles.h2),
-
+            Text(tr.setupYourSystem, style: AppTextStyles.h2),
             AppSpaceses.verticalMedium,
-
             const SensibilitySlider(),
-
             AppSpaceses.verticalMedium,
-
             ArrowButton(
-              title: 'Advanced Settings',
+              title: tr.advancedSettings,
               onPressed: () {
-                onChangeTab?.call(2); 
+                onChangeTab?.call(2);
               },
             ),
-
             AppSpaceses.verticalLarge,
-
             MainMonitoringButton(
-              title: 'START MONITORING',
+              title: tr.startMonitoring,
               onPressed: () async {
                 if (sessionManager.isIdle) {
                   if (!context.mounted) return;
                   context.go('/monitoring');
-                  
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Session already active!')),
+                    SnackBar(content: Text(tr.sessionAlreadyActive)),
                   );
                 }
               },
             ),
-
             AppSpaceses.verticalLarge,
-
             Consumer<SettingsProvider>(
               builder: (context, settingsProvider, _) =>
                   settingsProvider.isReportsSectionEnabled
                       ? Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                              Text('Reports', style: AppTextStyles.h2),
+                              Text(tr.reports, style: AppTextStyles.h2),
                               AppSpaceses.verticalMedium,
                               ArrowButton(
-                                  title: 'Sessions History',
+                                  title: tr.sessionsHistory,
                                   onPressed: () {
-                                    onChangeTab?.call(
-                                        1);
+                                    onChangeTab?.call(1);
                                   })
                             ])
                       : const SizedBox(),
             ),
-
             AppSpaceses.verticalLarge,
           ],
         ),

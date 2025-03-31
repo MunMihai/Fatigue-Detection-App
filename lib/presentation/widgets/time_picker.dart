@@ -1,3 +1,5 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
 import 'package:flutter/material.dart';
 
@@ -33,25 +35,26 @@ class TimePicker extends StatelessWidget {
     const step = 1;
     int newMinutes = minutes - step;
     if (newMinutes < 0) {
-      newMinutes = 60 - step; 
+      newMinutes = 60 - step;
     }
     onChanged(Duration(hours: hours, minutes: newMinutes));
   }
 
   @override
   Widget build(BuildContext context) {
+    final tr = AppLocalizations.of(context)!;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Set Alarm Time', style: AppTextStyles.h4),
-            Text('Tap to set', style: AppTextStyles.subtitle),
+            Text(tr.setAlarmTime, style: AppTextStyles.h4),
+            Text(tr.tapToSet, style: AppTextStyles.subtitle),
           ],
         ),
 
-        // Time selector
         Row(
           children: [
             Column(
@@ -72,7 +75,7 @@ class TimePicker extends StatelessWidget {
                 ),
               ],
             ),
-            Text('h :', style: AppTextStyles.h4),
+            Text('${tr.hours} :', style: AppTextStyles.h4),
             Column(
               children: [
                 IconButton(
@@ -91,7 +94,7 @@ class TimePicker extends StatelessWidget {
                 ),
               ],
             ),
-            Text('min', style: AppTextStyles.h4),
+            Text(tr.minutes, style: AppTextStyles.h4),
           ],
         ),
       ],

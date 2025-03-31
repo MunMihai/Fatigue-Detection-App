@@ -1,3 +1,5 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'dart:math';
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
 import 'package:driver_monitoring/core/enum/fatigue_level.dart';
@@ -17,6 +19,7 @@ class SessionsReportsChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr =AppLocalizations.of(context)!;
     final sortedReports = [...reports]
       ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
@@ -29,7 +32,7 @@ class SessionsReportsChart extends StatelessWidget {
     return SizedBox(
       child: SfCartesianChart(
         title: ChartTitle(
-            text: 'Fatigue Scores',
+            text: tr.fatigueScore,
             textStyle: AppTextStyles.h3,
             alignment: ChartAlignment.near),
         primaryXAxis: CategoryAxis(
@@ -60,7 +63,7 @@ class SessionsReportsChart extends StatelessWidget {
                 DateFormat('HH:mm\nMMM dd, yyyy').format(report.timestamp),
             yValueMapper: (SessionReport report, _) =>
                 min(report.highestSeverityScore, 0.5),
-            name: '', // Fără nume pentru legendă
+            name: '', 
             dataLabelSettings: DataLabelSettings(
               isVisible: true,
               labelAlignment: ChartDataLabelAlignment.middle,
@@ -69,7 +72,7 @@ class SessionsReportsChart extends StatelessWidget {
             dataLabelMapper: (SessionReport report, _) {
               final fatigueLevel =
                   FatigueLevelExtension.fromScore(report.highestSeverityScore);
-              return fatigueLevel.label;
+              return fatigueLevel.label(context);
             },
 
             pointColorMapper: (SessionReport report, _) {

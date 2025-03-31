@@ -1,14 +1,18 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 enum AlertType { drowsiness, sessionExpired, yawning }
 
 extension AlertTypeExtension on AlertType {
-  String get description {
+  String localizedDescription(BuildContext context) {
+    final tr = AppLocalizations.of(context)!;
     switch (this) {
       case AlertType.drowsiness:
-        return 'Drowsiness detected';
+        return tr.drowsiness;
       case AlertType.sessionExpired:
-        return 'Session timer expired!';
+        return tr.sessionExpired;
       case AlertType.yawning:
-        return 'Yawn';
+        return tr.yawning;
     }
   }
 

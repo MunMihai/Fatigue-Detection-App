@@ -1,0 +1,469 @@
+{
+  "@@locale": "en",
+  "homeTitle": "Home",
+  "@homeTitle": {
+    "description": "Title displayed in the AppBar on the Home screen"
+  },
+  "setupYourSystem": "Set Up your system",
+  "@setupYourSystem": {
+    "description": "Text shown on the Home screen above the configuration options"
+  },
+  "advancedSettings": "Advanced Settings",
+  "@advancedSettings": {
+    "description": "Button label for opening advanced configuration"
+  },
+  "startMonitoring": "START MONITORING",
+  "@startMonitoring": {
+    "description": "Main call-to-action button for starting the monitoring session"
+  },
+  "sessionAlreadyActive": "Session already active!",
+  "@sessionAlreadyActive": {
+    "description": "Snackbar message shown when session is already active"
+  },
+  "reports": "Reports",
+  "@reports": {
+    "description": "Section title for viewing monitoring reports"
+  },
+  "saveReportsFor": "Save Reports For",
+  "@saveReportsFor": {
+    "description": "Label for the button used to set the report retention duration"
+  },
+  "sessionsHistory": "Sessions History",
+  "@sessionsHistory": {
+    "description": "Button label to view previous sessions"
+  },
+  "fatigueLevel": "Fatigue Level",
+  "@fatigueLevel": {
+    "description": "Label above fatigue indicator"
+  },
+  "recommendations": "Recommendations",
+  "@recommendations": {
+    "description": "Section title for tips or advice"
+  },
+  "breakTime": "Break Time",
+  "@breakTime": {
+    "description": "Displays time spent on breaks"
+  },
+  "breaks": "Breaks",
+  "@breaks": {
+    "description": "Displays number of breaks"
+  },
+  "totalSessionTime": "Total Session Time",
+  "@totalSessionTime": {
+    "description": "Displays total time of current session"
+  },
+  "resumeMonitoring": "RESUME Monitoring",
+  "@resumeMonitoring": {
+    "description": "Button to resume paused monitoring"
+  },
+  "pauseMonitoring": "PAUSE Monitoring",
+  "@pauseMonitoring": {
+    "description": "Button to pause active monitoring"
+  },
+  "zoom": "Zoom",
+  "@zoom": {
+    "description": "Camera zoom control label"
+  },
+  "exposure": "Exposure",
+  "@exposure": {
+    "description": "Camera exposure control label"
+  },
+  "processing": "Processing...",
+  "@processing": {
+    "description": "Message shown while detecting"
+  },
+  "allSessions": "All Sessions",
+  "@allSessions": {
+    "description": "Title for the all sessions report page"
+  },
+  "sortBy": "Sort by:",
+  "@sortBy": {
+    "description": "Dropdown label for sorting sessions"
+  },
+  "dateDesc": "Date ↓",
+  "@dateDesc": {
+    "description": "Sort option: Date descending"
+  },
+  "dateAsc": "Date ↑",
+  "@dateAsc": {
+    "description": "Sort option: Date ascending"
+  },
+  "durationDesc": "Duration ↓",
+  "@durationDesc": {
+    "description": "Sort option: Duration descending"
+  },
+  "durationAsc": "Duration ↑",
+  "@durationAsc": {
+    "description": "Sort option: Duration ascending"
+  },
+  "filterHint": "Filter by date or fatigue level...",
+  "@filterHint": {
+    "description": "Hint text for search field"
+  },
+  "noSessionsFound": "No sessions found.",
+  "@noSessionsFound": {
+    "description": "Message shown when no reports match search"
+  },
+  "startedAt": "Started at",
+  "@startedAt": {
+    "description": "Label for start time of session"
+  },
+  "durationFor": "Duration for",
+  "@durationFor": {
+    "description": "Label for duration of session"
+  },
+  "retentionFor": "Retention for",
+  "@retentionFor": {
+    "description": "Label showing how long session will be stored"
+  },
+  "months": "months",
+  "@months": {
+    "description": "Time unit shown in retention info"
+  },
+  "alerts": "Alerts",
+  "@alerts": {
+    "description": "Title above alert list"
+  },
+  "viewAll": "View All",
+  "@viewAll": {
+    "description": "Text to navigate to full session list"
+  },
+  "sessions": "Sessions",
+  "@sessions": {
+    "description": "Label above recent sessions"
+  },
+  "noReportsFound": "No reports found.",
+  "@noReportsFound": {
+    "description": "Message shown when no sessions exist"
+  },
+  "settingsTitle": "System Settings",
+  "@settingsTitle": {
+    "description": "Title for the settings screen"
+  },
+  "fatigueCounter": "Fatigue Counter",
+  "@fatigueCounter": {
+    "description": "Section title for enabling fatigue alert timer"
+  },
+  "enableCounter": "Enable Counter",
+  "@enableCounter": {
+    "description": "Switch label to enable timer"
+  },
+  "toggleOnOff": "Toggle on/off",
+  "@toggleOnOff": {
+    "description": "Subtitle for switches"
+  },
+  "toggleShowHide": "Toggle to show/hide",
+  "@toggleShowHide": {
+    "description": "Subtitle for switches"
+  },
+  "preferences": "Preferences",
+  "@preferences": {
+    "description": "Title for preferences section"
+  },
+  "showReportsSection": "Show Reports Section",
+  "@showReportsSection": {
+    "description": "Switch label to show/hide reports"
+  },
+  "reportsSectionDisabled": "Reports section is disabled!",
+  "@reportsSectionDisabled": {
+    "description": "Warning when trying to access disabled reports"
+  },
+  "startYourJourney": "Start your journey",
+  "@startYourJourney": {
+    "description": "Intro title on landing page"
+  },
+  "journeyDescription": "To help you stay safe on the road, we’ll monitor for signs of fatigue and offer a reminder to take a break if needed.",
+  "@journeyDescription": {
+    "description": "Description on landing page"
+  },
+  "startNavigation": "Start navigation",
+  "@startNavigation": {
+    "description": "Button to enter app"
+  },
+  "checkFaqs": "Check FAQs",
+  "@checkFaqs": {
+    "description": "Button to access FAQs"
+  },
+  "cameraPermissionRequired": "Camera permission is required to proceed.",
+  "@cameraPermissionRequired": {
+    "description": "Error when permission is not granted"
+  },
+  "enableCameraInSettings": "Please enable camera permission in settings.",
+  "@enableCameraInSettings": {
+    "description": "Prompt to open settings"
+  },
+  "couldNotOpenSettings": "Could not open app settings.",
+  "@couldNotOpenSettings": {
+    "description": "Error when settings fail to open"
+  },
+  "faqTitle": "FAQ - Driver Monitoring",
+  "@faqTitle": {
+    "description": "Title of FAQ page"
+  },
+  "faq1Q": "How does the fatigue detection work?",
+  "@faq1Q": {
+    "description": "FAQ question 1"
+  },
+  "faq1A": "The system analyzes facial features in real-time video, focusing on eye closure and yawning detection. If signs of fatigue are detected consistently, the system triggers alerts to notify you.",
+  "@faq1A": {
+    "description": "FAQ answer 1"
+  },
+  "faq2Q": "What happens if no face is detected?",
+  "@faq2Q": {
+    "description": "FAQ question 2"
+  },
+  "faq2A": "If no face is detected for more than one minute, the monitoring session will automatically stop and a report of the session will be saved.",
+  "@faq2A": {
+    "description": "FAQ answer 2"
+  },
+  "faq3Q": "How do I calibrate the camera for better detection?",
+  "@faq3Q": {
+    "description": "FAQ question 3"
+  },
+  "faq3A": "In Camera Preview, you can adjust the camera zoom and brightness settings so your face is clearly visible. For accurate fatigue detection, make sure there is enough light inside the car. Avoid shadows or extreme backlight.",
+  "@faq3A": {
+    "description": "FAQ answer 3"
+  },
+  "faq4Q": "How can I adjust the sensitivity?",
+  "@faq4Q": {
+    "description": "FAQ question 4"
+  },
+  "faq4A": "You can adjust the detection sensitivity directly from the Home screen in the \"Set Up Your System\" section. We recommend avoiding the highest level unless necessary, as it may lead to more frequent alerts.",
+  "@faq4A": {
+    "description": "FAQ answer 4"
+  },
+  "faq5Q": "Can I review past monitoring sessions?",
+  "@faq5Q": {
+    "description": "FAQ question 5"
+  },
+  "faq5A": "Yes, all previous sessions are stored locally. Go to Reports to view your session history, detailed fatigue levels, and alerts.",
+  "@faq5A": {
+    "description": "FAQ answer 5"
+  },
+  "faq6Q": "Why can't I find the Reports section?",
+  "@faq6Q": {
+    "description": "FAQ question 6"
+  },
+  "faq6A": "The Reports section is disabled by default. To enable it, go to Settings > Preferences and activate “Enable Reports Section”. Once enabled, you can review your past monitoring sessions and view detailed reports.",
+  "@faq6A": {
+    "description": "FAQ answer 6"
+  },
+  "faq7Q": "Does the app work without an internet connection?",
+  "@faq7Q": {
+    "description": "FAQ question 7"
+  },
+  "faq7A": "Absolutely! All detection and alerts are processed offline on your device. No internet connection is required for monitoring.",
+  "@faq7A": {
+    "description": "FAQ answer 7"
+  },
+  "faq8Q": "How is my data stored and is it safe?",
+  "@faq8Q": {
+    "description": "FAQ question 8"
+  },
+  "faq8A": "Session data is stored locally on your device. No data is shared externally. You can configure data retention settings in the app.",
+  "@faq8A": {
+    "description": "FAQ answer 8"
+  },
+  "faq9Q": "What is the break recommendation based on?",
+  "@faq9Q": {
+    "description": "FAQ question 9"
+  },
+  "faq9A": "Break recommendations are triggered by fatigue scores or session timeouts. Customize break intervals in Settings.",
+  "@faq9A": {
+    "description": "FAQ answer 9"
+  },
+  "monitoringStatus": "Monitoring Status",
+  "@monitoringStatus": {
+    "description": "Title of the app bar during monitoring view"
+  },
+  "cameraPreview": "Camera Preview",
+  "@cameraPreview": {
+    "description": "Title of the app bar during camera preview"
+  },
+  "warningAlert": "🚨 ALERT! 🚨",
+  "@warningAlert": {
+    "description": "Warning Alert"
+  },
+  "fatigueDetected": "Fatigue detected!\nPlease remain as cautious as possible.\nPlan a stop shortly.",
+  "@fatigueDetected": {
+    "description": "Warning message shown when driver fatigue is detected"
+  },
+  "tapToSet": "Tap to set",
+  "@tapToSet": {
+    "description": "Tap on arrows to set a value"
+  },
+  "viewReports": "View driving session reports",
+  "@viewReports": {
+    "description": "Button or section label for viewing saved driving session reports"
+  },
+  "detectionSensitivity": "Detection Sensitivity",
+  "@detectionSensitivity": {
+    "description": "Label above the sensitivity slider"
+  },
+  "currentSensitivity": "Current sensitivity",
+  "@currentSensitivity": {
+    "description": "Shows the current selected sensitivity level"
+  },
+  "setAlarmTime": "Set Alarm Time",
+  "@setAlarmTime": {
+    "description": "Title for setting alarm time"
+  },
+  "hours": "h",
+  "@hours": {
+    "description": "Label for selecting number of hours"
+  },
+  "minutes": "min",
+  "@minutes": {
+    "description": "Label for selecting number of minutes"
+  },
+  "seconds": "sec",
+  "@seconds": {
+    "description": "Label for selecting number of seconds"
+  },
+  "stopButton": "STOP",
+  "@stopButton": {
+    "description": "Stop button"
+  },
+  "cancelButton": "Cancel",
+  "@cancelButton": {
+    "description": "Cancel button"
+  },
+  "continueButton": "CONTINUE",
+  "@continueButton": {
+    "description": "Continue button"
+  },
+  "deleteButton": "Delete Session",
+  "@deleteButton": {
+    "description": "Delete button"
+  },
+  "confirmationTitle": "Confirmation",
+  "@confirmationTitle": {
+    "description": "Confirm title on pop up message"
+  },
+  "confirmationMessage": "Are you sure you want to delete this session?",
+  "@confirmationMessage": {
+    "description": "Confirmation message on pop up message"
+  },
+  "removed": "Report successfully deleted!",
+  "@removed": {
+    "description": ""
+  },
+  "okButton": "OK",
+  "@okButton": {
+    "description": "Ok button"
+  },
+  "noActiveSession": "No active session!",
+  "@noActiveSession": {
+    "description": "No active session snackbar"
+  },
+  "stopMonitoring": "Stop Monitoring",
+  "@stopMonitoring": {
+    "description": "Stop monitoring title"
+  },
+  "stopMonitoringMessage": "Are you sure you want to stop monitoring?\nStopping monitoring will interrupt all alerts and stop recording the current session.",
+  "@stopMonitoringMessage": {
+    "description": "Message to Confirm Stop Monitoring"
+  },
+  "outOfTime": "Out Of Time",
+  "@outOfTime": {
+    "description": "Out of time title"
+  },
+  "outOfTimeMessage": "The allocated monitoring time has expired!\n Do you want to stop monitoring session or continue?",
+  "@outOfTimeMessage": {
+    "description": "Out of time message"
+  },
+  "timeReminder": "Time Reminder",
+  "@timeReminder": {
+    "description": "Time reminder title"
+  },
+  "timeReminderMessage": "You have {minutesLeft} minutes remaining before the monitoring session ends!",
+  "@timeReminderMessage": {
+    "description": "Message shown when monitoring session is almost finished.",
+    "placeholders": {
+      "minutesLeft": {
+        "type": "int",
+        "example": "5"
+      }
+    }
+  },
+  "noActiveSessionToStop": "No active session to stop!",
+  "@noActiveSessionToStop": {
+    "description": "Displayed when user tries to stop a session that is not active"
+  },
+  "sessionSavedWithScore": "Session saved successfully!",
+  "@sessionSavedWithScore": {
+    "description": "Message shown when a session is saved successfully including the fatigue score."
+  },
+  "drowsiness": "Closed eyes!",
+  "@drowsiness": {
+    "description": "Fatigue alert"
+  },
+  "sessionExpired": "Session time expired!",
+  "@sessionExpired": {
+    "description": "Programmed alert"
+  },
+  "yawning": "Repeated yawning",
+  "@yawning": {
+    "description": "Fatigue alert"
+  },
+  "fatigueScore": "Fatigue Score",
+  "@fatigueScore": {
+    "description": "Fatigue Score"
+  },
+  "fatigueScoreOverTime": "Fatigue Score Over Time",
+  "@fatigueScoreOverTime": {
+    "description": "Fatigue Score Over Time"
+  },
+  "noAlertsDetected": "No alerts detected!",
+  "@noAlertsDetected": {
+    "description": "Message shown when no alerts were triggered during the session"
+  },
+  "sessionWentPerfectly": "This session went perfectly.",
+  "@sessionWentPerfectly": {
+    "description": "Subtitle shown when no alerts were triggered during the session"
+  },
+  "fatigueLevelNormal": "Normal",
+  "@fatigueLevelNormal": {},
+  "fatigueLevelGood": "Good",
+  "@fatigueLevelGood": {},
+  "fatigueLevelModerate": "Moderate",
+  "@fatigueLevelModerate": {},
+  "fatigueLevelHigh": "High",
+  "@fatigueLevelHigh": {},
+  "fatigueLevelExtreme": "Extreme",
+  "@fatigueLevelExtreme": {},
+  "fatigueRecTitleNormal": "Stay Focused",
+  "@fatigueRecTitleNormal": {},
+  "fatigueRecTitleGood": "Maintain Awareness",
+  "@fatigueRecTitleGood": {},
+  "fatigueRecTitleModerate": "Be Cautious",
+  "@fatigueRecTitleModerate": {},
+  "fatigueRecTitleHigh": "Take a Break",
+  "@fatigueRecTitleHigh": {},
+  "fatigueRecTitleExtreme": "Stop Driving!",
+  "@fatigueRecTitleExtreme": {},
+  "fatigueRecDescNormal": "Keep your eyes on the road while we keep ours on you. Stay focused and drive safely!",
+  "@fatigueRecDescNormal": {},
+  "fatigueRecDescGood": "Take deep breaths and ensure proper ventilation. Fresh air can help you stay alert!",
+  "@fatigueRecDescGood": {},
+  "fatigueRecDescModerate": "Your reaction time is slowing. Take a short break and grab a strong coffee!",
+  "@fatigueRecDescModerate": {},
+  "fatigueRecDescHigh": "Your alertness is low. Take a break now—coffee might help, but rest is key!",
+  "@fatigueRecDescHigh": {},
+  "fatigueRecDescExtreme": "Extreme fatigue detected! Stop driving immediately and rest before continuing.",
+  "@fatigueRecDescExtreme": {},
+  "mainTab": "Main",
+  "@mainTab": {},
+  "exitTab": "Exit",
+  "@exitTab": {},
+  "cameraTab": "Preview",
+  "@cameraTab": {},
+  "homeTab": "Home",
+  "@homeTab": {},
+  "reportsTab": "Reports",
+  "@reportsTab": {},
+  "enableInSettingsTab": "Enable in Settings",
+  "@enableInSettingsTab": {},
+  "settingsTab": "Settings",
+  "@settingsTab": {}
+}

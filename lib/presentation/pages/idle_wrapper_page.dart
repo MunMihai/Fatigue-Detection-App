@@ -1,4 +1,6 @@
 import 'package:driver_monitoring/presentation/pages/home_view.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:driver_monitoring/presentation/pages/reports_view.dart';
 import 'package:driver_monitoring/presentation/pages/settings_view.dart';
 import 'package:driver_monitoring/presentation/providers/session_report_provider.dart';
@@ -29,6 +31,7 @@ class _IdleWrapperState extends State<IdleWrapper> {
   @override
   Widget build(BuildContext context) {
     final settingsProvider = context.watch<SettingsProvider>();
+    final tr = AppLocalizations.of(context)!;
     final isReportsEnabled = settingsProvider.isReportsSectionEnabled;
 
     final List<Widget> pages = [
@@ -47,7 +50,7 @@ class _IdleWrapperState extends State<IdleWrapper> {
         onItemTapped: (index) {
           if (index == 1 && !isReportsEnabled) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Reports section is disabled!')),
+              SnackBar(content: Text(tr.reportsSectionDisabled)),
             );
             return;
           }

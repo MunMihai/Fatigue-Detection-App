@@ -1,3 +1,5 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:driver_monitoring/presentation/providers/camera_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -8,6 +10,7 @@ class CameraPreviewView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cameraProvider = context.watch<CameraProvider>();
+    final tr = AppLocalizations.of(context)!;
 
     final customPaint = cameraProvider.customPaint;
     final detectionText = cameraProvider.detectionText;
@@ -33,8 +36,8 @@ class CameraPreviewView extends StatelessWidget {
               preview,
               if (customPaint != null) customPaint,
               _buildOverlayText(detectionText),
-              _zoomSlider(cameraProvider),
-              _exposureSlider(cameraProvider),
+              _zoomSlider(tr, cameraProvider),
+              _exposureSlider(tr, cameraProvider),
             ],
           );
         },
@@ -64,7 +67,7 @@ class CameraPreviewView extends StatelessWidget {
     );
   }
 
-  Widget _zoomSlider(CameraProvider provider) {
+  Widget _zoomSlider(AppLocalizations tr, CameraProvider provider) {
     return Positioned(
       bottom: 8,
       left: 32,
@@ -72,7 +75,7 @@ class CameraPreviewView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Zoom', style: TextStyle(color: Colors.white)),
+          Text(tr.zoom, style: TextStyle(color: Colors.white)),
           Slider(
             value: provider.currentZoom,
             min: provider.minZoom,
@@ -84,13 +87,13 @@ class CameraPreviewView extends StatelessWidget {
     );
   }
 
-  Widget _exposureSlider(CameraProvider provider) {
+  Widget _exposureSlider(AppLocalizations tr, CameraProvider provider) {
     return Positioned(
       top: 8,
       right: 8,
       child: Column(
         children: [
-          const Text('Exposure', style: TextStyle(color: Colors.white)),
+          Text(tr.exposure, style: TextStyle(color: Colors.white)),
           RotatedBox(
             quarterTurns: 3,
             child: Slider(

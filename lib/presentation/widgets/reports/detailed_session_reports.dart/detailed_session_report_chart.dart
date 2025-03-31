@@ -34,6 +34,7 @@ class DetailedSessionReportChart extends StatelessWidget {
 
 final stepInSeconds = (durationMinutes * 60 / 15).floor().clamp(60, 300);
     final scorePoints = ChartDataUtils.generateSessionScorePoints(
+      context: context,
       sortedAlerts: sortedAlerts,
       sessionStartTime: sessionStartTime,
       durationMinutes: durationMinutes,

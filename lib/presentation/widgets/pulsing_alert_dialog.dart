@@ -1,3 +1,5 @@
+import 'package:driver_monitoring/core/constants/app_spaceses.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class PulsingAlertOverlay extends StatefulWidget {
@@ -35,6 +37,7 @@ class _PulsingAlertOverlayState extends State<PulsingAlertOverlay>
 
   @override
   Widget build(BuildContext context) {
+    final tr = AppLocalizations.of(context)!;
     return AnimatedBuilder(
       animation: _opacityAnimation,
       builder: (context, child) {
@@ -53,18 +56,16 @@ class _PulsingAlertOverlayState extends State<PulsingAlertOverlay>
                     size: 100,
                     color: Colors.white,
                   ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    '🚨 ALERT! 🚨',
+                  AppSpaceses.horizontalLarge,
+                  Text(tr.warningAlert,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Drowsiness detected!\nPlease take a break!',
+                  AppSpaceses.horizontalMedium,
+                  Text(tr.fatigueDetected,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white70,

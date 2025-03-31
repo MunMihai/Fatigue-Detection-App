@@ -1,3 +1,5 @@
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:driver_monitoring/domain/entities/alert_density_point.dart';
 import 'package:driver_monitoring/core/enum/fatigue_level.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +16,7 @@ class AlertDensityChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tr = AppLocalizations.of(context)!;
     final double maxDensity = points.isNotEmpty
         ? points.map((e) => e.density).reduce((a, b) => a > b ? a : b)
         : 1.0;
@@ -24,7 +27,7 @@ class AlertDensityChart extends StatelessWidget {
       height: 300,
       child: SfCartesianChart(
         title: ChartTitle(
-          text: 'Fatigue Score Over Time',
+          text: tr.fatigueScoreOverTime,
           textStyle: AppTextStyles.h2,
           alignment: ChartAlignment.near,
         ),
@@ -37,7 +40,7 @@ class AlertDensityChart extends StatelessWidget {
           minimum: 0,
           interval: yAxisMax / 10 == 0 ? 0.01 : yAxisMax / 10,
           maximum: yAxisMax,
-          title: AxisTitle(text: 'Fatigue Score'),
+          title: AxisTitle(text: tr.fatigueScore),
           isVisible: false,
         ),
         tooltipBehavior: TooltipBehavior(
@@ -71,7 +74,6 @@ class AlertDensityChart extends StatelessWidget {
         ),
         legend: Legend(isVisible: false),
 
-        /// ✅ AreaSeries cu gradient de oboseală
         series: <CartesianSeries<AlertDensityPoint, String>>[
           AreaSeries<AlertDensityPoint, String>(
             dataSource: points,
