@@ -45,6 +45,13 @@ class AppTextStyles {
     color: Color(0xFF748089),
   );
 
+  static final TextStyle helper = GoogleFonts.manrope(
+    fontSize: 14,
+    fontWeight: FontWeight.bold,
+    color: Color(0xFF748089),
+    fontStyle: FontStyle.italic
+  );
+
   static final TextStyle timer = GoogleFonts.manrope(
     fontSize: 16,
     fontWeight: FontWeight.bold,

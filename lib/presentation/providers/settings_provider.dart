@@ -1,5 +1,6 @@
 import 'package:driver_monitoring/core/utils/app_logger.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsProvider extends ChangeNotifier {
@@ -12,6 +13,7 @@ class SettingsProvider extends ChangeNotifier {
   int _savedMinutes = 0;
   int _sessionSensitivity = 5;
   String _languageCode = 'en';
+  FaceDetectorMode _faceDetectorMode = FaceDetectorMode.accurate;
 
   bool get isCounterEnabled => _isCounterEnabled;
   bool get isReportsSectionEnabled => _isReportsSectionEnabled;
@@ -20,6 +22,7 @@ class SettingsProvider extends ChangeNotifier {
   int get savedMinutes => _savedMinutes;
   int get sessionSensitivity => _sessionSensitivity;
   String get languageCode => _languageCode;
+  FaceDetectorMode get faceDetectorMode => _faceDetectorMode;
 
   Future<void> loadSettings() async {
     _prefs = await SharedPreferences.getInstance();
@@ -31,6 +34,11 @@ class SettingsProvider extends ChangeNotifier {
     _savedMinutes = _prefs.getInt('alarm_time_minutes') ?? 0;
     _sessionSensitivity = _prefs.getInt('_session_sensibility') ?? 5;
     _languageCode = _prefs.getString('language_code') ?? 'en';
+    final modeString = _prefs.getString('face_detector_mode') ?? 'fast';
+    _faceDetectorMode = FaceDetectorMode.values.firstWhere(
+      (e) => e.name == modeString,
+      orElse: () => FaceDetectorMode.fast,
+    );
 
     appLogger.i('🔧 Settings loaded');
     appLogger.i('   ▸ Counter enabled: $_isCounterEnabled');
@@ -39,6 +47,16 @@ class SettingsProvider extends ChangeNotifier {
     appLogger.i('   ▸ Alarm time: $_savedHours h $_savedMinutes min');
     appLogger.i('   ▸ Sensibility: $_sessionSensitivity');
     appLogger.i('   ▸ Language code: $_languageCode');
+    appLogger.i('   ▸ Performance mode: $_faceDetectorMode');
+
+    notifyListeners();
+  }
+
+  Future<void> updateFaceDetectorMode(FaceDetectorMode mode) async {
+    _faceDetectorMode = mode;
+    await _prefs.setString('face_detector_mode', mode.name);
+
+    appLogger.i('🧠 Face detector mode updated → $_faceDetectorMode');
 
     notifyListeners();
   }

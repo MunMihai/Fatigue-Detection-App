@@ -148,7 +148,7 @@
   "@enableCounter": {
     "description": "Switch label to enable timer"
   },
-  "toggleOnOff": "Toggle on/off",
+  "toggleOnOff": "Alert after timer ends",
   "@toggleOnOff": {
     "description": "Subtitle for switches"
   },
@@ -288,10 +288,12 @@
   "@fatigueDetected": {
     "description": "Warning message shown when driver fatigue is detected"
   },
-  "tapToSet": "Tap to set",
-  "@tapToSet": {
+  "setCounterTime": "Set time until alert",
+  "@setCounterTime": {
     "description": "Tap on arrows to set a value"
   },
+  "reportRetentionInfo": "Set the report retention period",
+  "@reportRetentionInfo": {},
   "viewReports": "View driving session reports",
   "@viewReports": {
     "description": "Button or section label for viewing saved driving session reports"
@@ -312,7 +314,7 @@
   "@hours": {
     "description": "Label for selecting number of hours"
   },
-  "minutes": "min",
+  "minutes": "m",
   "@minutes": {
     "description": "Label for selecting number of minutes"
   },
@@ -465,5 +467,9 @@
   "enableInSettingsTab": "Enable in Settings",
   "@enableInSettingsTab": {},
   "settingsTab": "Settings",
-  "@settingsTab": {}
+  "@settingsTab": {},
+  "enableAccurateMode": "Enable accurate mode",
+  "@enableAccurateMode": {},
+  "accuracyWarning": "Improves detection accuracy, but may reduce processing speed",
+  "@accuracyWarning": {}
 }

@@ -31,7 +31,18 @@ class ReportsRetentionPicker extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(tr.saveReportsFor, style: AppTextStyles.h4),
-            Text(tr.tapToSet, style: AppTextStyles.subtitle),
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth:
+                    MediaQuery.of(context).size.width * 0.5, // sau 0.6 după caz
+              ),
+              child: Text(
+                tr.reportRetentionInfo,
+                style: AppTextStyles.helper,
+                softWrap: true,
+                overflow: TextOverflow.visible,
+              ),
+            ),
           ],
         ),
 

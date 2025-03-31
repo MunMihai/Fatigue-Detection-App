@@ -38,15 +38,17 @@ class MLKitFaceDetectionService implements FaceDetectionService {
   DateTime _lastFaceDetectedTime = DateTime.now();
   DateTime? _lastProcessTime;
 
-  MLKitFaceDetectionService()
+  MLKitFaceDetectionService(FaceDetectorMode mode)
       : _faceDetector = FaceDetector(
           options: FaceDetectorOptions(
             enableContours: true,
             enableLandmarks: true,
-            performanceMode: FaceDetectorMode.fast,
+            performanceMode: mode,
             enableClassification: true,
           ),
-        );
+        ){
+          appLogger.e('Performance changed to $mode');
+        }
 
   @override
   bool get closedEyesDetected =>

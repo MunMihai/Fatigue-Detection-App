@@ -42,7 +42,6 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
   late final PhoneCameraDataSource _cameraDataSource;
   late final CameraProvider _cameraProvider;
 
-  late final FaceDetectionService _faceDetectionService;
   late final AlertService _alertService;
   late final AudioService _audioService;
 
@@ -55,7 +54,6 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
     _cameraDataSource = PhoneCameraDataSource();
     final cameraRepo = CameraRepositoryImpl(_cameraDataSource);
     _cameraProvider = CameraProvider(cameraRepo);
-    _faceDetectionService = MLKitFaceDetectionService();
     _audioService = FlutterRingtoneAudioService();
     _alertService = AlertServiceImpl(audioService: _audioService);
   }
@@ -90,14 +88,17 @@ class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
         ChangeNotifierProvider<CameraProvider>.value(
           value: _cameraProvider,
         ),
-        Provider<FaceDetectionService>.value(
-          value: _faceDetectionService,
-        ),
         Provider<AudioService>.value(
           value: _audioService,
         ),
         Provider<AlertService>.value(
           value: _alertService,
+        ),
+        ProxyProvider<SettingsProvider, FaceDetectionService>(
+          update: (_, settings, __) {
+            final mode = settings.faceDetectorMode;
+            return MLKitFaceDetectionService(mode);
+          },
         ),
         ChangeNotifierProxyProvider2<SettingsProvider, CameraProvider,
             SessionManager>(

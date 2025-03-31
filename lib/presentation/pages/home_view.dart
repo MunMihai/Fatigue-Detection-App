@@ -20,6 +20,7 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sessionManager = context.watch<SessionManager>();
+    final settingsProvider = context.watch<SettingsProvider>();
     final tr = AppLocalizations.of(context)!;
 
     return Scaffold(
@@ -33,10 +34,15 @@ class HomeView extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 25),
         child: ListView(
           children: [
-            AppSpaceses.verticalLarge,
+            AppSpaceses.verticalMedium,
             Text(tr.setupYourSystem, style: AppTextStyles.h2),
             AppSpaceses.verticalMedium,
-            const SensibilitySlider(),
+            SensibilitySlider(
+              sensitivity: settingsProvider.sessionSensitivity,
+              onChanged: (newValue) {
+                settingsProvider.updateSessionSensibility(newValue);
+              },
+            ),
             AppSpaceses.verticalMedium,
             ArrowButton(
               title: tr.advancedSettings,
@@ -59,22 +65,18 @@ class HomeView extends StatelessWidget {
               },
             ),
             AppSpaceses.verticalLarge,
-            Consumer<SettingsProvider>(
-              builder: (context, settingsProvider, _) =>
-                  settingsProvider.isReportsSectionEnabled
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                              Text(tr.reports, style: AppTextStyles.h2),
-                              AppSpaceses.verticalMedium,
-                              ArrowButton(
-                                  title: tr.sessionsHistory,
-                                  onPressed: () {
-                                    onChangeTab?.call(1);
-                                  })
-                            ])
-                      : const SizedBox(),
-            ),
+            if (settingsProvider.isReportsSectionEnabled)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(tr.reports, style: AppTextStyles.h2),
+                  AppSpaceses.verticalMedium,
+                  ArrowButton(
+                    title: tr.sessionsHistory,
+                    onPressed: () => onChangeTab?.call(1),
+                  ),
+                ],
+              ),
             AppSpaceses.verticalLarge,
           ],
         ),

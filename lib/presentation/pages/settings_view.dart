@@ -8,6 +8,7 @@ import 'package:driver_monitoring/presentation/widgets/buttons/custom_switch_til
 import 'package:driver_monitoring/presentation/widgets/reports_retention_picker.dart';
 import 'package:driver_monitoring/presentation/widgets/time_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:provider/provider.dart';
 
 class SettingsView extends StatelessWidget {
@@ -41,8 +42,20 @@ class SettingsView extends StatelessWidget {
                 minutes: settingsProvider.savedMinutes,
                 onChanged: settingsProvider.updateTime,
               ),
-            AppSpaceses.verticalLarge,
+            // AppSpaceses.verticalLarge,
             Text(tr.preferences, style: AppTextStyles.h2),
+            AppSpaceses.verticalMedium,
+            CustomSwitchTile(
+              title: tr.enableAccurateMode,
+              subtitle: tr.accuracyWarning,
+              value: settingsProvider.faceDetectorMode ==
+                  FaceDetectorMode.accurate,
+              onChanged: (value) {
+                settingsProvider.updateFaceDetectorMode(
+                  value ? FaceDetectorMode.accurate : FaceDetectorMode.fast,
+                );
+              },
+            ),
             AppSpaceses.verticalMedium,
             CustomSwitchTile(
               title: tr.showReportsSection,

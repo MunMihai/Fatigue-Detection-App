@@ -5,45 +5,49 @@ import 'package:flutter/material.dart';
 class CustomSwitchTile extends StatelessWidget {
   final String title;
   final String subtitle;
-  final bool value;               // valoarea vine din afară
+  final bool value; // valoarea vine din afară
   final ValueChanged<bool> onChanged;
 
   const CustomSwitchTile({
     super.key,
     required this.title,
     required this.subtitle,
-    required this.value,          // necesar să ai valoarea curentă
+    required this.value, // necesar să ai valoarea curentă
     required this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
     return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: AppTextStyles.h4
-              ),
-              //AppSpaceses.verticalTiny,
-              Text(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: AppTextStyles.h4,
+            ),
+            SizedBox(
+              width: MediaQuery.of(context).size.width *
+                  0.6, 
+              child: Text(
                 subtitle,
-                style: AppTextStyles.subtitle
+                style: AppTextStyles.helper,
+                softWrap: true,
               ),
-            ],
-          ),
-          Switch(
-            value: value,                        
-            activeColor: Theme.of(context).colorScheme.primaryButton,
-            thumbColor: const WidgetStatePropertyAll<Color>(Colors.white),
-            inactiveTrackColor: Theme.of(context).colorScheme.primary,
-            trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
-            onChanged: onChanged,                
-          ),
-        ],
+            ),
+          ],
+        ),
+        Switch(
+          value: value,
+          activeColor: Theme.of(context).colorScheme.primaryButton,
+          thumbColor: const WidgetStatePropertyAll<Color>(Colors.white),
+          inactiveTrackColor: Theme.of(context).colorScheme.primary,
+          trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
+          onChanged: onChanged,
+        ),
+      ],
     );
   }
 }
