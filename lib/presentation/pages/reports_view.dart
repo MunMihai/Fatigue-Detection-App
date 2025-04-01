@@ -26,7 +26,7 @@ class ReportsView extends StatelessWidget {
           builder: (context, reportProvider, child) {
             final reports = reportProvider.reports;
             final isLoading =
-                reportProvider.isLoading; // dacă ai adăugat loading
+                reportProvider.isLoading;
 
             if (isLoading) {
               return const Center(child: CircularProgressIndicator());
@@ -37,7 +37,6 @@ class ReportsView extends StatelessWidget {
             }
 
             return ListView(
-  // padding: const EdgeInsets.symmetric(horizontal: 25),
   children: [
     SessionsReportsChart(reports: reports),
     Row(

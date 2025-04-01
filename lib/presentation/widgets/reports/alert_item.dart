@@ -1,4 +1,4 @@
-import 'package:driver_monitoring/core/enum/alert_type.dart';
+import 'package:driver_monitoring/domain/enum/alert_type.dart';
 import 'package:driver_monitoring/core/utils/date_time_extension.dart';
 import 'package:driver_monitoring/domain/entities/alert.dart';
 import 'package:flutter/material.dart';

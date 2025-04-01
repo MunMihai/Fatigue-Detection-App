@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'package:camera/camera.dart';
-import 'package:driver_monitoring/core/enum/alert_type.dart';
-import 'package:driver_monitoring/core/enum/app_state.dart';
+import 'package:driver_monitoring/domain/enum/app_state.dart';
 import 'package:driver_monitoring/domain/services/alert_service.dart';
 import 'package:driver_monitoring/domain/services/face_detection_service.dart';
+import 'package:driver_monitoring/domain/strategies/alert_strategy.dart';
+import 'package:driver_monitoring/domain/strategies/drowsiness_alert.dart';
+import 'package:driver_monitoring/domain/strategies/session_expired_alert.dart';
+import 'package:driver_monitoring/domain/strategies/yawning_alert.dart';
 import 'package:driver_monitoring/presentation/providers/camera_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:driver_monitoring/core/utils/app_logger.dart';
@@ -20,11 +23,10 @@ class SessionManager extends ChangeNotifier {
   final SessionTimer sessionTimer;
   final PauseManager pauseManager;
   final AlertService alertService;
+  late List<AlertStrategy> _alertStrategies;
 
   final int _faceDetectionTimeoutSec = 61;
   final List<DateTime> _yawnTimestamps = [];
-
-  bool _isYawningActive = false;
 
   AppState _appState = AppState.idle;
   AppState get appState => _appState;
@@ -33,13 +35,12 @@ class SessionManager extends ChangeNotifier {
   Timer? _faceDetectionTimer;
   int _breaksCount = 0;
 
-  VoidCallback? onSessionTimeout;
+  Future<void> Function()? onSessionTimeout;
   ValueChanged<int>? onTimeRemainingNotification;
   ValueChanged<double>? onNewAlert;
   VoidCallback? onSessionStarted;
   VoidCallback? onSessionStopped;
 
-  bool _hasTriggeredTimeout = false;
   bool _notifiedThirtyMinutes = false;
   bool _notifiedFifteenMinutes = false;
   StreamSubscription<InputImage>? _imageSubscription;
@@ -91,7 +92,9 @@ class SessionManager extends ChangeNotifier {
     final session = _finalizeSession();
 
     _yawnTimestamps.clear();
-    _isYawningActive = false;
+    for (final strategy in _alertStrategies) {
+      strategy.reset();
+    }
 
     await cameraProvider.stopCamera();
 
@@ -117,6 +120,16 @@ class SessionManager extends ChangeNotifier {
   Future<void> _setupLiveFaceMonitoring() async {
     await cameraProvider.initialize(CameraLensDirection.front);
 
+    _alertStrategies = [
+      DrowsinessAlert(faceDetectionService),
+      YawningAlert(faceDetectionService),
+      SessionExpiredAlert(
+        sessionTimer: sessionTimer,
+        isCounterEnabled: settingsProvider.isCounterEnabled,
+        onTimeout: () => onSessionTimeout?.call(),
+      )
+    ];
+
     _imageSubscription = cameraProvider.imageStream?.listen((inputImage) async {
       await faceDetectionService.processImage(inputImage);
 
@@ -125,18 +138,13 @@ class SessionManager extends ChangeNotifier {
         text: faceDetectionService.detectionText,
       );
 
-      _handleAlert(
-        type: AlertType.drowsiness.name,
-        severity: 360,
-        conditionMet: faceDetectionService.closedEyesDetected,
-      );
-
-      _handleAlert(
-        type: AlertType.yawning.name,
-        severity: 180,
-        conditionMet:
-            _shouldTriggerYawnAlert(faceDetectionService.yawningDetected),
-      );
+      for (final strategy in _alertStrategies) {
+        _handleAlert(
+          type: strategy.type.name,
+          severity: strategy.severity,
+          conditionMet: strategy.shouldTrigger(),
+        );
+      }
     });
   }
 
@@ -155,24 +163,6 @@ class SessionManager extends ChangeNotifier {
     } else {
       _stopAlert(type);
     }
-  }
-
-  bool _shouldTriggerYawnAlert(bool isYawningNow) {
-    final currentTime = DateTime.now();
-
-    _yawnTimestamps.removeWhere(
-        (timestamp) => currentTime.difference(timestamp).inSeconds >= 60);
-
-    if (isYawningNow) {
-      if (!_isYawningActive) {
-        _yawnTimestamps.add(currentTime);
-        _isYawningActive = true;
-      }
-    } else {
-      _isYawningActive = false;
-    }
-
-    return _yawnTimestamps.length >= 3 && _isYawningActive;
   }
 
   void _triggerAlert(String type, double severity) {
@@ -212,20 +202,6 @@ class SessionManager extends ChangeNotifier {
       appLogger.i('[SessionManager] 15 minutes remaining');
       onTimeRemainingNotification?.call(15);
     }
-
-    if (sessionTimer.countdownFinished && settingsProvider.isCounterEnabled) {
-      _handleSessionTimeout();
-    }
-  }
-
-  void _handleSessionTimeout() {
-    if (_hasTriggeredTimeout) return;
-
-    _hasTriggeredTimeout = true;
-    appLogger.w('[SessionManager] Timer expired. Triggering break alert.');
-
-    alertService.triggerAlert(type: AlertType.sessionExpired.name, severity: 0);
-    onSessionTimeout?.call();
   }
 
   void _initSession() {
@@ -241,7 +217,6 @@ class SessionManager extends ChangeNotifier {
     );
 
     _breaksCount = 0;
-    _hasTriggeredTimeout = false;
     _notifiedThirtyMinutes = false;
     _notifiedFifteenMinutes = false;
 

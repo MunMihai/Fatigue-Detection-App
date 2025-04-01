@@ -1,12 +1,12 @@
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import 'package:driver_monitoring/core/enum/alert_type.dart';
+import 'package:driver_monitoring/domain/enum/alert_type.dart';
 import 'package:driver_monitoring/domain/entities/session_report.dart';
 import 'package:driver_monitoring/presentation/providers/score_provider.dart';
 import 'package:driver_monitoring/presentation/widgets/pulsing_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:driver_monitoring/presentation/providers/session_manager.dart';
-import 'package:driver_monitoring/core/enum/app_state.dart';
+import 'package:driver_monitoring/domain/enum/app_state.dart';
 import 'package:driver_monitoring/core/utils/app_logger.dart';
 import 'package:driver_monitoring/core/utils/show_confiramtion_dialog.dart';
 import 'package:driver_monitoring/presentation/providers/session_report_provider.dart';

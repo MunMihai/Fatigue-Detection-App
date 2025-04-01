@@ -1,4 +1,4 @@
-import 'package:driver_monitoring/core/enum/alert_type.dart';
+import 'package:driver_monitoring/domain/enum/alert_type.dart';
 import 'package:driver_monitoring/presentation/widgets/reports/detailed_session_reports.dart/alert_density_chart.dart';
 import 'package:driver_monitoring/presentation/widgets/reports/detailed_session_reports.dart/chart_data_utils.dart';
 import 'package:driver_monitoring/presentation/widgets/reports/detailed_session_reports.dart/no_alerts_detected_widget.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:driver_monitoring/domain/entities/alert_density_point.dart';
-import 'package:driver_monitoring/core/enum/fatigue_level.dart';
+import 'package:driver_monitoring/domain/enum/fatigue_level.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
