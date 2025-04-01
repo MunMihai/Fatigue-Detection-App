@@ -18,7 +18,7 @@ extension MinuteFormatWithSeconds on int {
     int hours = this ~/ 3600;
     int minutes = (this % 3600) ~/ 60;
     int seconds = this % 60;
-
+    
     return '$hours${tr.hours} ${minutes.toString().padLeft(2, '0')}${tr.minutes} ${seconds.toString().padLeft(2, '0')}${tr.seconds}';
   }
 }

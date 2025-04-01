@@ -16,7 +16,7 @@ import 'pause_provider.dart';
 class SessionManager extends ChangeNotifier {
   final SettingsProvider settingsProvider;
   final CameraProvider cameraProvider;
-  final FaceDetectionService faceDetectionService;
+  late FaceDetectionService faceDetectionService;
   final SessionTimer sessionTimer;
   final PauseManager pauseManager;
   final AlertService alertService;
@@ -138,6 +138,11 @@ class SessionManager extends ChangeNotifier {
             _shouldTriggerYawnAlert(faceDetectionService.yawningDetected),
       );
     });
+  }
+
+  void updateFaceService(FaceDetectionService newService) {
+    faceDetectionService = newService;
+    appLogger.i('[SessionManager] FaceDetectionService updated');
   }
 
   void _handleAlert({

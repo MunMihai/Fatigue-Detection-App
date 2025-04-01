@@ -52,7 +52,6 @@ class SessionTimer extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Curăță timerul la eliminare
   @override
   void dispose() {
     stop();

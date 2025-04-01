@@ -42,20 +42,18 @@ class SettingsView extends StatelessWidget {
                 minutes: settingsProvider.savedMinutes,
                 onChanged: settingsProvider.updateTime,
               ),
-            // AppSpaceses.verticalLarge,
             Text(tr.preferences, style: AppTextStyles.h2),
             AppSpaceses.verticalMedium,
             CustomSwitchTile(
-              title: tr.enableAccurateMode,
-              subtitle: tr.accuracyWarning,
-              value: settingsProvider.faceDetectorMode ==
-                  FaceDetectorMode.accurate,
-              onChanged: (value) {
-                settingsProvider.updateFaceDetectorMode(
-                  value ? FaceDetectorMode.accurate : FaceDetectorMode.fast,
-                );
-              },
-            ),
+                title: tr.enableAccurateMode,
+                subtitle: tr.accuracyWarning,
+                value: settingsProvider.faceDetectorMode ==
+                    FaceDetectorMode.accurate,
+                onChanged: (value) async {
+                  await settingsProvider.updateFaceDetectorMode(
+                    value ? FaceDetectorMode.accurate : FaceDetectorMode.fast,
+                  );
+                }),
             AppSpaceses.verticalMedium,
             CustomSwitchTile(
               title: tr.showReportsSection,

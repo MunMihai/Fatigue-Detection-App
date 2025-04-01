@@ -49,9 +49,11 @@ class _ActiveMonitoringWrapperPageState
       CameraPreviewView(),
     ];
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
     if (_pageController.hasClients && _pageController.page?.round() != index) {
       _pageController.jumpToPage(index);
     }
+  });
 
     return GestureDetector(
       behavior: HitTestBehavior.translucent,

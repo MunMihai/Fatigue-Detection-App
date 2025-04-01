@@ -46,9 +46,7 @@ class MLKitFaceDetectionService implements FaceDetectionService {
             performanceMode: mode,
             enableClassification: true,
           ),
-        ){
-          appLogger.e('Performance changed to $mode');
-        }
+        );
 
   @override
   bool get closedEyesDetected =>

@@ -11,7 +11,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   runApp(
-    const AppProvidersWrapper(
+    AppProvidersWrapper(
       child: MyApp(),
     ),
   );
@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       builder: (context, settings, _) {
         return MaterialApp.router(
           title: 'Driver Guard',
-          locale: Locale(settings.languageCode), 
+          locale: Locale(settings.languageCode),
           supportedLocales: AppLocalizations.supportedLocales,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           theme: ThemeData(

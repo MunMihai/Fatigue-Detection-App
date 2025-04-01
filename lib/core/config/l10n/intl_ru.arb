@@ -127,6 +127,6 @@
   "reportsTab": "Отчёты",
   "enableInSettingsTab": "Включить в настройках",
   "settingsTab": "Настройки",
-  "enableAccurateMode": "Вкл. точный режим",
+  "enableAccurateMode": "Улучшенный режим",
   "accuracyWarning": "Повышает точность распознавания, но может замедлить обработку"
 }

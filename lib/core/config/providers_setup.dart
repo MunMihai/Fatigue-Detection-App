@@ -2,7 +2,7 @@ import 'package:driver_monitoring/core/services/permissions_service.dart';
 import 'package:driver_monitoring/data/datasources/drift_sessin_report_local_datasource.dart';
 import 'package:driver_monitoring/data/datasources/local/database_provider.dart';
 import 'package:driver_monitoring/data/datasources/phone_camera_datasource.dart';
-import 'package:driver_monitoring/data/datasources/session_report_datasource.dart';
+// import 'package:driver_monitoring/data/datasources/session_report_datasource.dart';
 import 'package:driver_monitoring/data/repositories/camera_repository_impl.dart';
 import 'package:driver_monitoring/data/repositories/session_report_repositiry_impl.dart';
 import 'package:driver_monitoring/data/services/alert_service_impl.dart';
@@ -36,117 +36,88 @@ class AppProvidersWrapper extends StatefulWidget {
 }
 
 class _AppProvidersWrapperState extends State<AppProvidersWrapper> {
-  late final SessionReportDataSource _reportDataSource;
   late final SessionReportRepository _sessionReportRepository;
-
-  late final PhoneCameraDataSource _cameraDataSource;
   late final CameraProvider _cameraProvider;
-
   late final AlertService _alertService;
   late final AudioService _audioService;
 
   @override
   void initState() {
     super.initState();
-    _initDatabase();
-    _deleteExpiredReports();
+    _initDependencies();
+  }
 
-    _cameraDataSource = PhoneCameraDataSource();
-    final cameraRepo = CameraRepositoryImpl(_cameraDataSource);
+  void _initDependencies() {
+    final db = DatabaseProvider().database;
+    final reportDataSource = DriftSessionReportLocalDataSource(db);
+    _sessionReportRepository = SessionReportRepositoryImpl(dataSource: reportDataSource);
+    reportDataSource.deleteExpiredReports(DateTime.now());
+
+    final cameraDataSource = PhoneCameraDataSource();
+    final cameraRepo = CameraRepositoryImpl(cameraDataSource);
     _cameraProvider = CameraProvider(cameraRepo);
+
     _audioService = FlutterRingtoneAudioService();
     _alertService = AlertServiceImpl(audioService: _audioService);
   }
 
-  void _initDatabase() {
-    final db = DatabaseProvider().database;
-    _reportDataSource = DriftSessionReportLocalDataSource(db);
-    _sessionReportRepository =
-        SessionReportRepositoryImpl(dataSource: _reportDataSource);
-  }
-
-  Future<void> _deleteExpiredReports() async {
-    await _reportDataSource.deleteExpiredReports(DateTime.now());
-  }
-
   @override
   Widget build(BuildContext context) {
-    final getReportsUseCase = GetReportsUseCase(_sessionReportRepository);
-    final addReportUseCase = AddReportUseCase(_sessionReportRepository);
-    final updateReportUseCase = UpdateReportUseCase(_sessionReportRepository);
-    final deleteReportUseCase = DeleteReportUseCase(_sessionReportRepository);
-
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) => SettingsProvider()..loadSettings(),
-        ),
-        Provider<PermissionsService>(
-          lazy: false,
-          create: (_) => PermissionsService(),
-        ),
-        ChangeNotifierProvider<CameraProvider>.value(
-          value: _cameraProvider,
-        ),
-        Provider<AudioService>.value(
-          value: _audioService,
-        ),
-        Provider<AlertService>.value(
-          value: _alertService,
-        ),
-        ProxyProvider<SettingsProvider, FaceDetectionService>(
-          update: (_, settings, __) {
-            final mode = settings.faceDetectorMode;
-            return MLKitFaceDetectionService(mode);
-          },
-        ),
-        ChangeNotifierProxyProvider2<SettingsProvider, CameraProvider,
-            SessionManager>(
-          create: (context) {
-            final settings = context.read<SettingsProvider>();
-            final camera = _cameraProvider;
-            final faceDetection = context.read<FaceDetectionService>();
-            final alertService = context.read<AlertService>();
+        ChangeNotifierProvider(create: (_) => SettingsProvider()..loadSettings()),
+        Provider<PermissionsService>(lazy: false, create: (_) => PermissionsService()),
+        ChangeNotifierProvider<CameraProvider>.value(value: _cameraProvider),
+        Provider<AudioService>.value(value: _audioService),
+        Provider<AlertService>.value(value: _alertService),
 
-            return SessionManager(
-              settingsProvider: settings,
-              cameraProvider: camera,
-              faceDetectionService: faceDetection,
-              sessionTimer: SessionTimer(),
-              pauseManager: PauseManager(),
-              alertService: alertService,
-            );
-          },
-          update: (_, __, ___, sessionManager) => sessionManager!,
+        ProxyProvider<SettingsProvider, FaceDetectionService>(
+          lazy: false,
+          update: (_, settings, __) => MLKitFaceDetectionService(settings.faceDetectorMode),
         ),
-        ChangeNotifierProvider<ScoreProvider>(
+
+        ChangeNotifierProxyProvider2<SettingsProvider, CameraProvider, SessionManager>(
+          create: (context) => SessionManager(
+            settingsProvider: context.read<SettingsProvider>(),
+            cameraProvider: _cameraProvider,
+            faceDetectionService: context.read<FaceDetectionService>(),
+            sessionTimer: SessionTimer(),
+            pauseManager: PauseManager(),
+            alertService: _alertService,
+          ),
+          update: (context, _, __, sessionManager) {
+            sessionManager!.updateFaceService(context.read<FaceDetectionService>());
+            return sessionManager;
+          },
+        ),
+
+        ChangeNotifierProvider(
           create: (context) => ScoreProvider(context.read<SessionManager>()),
         ),
+
         ChangeNotifierProxyProvider<SettingsProvider, SessionReportProvider>(
           create: (_) => SessionReportProvider(
-            getReportsUseCase: getReportsUseCase,
-            addReportUseCase: addReportUseCase,
-            updateReportUseCase: updateReportUseCase,
-            deleteReportUseCase: deleteReportUseCase,
+            getReportsUseCase: GetReportsUseCase(_sessionReportRepository),
+            addReportUseCase: AddReportUseCase(_sessionReportRepository),
+            updateReportUseCase: UpdateReportUseCase(_sessionReportRepository),
+            deleteReportUseCase: DeleteReportUseCase(_sessionReportRepository),
           ),
           update: (_, settingsProvider, reportProvider) {
             final isReportsEnabled = settingsProvider.isReportsSectionEnabled;
+            final provider = reportProvider ?? SessionReportProvider(
+              getReportsUseCase: GetReportsUseCase(_sessionReportRepository),
+              addReportUseCase: AddReportUseCase(_sessionReportRepository),
+              updateReportUseCase: UpdateReportUseCase(_sessionReportRepository),
+              deleteReportUseCase: DeleteReportUseCase(_sessionReportRepository),
+            );
 
-            final reports = reportProvider ??
-                SessionReportProvider(
-                  getReportsUseCase: getReportsUseCase,
-                  addReportUseCase: addReportUseCase,
-                  updateReportUseCase: updateReportUseCase,
-                  deleteReportUseCase: deleteReportUseCase,
-                );
-
-            if (isReportsEnabled && !reports.hasFetchedReports) {
-              reports.fetchReports();
+            if (isReportsEnabled && !provider.hasFetchedReports) {
+              provider.fetchReports();
             } else if (!isReportsEnabled) {
-              reports.clearReports();
+              provider.clearReports();
             }
 
-            return reports;
+            return provider;
           },
         ),
       ],
