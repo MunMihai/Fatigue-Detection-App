@@ -36,12 +36,13 @@ class SettingsView extends StatelessWidget {
               value: settingsProvider.isCounterEnabled,
               onChanged: settingsProvider.toggleCounter,
             ),
-            if (settingsProvider.isCounterEnabled)
+            settingsProvider.isCounterEnabled ? 
               TimePicker(
                 hours: settingsProvider.savedHours,
                 minutes: settingsProvider.savedMinutes,
                 onChanged: settingsProvider.updateTime,
-              ),
+              ) :             AppSpaceses.verticalLarge,
+
             Text(tr.preferences, style: AppTextStyles.h2),
             AppSpaceses.verticalMedium,
             CustomSwitchTile(
