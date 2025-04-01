@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:camera/camera.dart';
+import 'package:driver_monitoring/domain/enum/alert_type.dart';
 import 'package:driver_monitoring/domain/enum/app_state.dart';
 import 'package:driver_monitoring/domain/services/alert_service.dart';
 import 'package:driver_monitoring/domain/services/face_detection_service.dart';
 import 'package:driver_monitoring/domain/strategies/alert_strategy.dart';
 import 'package:driver_monitoring/domain/strategies/drowsiness_alert.dart';
-import 'package:driver_monitoring/domain/strategies/session_expired_alert.dart';
 import 'package:driver_monitoring/domain/strategies/yawning_alert.dart';
 import 'package:driver_monitoring/presentation/providers/camera_provider.dart';
 import 'package:flutter/foundation.dart';
@@ -41,6 +41,7 @@ class SessionManager extends ChangeNotifier {
   VoidCallback? onSessionStarted;
   VoidCallback? onSessionStopped;
 
+  bool _hasTriggeredTimeout = false;
   bool _notifiedThirtyMinutes = false;
   bool _notifiedFifteenMinutes = false;
   StreamSubscription<InputImage>? _imageSubscription;
@@ -123,11 +124,7 @@ class SessionManager extends ChangeNotifier {
     _alertStrategies = [
       DrowsinessAlert(faceDetectionService),
       YawningAlert(faceDetectionService),
-      SessionExpiredAlert(
-        sessionTimer: sessionTimer,
-        isCounterEnabled: settingsProvider.isCounterEnabled,
-        onTimeout: () => onSessionTimeout?.call(),
-      )
+
     ];
 
     _imageSubscription = cameraProvider.imageStream?.listen((inputImage) async {
@@ -202,6 +199,19 @@ class SessionManager extends ChangeNotifier {
       appLogger.i('[SessionManager] 15 minutes remaining');
       onTimeRemainingNotification?.call(15);
     }
+    if (sessionTimer.countdownFinished && settingsProvider.isCounterEnabled) {
+      _handleSessionTimeout();
+    }
+  }
+
+  void _handleSessionTimeout() {
+    if (_hasTriggeredTimeout) return;
+
+    _hasTriggeredTimeout = true;
+    appLogger.w('[SessionManager] Timer expired. Triggering break alert.');
+
+    alertService.triggerAlert(type: AlertType.sessionExpired.name, severity: 0);
+    onSessionTimeout?.call();
   }
 
   void _initSession() {
@@ -217,6 +227,8 @@ class SessionManager extends ChangeNotifier {
     );
 
     _breaksCount = 0;
+    _hasTriggeredTimeout = false;
+
     _notifiedThirtyMinutes = false;
     _notifiedFifteenMinutes = false;
 
