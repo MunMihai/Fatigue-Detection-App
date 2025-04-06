@@ -32,13 +32,13 @@ class InfoCard extends StatelessWidget {
         children: [
           Text(
             title,
-            style: AppTextStyles.regular_24.copyWith(fontSize: 14),
+            style: AppTextStyles.regular_24(context).copyWith(fontSize: 14),
             
           ),
         AppSpaceses.verticalTiny,
           Text(
             value,
-            style: AppTextStyles.h3
+            style: AppTextStyles.h3(context)
           ),
         ],
       ),

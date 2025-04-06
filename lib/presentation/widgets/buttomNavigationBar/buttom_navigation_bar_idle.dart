@@ -1,6 +1,6 @@
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import 'package:driver_monitoring/core/utils/color_scheme_extensions.dart';
+import 'package:driver_monitoring/core/theme/color_scheme_extensions.dart';
 import 'package:driver_monitoring/presentation/providers/settings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

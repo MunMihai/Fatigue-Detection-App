@@ -1,18 +1,18 @@
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
-import 'package:driver_monitoring/core/utils/color_scheme_extensions.dart';
+import 'package:driver_monitoring/core/theme/color_scheme_extensions.dart';
 import 'package:flutter/material.dart';
 
 class CustomSwitchTile extends StatelessWidget {
   final String title;
   final String subtitle;
-  final bool value; // valoarea vine din afară
+  final bool value; 
   final ValueChanged<bool> onChanged;
 
   const CustomSwitchTile({
     super.key,
     required this.title,
     required this.subtitle,
-    required this.value, // necesar să ai valoarea curentă
+    required this.value, 
     required this.onChanged,
   });
 
@@ -26,7 +26,7 @@ class CustomSwitchTile extends StatelessWidget {
           children: [
             Text(
               title,
-              style: AppTextStyles.h4,
+              style: AppTextStyles.h4(context),
             ),
             SizedBox(
               width: MediaQuery.of(context).size.width *

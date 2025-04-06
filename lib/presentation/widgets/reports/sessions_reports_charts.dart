@@ -33,11 +33,11 @@ class SessionsReportsChart extends StatelessWidget {
       child: SfCartesianChart(
         title: ChartTitle(
             text: tr.fatigueScore,
-            textStyle: AppTextStyles.h3,
+            textStyle: AppTextStyles.h3(context),
             alignment: ChartAlignment.near),
         primaryXAxis: CategoryAxis(
           labelRotation: -30,
-          labelStyle: AppTextStyles.medium_12,
+          labelStyle: AppTextStyles.medium_12(context),
           initialZoomFactor: zoomFactor,
           initialZoomPosition: zoomPosition,
           rangePadding: ChartRangePadding.none,
@@ -67,7 +67,7 @@ class SessionsReportsChart extends StatelessWidget {
             dataLabelSettings: DataLabelSettings(
               isVisible: true,
               labelAlignment: ChartDataLabelAlignment.middle,
-              textStyle: AppTextStyles.medium_12.copyWith(color: Colors.white),
+              textStyle: AppTextStyles.medium_12(context),
             ),
             dataLabelMapper: (SessionReport report, _) {
               final fatigueLevel =

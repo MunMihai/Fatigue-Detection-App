@@ -1,8 +1,8 @@
+import 'package:driver_monitoring/presentation/widgets/search_field.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:driver_monitoring/core/constants/app_spaceses.dart';
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
-import 'package:driver_monitoring/core/utils/color_scheme_extensions.dart';
 import 'package:driver_monitoring/domain/entities/session_report.dart';
 import 'package:driver_monitoring/presentation/providers/session_report_provider.dart';
 import 'package:driver_monitoring/presentation/widgets/app_bar.dart';
@@ -22,7 +22,7 @@ class AllSessionReportsPage extends StatefulWidget {
 
 class _AllSessionReportsPageState extends State<AllSessionReportsPage> {
   String _searchQuery = '';
-  SortOption _selectedSortOption = SortOption.dateDesc; 
+  SortOption _selectedSortOption = SortOption.dateDesc;
 
   List<SessionReport> getFilteredReports(
     List<SessionReport> reports,
@@ -77,7 +77,7 @@ class _AllSessionReportsPageState extends State<AllSessionReportsPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(tr.sortBy, style: AppTextStyles.filterText),
+                Text(tr.sortBy, style: AppTextStyles.filterText(context)),
                 DropdownButton<SortOption>(
                   value: _selectedSortOption,
                   onChanged: (SortOption? newValue) {
@@ -108,30 +108,16 @@ class _AllSessionReportsPageState extends State<AllSessionReportsPage> {
                 ),
               ],
             ),
-
             AppSpaceses.verticalSmall,
-
-            TextField(
+            CustomSearchField(
+              hintText: tr.filterHint,
               onChanged: (value) {
                 setState(() {
                   _searchQuery = value;
                 });
               },
-              style: AppTextStyles.filterText,
-              decoration: InputDecoration(
-                hintText: tr.filterHint,
-                filled: true,
-                fillColor: Theme.of(context).colorScheme.searchBar,
-                contentPadding: const EdgeInsets.all(8),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                prefixIcon: const Icon(Icons.search, color: Colors.black, size: 30),
-              ),
             ),
-
             AppSpaceses.verticalMedium,
-
             Expanded(
               child: provider.isLoading
                   ? const Center(child: CircularProgressIndicator())

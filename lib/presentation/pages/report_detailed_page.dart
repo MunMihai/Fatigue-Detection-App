@@ -40,14 +40,14 @@ class ReportDetailedPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('${tr.startedAt}: ${sessionReport.timestamp.toFormattedTime(context)}',
-                    style: AppTextStyles.timer),
+                    style: AppTextStyles.timer(context)),
                 Text(
                     '${tr.durationFor}: ${sessionReport.durationMinutes.toHoursAndMinutes(context)}',
-                    style: AppTextStyles.timer),
+                    style: AppTextStyles.timer(context)),
                 Text('${tr.fatigueLevel}: ${sessionReport.fatigueLevelLabel(context)}',
-                    style: AppTextStyles.timer),
+                    style: AppTextStyles.timer(context)),
                 Text('${tr.retentionFor}: ${sessionReport.retentionMonths} ${tr.months}',
-                    style: AppTextStyles.timer),
+                    style: AppTextStyles.timer(context)),
               ],
             ),
 
@@ -61,7 +61,7 @@ class ReportDetailedPage extends StatelessWidget {
 
             AppSpaceses.verticalLarge,
 
-            Text(tr.alerts, style: AppTextStyles.h2),
+            Text(tr.alerts, style: AppTextStyles.h2(context)),
 
             AppSpaceses.verticalMedium,
 

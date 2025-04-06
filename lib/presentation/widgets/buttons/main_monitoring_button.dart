@@ -1,5 +1,5 @@
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
-import 'package:driver_monitoring/core/utils/color_scheme_extensions.dart';
+import 'package:driver_monitoring/core/theme/color_scheme_extensions.dart';
 import 'package:flutter/material.dart';
 
 class MainMonitoringButton extends StatelessWidget {
@@ -24,14 +24,14 @@ class MainMonitoringButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(100),
             side: BorderSide(
               color:
-                  Theme.of(context).colorScheme.stroke, // culoarea borderului
-              width: 5, // grosimea borderului
+                  Theme.of(context).colorScheme.stroke,
+              width: 5,
             ),
           ),
           elevation: 5,
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         ),
         child: Text(title,
-            style: AppTextStyles.michroma, textAlign: TextAlign.center));
+            style: AppTextStyles.michroma(context), textAlign: TextAlign.center));
   }
 }

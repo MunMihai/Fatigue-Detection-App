@@ -45,7 +45,7 @@ class SessionCard extends StatelessWidget {
                 children: [
                   Text(
                     sessionReport.timestamp.toFormattedDate(context),
-                    style: AppTextStyles.h4,
+                    style: AppTextStyles.h4(context),
                   ),
                   AppSpaceses.verticalTiny,
                   Text(

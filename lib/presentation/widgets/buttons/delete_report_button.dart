@@ -29,7 +29,7 @@ class DeleteReportButton extends StatelessWidget {
       ),
       child: Text(
         tr.deleteButton,
-        style: AppTextStyles.h4,
+        style: AppTextStyles.h4(context).copyWith(color: Theme.of(context).colorScheme.onError),
       ),
     );
   }

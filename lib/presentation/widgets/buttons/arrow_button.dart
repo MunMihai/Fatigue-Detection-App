@@ -1,5 +1,5 @@
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
-import 'package:driver_monitoring/core/utils/color_scheme_extensions.dart';
+import 'package:driver_monitoring/core/theme/color_scheme_extensions.dart';
 import 'package:flutter/material.dart';
 
 class ArrowButton extends StatelessWidget {
@@ -29,7 +29,7 @@ class ArrowButton extends StatelessWidget {
         children: [
           Text(
             title,
-            style: AppTextStyles.h4,
+            style: AppTextStyles.h4(context),
           ),
           Icon(Icons.arrow_forward, size: 30,)
         ],

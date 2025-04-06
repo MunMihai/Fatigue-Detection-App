@@ -50,7 +50,7 @@ class TimePicker extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(tr.setAlarmTime, style: AppTextStyles.h4),
+            Text(tr.setAlarmTime, style: AppTextStyles.h4(context)),
             ConstrainedBox(
               constraints: BoxConstraints(
                 maxWidth:
@@ -76,7 +76,7 @@ class TimePicker extends StatelessWidget {
                 ),
                 Text(
                   hours.toString().padLeft(2, '0'),
-                  style: AppTextStyles.h4,
+                  style: AppTextStyles.h4(context),
                 ),
                 IconButton(
                   icon: const Icon(Icons.arrow_drop_down),
@@ -85,7 +85,7 @@ class TimePicker extends StatelessWidget {
                 ),
               ],
             ),
-            Text('${tr.hours} :', style: AppTextStyles.h4),
+            Text('${tr.hours} :', style: AppTextStyles.h4(context)),
             Column(
               children: [
                 IconButton(
@@ -95,7 +95,7 @@ class TimePicker extends StatelessWidget {
                 ),
                 Text(
                   minutes.toString().padLeft(2, '0'),
-                  style: AppTextStyles.h4,
+                  style: AppTextStyles.h4(context),
                 ),
                 IconButton(
                   icon: const Icon(Icons.arrow_drop_down),
@@ -104,7 +104,7 @@ class TimePicker extends StatelessWidget {
                 ),
               ],
             ),
-            Text(tr.minutes, style: AppTextStyles.h4),
+            Text(tr.minutes, style: AppTextStyles.h4(context)),
           ],
         ),
       ],

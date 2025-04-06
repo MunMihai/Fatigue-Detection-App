@@ -28,7 +28,7 @@ class SettingsView extends StatelessWidget {
         child: ListView(
           children: [
             AppSpaceses.verticalSmall,
-            Text(tr.fatigueCounter, style: AppTextStyles.h2),
+            Text(tr.fatigueCounter, style: AppTextStyles.h2(context)),
             AppSpaceses.verticalMedium,
             CustomSwitchTile(
               title: tr.enableCounter,
@@ -43,7 +43,7 @@ class SettingsView extends StatelessWidget {
                 onChanged: settingsProvider.updateTime,
               ) :             AppSpaceses.verticalLarge,
 
-            Text(tr.preferences, style: AppTextStyles.h2),
+            Text(tr.preferences, style: AppTextStyles.h2(context)),
             AppSpaceses.verticalMedium,
             CustomSwitchTile(
                 title: tr.enableAccurateMode,

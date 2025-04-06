@@ -27,7 +27,7 @@ class AlertItem extends StatelessWidget {
             ),
             child: Text(
               alert.timestamp.toFormattedTime(context),
-              style: AppTextStyles.h4,
+              style: AppTextStyles.h4(context),
             ),
           ),
           AppSpaceses.horizontalMedium,
@@ -35,7 +35,7 @@ class AlertItem extends StatelessWidget {
             child: Text(
               AlertType.values.byName(alert.type).localizedDescription(context),
               // alert.type,
-              style: AppTextStyles.h4,
+              style: AppTextStyles.h4(context),
             ),
           ),
         ],

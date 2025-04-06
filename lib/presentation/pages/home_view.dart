@@ -35,7 +35,7 @@ class HomeView extends StatelessWidget {
         child: ListView(
           children: [
             AppSpaceses.verticalMedium,
-            Text(tr.setupYourSystem, style: AppTextStyles.h2),
+            Text(tr.setupYourSystem, style: AppTextStyles.h2(context)),
             AppSpaceses.verticalMedium,
             SensibilitySlider(
               sensitivity: settingsProvider.sessionSensitivity,
@@ -69,7 +69,7 @@ class HomeView extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(tr.reports, style: AppTextStyles.h2),
+                  Text(tr.reports, style: AppTextStyles.h2(context)),
                   AppSpaceses.verticalMedium,
                   ArrowButton(
                     title: tr.sessionsHistory,

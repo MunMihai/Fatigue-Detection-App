@@ -28,12 +28,12 @@ class AlertDensityChart extends StatelessWidget {
       child: SfCartesianChart(
         title: ChartTitle(
           text: tr.fatigueScoreOverTime,
-          textStyle: AppTextStyles.h2,
+          textStyle: AppTextStyles.h2(context),
           alignment: ChartAlignment.near,
         ),
         primaryXAxis: CategoryAxis(
           labelRotation: -45,
-          labelStyle: AppTextStyles.medium_12,
+          labelStyle: AppTextStyles.medium_12(context),
           rangePadding: ChartRangePadding.none,
         ),
         primaryYAxis: NumericAxis(
@@ -61,7 +61,7 @@ class AlertDensityChart extends StatelessWidget {
               ),
               child: Text(
                 '${alertPoint.timeLabel}\n${alertPoint.nr}: ${alertPoint.alertType}\nAt: ${alertPoint.alertTime}\nLevel: ${fatigueLevel.label}\nScore: ${alertPoint.density.toStringAsFixed(4)}',
-                style: AppTextStyles.medium_12.copyWith(color: Colors.white),
+                style: AppTextStyles.medium_12(context),
               ),
             );
           },

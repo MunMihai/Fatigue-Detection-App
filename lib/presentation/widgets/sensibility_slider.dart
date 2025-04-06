@@ -19,7 +19,7 @@ class SensibilitySlider extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(tr.detectionSensitivity, style: AppTextStyles.h4),
+        Text(tr.detectionSensitivity, style: AppTextStyles.h4(context)),
         Slider(
           value: sensitivity.toDouble(),
           min: 1,

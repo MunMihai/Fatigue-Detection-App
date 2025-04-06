@@ -2,41 +2,41 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTextStyles {
-  static final TextStyle h1 = GoogleFonts.manrope(
+  static TextStyle h1(BuildContext context) => GoogleFonts.manrope(
     fontSize: 32,
     fontWeight: FontWeight.w900,
-    color: Colors.white,
+    color: Theme.of(context).colorScheme.onSurface,
   );
-  static final TextStyle h2 = GoogleFonts.manrope(
+  static TextStyle h2(BuildContext context) => GoogleFonts.manrope(
     fontSize: 30,
     fontWeight: FontWeight.w900,
-    color: Colors.white,
+    color: Theme.of(context).colorScheme.onSurface,
   );
-  static final TextStyle h3 = GoogleFonts.manrope(
+  static TextStyle h3(BuildContext context) => GoogleFonts.manrope(
     fontSize: 24,
     fontWeight: FontWeight.w900,
-    color: Colors.white,
+    color: Theme.of(context).colorScheme.onSurface,
   );
-  static final TextStyle h4 = GoogleFonts.manrope(
+  static TextStyle h4(BuildContext context) => GoogleFonts.manrope(
     fontSize: 20,
     fontWeight: FontWeight.bold,
-    color: Colors.white,
+    color: Theme.of(context).colorScheme.onSurface,
   );
-  static final TextStyle regular_24 = GoogleFonts.manrope(
+  static TextStyle regular_24(BuildContext context) => GoogleFonts.manrope(
     fontSize: 24,
     fontWeight: FontWeight.w400,
-    color: Colors.white,
+    color: Theme.of(context).colorScheme.onSurface,
   );
-  static final TextStyle medium_12 = GoogleFonts.manrope(
+  static TextStyle medium_12(BuildContext context) => GoogleFonts.manrope(
     fontSize: 12,
     fontWeight: FontWeight.w500,
-    color: Colors.white,
+    color: Theme.of(context).colorScheme.onSurface,
   );
 
-  static final TextStyle michroma = GoogleFonts.michroma(
+  static TextStyle michroma(BuildContext context) => GoogleFonts.michroma(
     fontSize: 24,
     fontWeight: FontWeight.w500,
-    color: Colors.white,
+    color: Theme.of(context).colorScheme.onPrimary,
   );
 
   static final TextStyle subtitle = GoogleFonts.manrope(
@@ -52,15 +52,15 @@ class AppTextStyles {
     fontStyle: FontStyle.italic
   );
 
-  static final TextStyle timer = GoogleFonts.manrope(
+  static TextStyle timer(BuildContext context) => GoogleFonts.manrope(
     fontSize: 16,
     fontWeight: FontWeight.bold,
-    color: Colors.white,
+    color: Theme.of(context).colorScheme.onSurface,
   );
-  static final TextStyle filterText = GoogleFonts.poppins(
+  static TextStyle filterText(BuildContext context) =>GoogleFonts.poppins(
     fontSize: 24,
     fontWeight: FontWeight.w400,
     fontStyle: FontStyle.italic,
-    color: Colors.white,
+    color: Theme.of(context).colorScheme.onSurface,
   );
 }

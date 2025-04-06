@@ -4,7 +4,7 @@ import 'package:driver_monitoring/core/constants/app_gifs.dart';
 import 'package:driver_monitoring/core/constants/app_spaceses.dart';
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
 import 'package:driver_monitoring/core/services/permissions_service.dart';
-import 'package:driver_monitoring/core/utils/color_scheme_extensions.dart';
+import 'package:driver_monitoring/core/theme/color_scheme_extensions.dart';
 import 'package:driver_monitoring/presentation/widgets/buttons/simple_button.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -25,10 +25,10 @@ class LandingPage extends StatelessWidget {
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                  color: Colors.black,
+                  color: Theme.of(context).colorScheme.stroke,
                   border: Border.symmetric(
                     horizontal: BorderSide(
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.stroke,
                       width: 30,
                     ),
                   )),
@@ -42,12 +42,12 @@ class LandingPage extends StatelessWidget {
                 children: [
                   Text(
                     tr.startYourJourney,
-                    style: AppTextStyles.h1,
+                    style: AppTextStyles.h1(context),
                   ),
                   AppSpaceses.verticalLarge,
                   Text(
                     tr.journeyDescription,
-                    style: AppTextStyles.regular_24,
+                    style: AppTextStyles.regular_24(context),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -112,7 +112,7 @@ class LandingPage extends StatelessWidget {
                 ),
                 child: Text(
                   tr.checkFaqs,
-                  style: AppTextStyles.h3,
+                  style: AppTextStyles.h3(context),
                 ),
               ),
             ),

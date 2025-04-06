@@ -1,3 +1,4 @@
+import 'package:driver_monitoring/core/theme/color_scheme_extensions.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:driver_monitoring/core/constants/app_spaceses.dart';
@@ -35,7 +36,7 @@ class _MainMonitoringViewState extends State<MainMonitoringView>
 
     _colorAnimation = ColorTween(
       begin: Colors.red.withValues(alpha: 0.7),
-      end: Colors.red.withValues(alpha:0.2),
+      end: Colors.red.withValues(alpha: 0.2),
     ).animate(_controller);
   }
 
@@ -57,7 +58,7 @@ class _MainMonitoringViewState extends State<MainMonitoringView>
         final breakTime = sessionManager.pauseManager.totalPause;
         final breaksCount = sessionManager.breaksCount;
 
-        final bool isFatigued = score >0.4;
+        final bool isFatigued = score > 0.4;
 
         return AnimatedBuilder(
           animation: _controller,
@@ -71,11 +72,11 @@ class _MainMonitoringViewState extends State<MainMonitoringView>
                 child: ListView(
                   children: [
                     AppSpaceses.verticalLarge,
-                    Text(tr.fatigueLevel, style: AppTextStyles.h2),
+                    Text(tr.fatigueLevel, style: AppTextStyles.h2(context)),
                     AppSpaceses.verticalSmall,
                     FatigueLevelIndicator(score: score),
                     AppSpaceses.verticalLarge,
-                    Text(tr.recommendations, style: AppTextStyles.h2),
+                    Text(tr.recommendations, style: AppTextStyles.h2(context)),
                     AppSpaceses.verticalMedium,
                     RecommendationCard(score: score),
                     AppSpaceses.verticalLarge,
@@ -84,7 +85,8 @@ class _MainMonitoringViewState extends State<MainMonitoringView>
                         Expanded(
                           child: InfoCard(
                             title: tr.breakTime,
-                            value: breakTime.inMinutes.toHoursAndMinutes(context),
+                            value:
+                                breakTime.inMinutes.toHoursAndMinutes(context),
                           ),
                         ),
                         AppSpaceses.horizontalSmall,
@@ -99,7 +101,8 @@ class _MainMonitoringViewState extends State<MainMonitoringView>
                     AppSpaceses.verticalSmall,
                     InfoCard(
                       title: tr.totalSessionTime,
-                      value: elapsedTime.inSeconds.toHoursMinutesAndSeconds(context),
+                      value: elapsedTime.inSeconds
+                          .toHoursMinutesAndSeconds(context),
                       height: 100,
                       width: 340,
                     ),
@@ -107,6 +110,12 @@ class _MainMonitoringViewState extends State<MainMonitoringView>
                     PrimaryButton(
                       title:
                           isPaused ? tr.resumeMonitoring : tr.pauseMonitoring,
+                      color: isPaused
+                          ? Theme.of(context)
+                              .colorScheme
+                              .primaryButton
+                              .withValues(alpha: 0.5)
+                          : Theme.of(context).colorScheme.primaryButton,
                       onPressed: () async {
                         if (isPaused) {
                           await sessionManager.resumeMonitoring();

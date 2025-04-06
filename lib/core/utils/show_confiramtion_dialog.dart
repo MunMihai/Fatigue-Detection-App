@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:driver_monitoring/core/constants/app_spaceses.dart';
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
-import 'package:driver_monitoring/core/utils/color_scheme_extensions.dart';
+import 'package:driver_monitoring/core/theme/color_scheme_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -70,7 +70,7 @@ Future<bool> showConfirmationDialog({
                       },
                       child: Text(
                         cancelText,
-                        style: AppTextStyles.h4,
+                        style: AppTextStyles.h4(context),
                       ),
                     ),
                   ),
@@ -104,7 +104,7 @@ Future<bool> showConfirmationDialog({
                       },
                       child: Text(
                         confirmText,
-                        style: AppTextStyles.h4,
+                        style: AppTextStyles.h4(context),
                       ),
                     ),
                   ),
@@ -124,7 +124,7 @@ Future<bool> showConfirmationDialog({
                   AppSpaceses.verticalTiny,
                   Text(
                     title,
-                    style: AppTextStyles.h3,
+                    style: AppTextStyles.h3(context),
                     textAlign: TextAlign.center,
                   ),
                   AppSpaceses.verticalTiny,

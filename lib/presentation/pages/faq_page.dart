@@ -87,7 +87,7 @@ class _FaqItemState extends State<FaqItem> {
       elevation: 3,
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: ExpansionTile(
-        title: Text(widget.question, style: AppTextStyles.h4),
+        title: Text(widget.question, style: AppTextStyles.h4(context)),
         initiallyExpanded: _isExpanded,
         children: [
           Padding(

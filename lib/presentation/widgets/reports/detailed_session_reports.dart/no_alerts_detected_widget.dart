@@ -33,7 +33,7 @@ class NoAlertsDetectedWidget extends StatelessWidget {
           AppSpaceses.verticalSmall,
           Text(
             tr.noAlertsDetected,
-            style: AppTextStyles.h3,
+            style: AppTextStyles.h3(context),
             textAlign: TextAlign.center,
           ),
           AppSpaceses.verticalTiny,

@@ -26,15 +26,14 @@ class ReportsRetentionPicker extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Left side text
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(tr.saveReportsFor, style: AppTextStyles.h4),
+            Text(tr.saveReportsFor, style: AppTextStyles.h4(context)),
             ConstrainedBox(
               constraints: BoxConstraints(
                 maxWidth:
-                    MediaQuery.of(context).size.width * 0.5, // sau 0.6 după caz
+                    MediaQuery.of(context).size.width * 0.5, 
               ),
               child: Text(
                 tr.reportRetentionInfo,
@@ -57,7 +56,7 @@ class ReportsRetentionPicker extends StatelessWidget {
                   onPressed: onIncrementByMonth,
                   onLongPress: onIncrementByYear,
                 ),
-                Text('$months ${tr.months}', style: AppTextStyles.h4),
+                Text('$months ${tr.months}', style: AppTextStyles.h4(context)),
                 IconButton(
                   icon: const Icon(Icons.arrow_drop_down),
                   iconSize: 30,

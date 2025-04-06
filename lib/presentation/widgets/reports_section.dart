@@ -16,7 +16,7 @@ class ReportsSection extends StatelessWidget{
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(tr.reports, style: AppTextStyles.h2 ),
+        Text(tr.reports, style: AppTextStyles.h2(context)),
         AppSpaceses.verticalMedium,
         ArrowButton(title: tr.viewReports, onPressed: ()=>context.push('/reports'))
       ],

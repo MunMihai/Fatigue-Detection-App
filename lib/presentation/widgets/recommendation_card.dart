@@ -39,7 +39,7 @@ class RecommendationCard extends StatelessWidget {
               children: [
                 Text(
                   fatigueLevel.recommendationTitle(context),
-                  style: AppTextStyles.h4
+                  style: AppTextStyles.h4(context)
                 ),
                 AppSpaceses.verticalTiny,
                 Text(

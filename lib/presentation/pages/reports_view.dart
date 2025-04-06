@@ -42,10 +42,10 @@ class ReportsView extends StatelessWidget {
     Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(tr.sessions, style: AppTextStyles.h2),
+        Text(tr.sessions, style: AppTextStyles.h2(context)),
         GestureDetector(
           onTap: () => context.push('/allSessions'),
-          child: Text(tr.viewAll, style: AppTextStyles.h4),
+          child: Text(tr.viewAll, style: AppTextStyles.h4(context)),
         ),
       ],
     ),
