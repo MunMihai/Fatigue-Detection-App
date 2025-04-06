@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
             colorScheme: darkColorScheme,
             useMaterial3: true,
           ),
-          themeMode: ThemeMode.system,
+          themeMode: settings.themeMode, 
           debugShowCheckedModeBanner: false,
           routerConfig: AppRouter.router,
           builder: (context, child) =>

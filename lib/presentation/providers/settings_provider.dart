@@ -14,6 +14,7 @@ class SettingsProvider extends ChangeNotifier {
   int _sessionSensitivity = 5;
   String _languageCode = 'en';
   FaceDetectorMode _faceDetectorMode = FaceDetectorMode.accurate;
+  ThemeMode _themeMode = ThemeMode.system;
 
   bool get isCounterEnabled => _isCounterEnabled;
   bool get isReportsSectionEnabled => _isReportsSectionEnabled;
@@ -23,6 +24,7 @@ class SettingsProvider extends ChangeNotifier {
   int get sessionSensitivity => _sessionSensitivity;
   String get languageCode => _languageCode;
   FaceDetectorMode get faceDetectorMode => _faceDetectorMode;
+  ThemeMode get themeMode => _themeMode;
 
   Future<void> loadSettings() async {
     _prefs = await SharedPreferences.getInstance();
@@ -39,6 +41,11 @@ class SettingsProvider extends ChangeNotifier {
       (e) => e.name == modeString,
       orElse: () => FaceDetectorMode.fast,
     );
+    final themeString = _prefs.getString('theme_mode') ?? 'system';
+    _themeMode = ThemeMode.values.firstWhere(
+      (e) => e.name == themeString,
+      orElse: () => ThemeMode.system,
+    );
 
     appLogger.i('🔧 Settings loaded');
     appLogger.i('   ▸ Counter enabled: $_isCounterEnabled');
@@ -48,6 +55,16 @@ class SettingsProvider extends ChangeNotifier {
     appLogger.i('   ▸ Sensibility: $_sessionSensitivity');
     appLogger.i('   ▸ Language code: $_languageCode');
     appLogger.i('   ▸ Performance mode: $_faceDetectorMode');
+    appLogger.i('   ▸ Theme: $_themeMode');
+
+    notifyListeners();
+  }
+
+  Future<void> updateThemeMode(ThemeMode mode) async {
+    _themeMode = mode;
+    await _prefs.setString('theme_mode', mode.name);
+
+    appLogger.i('🎨 Theme mode updated → $_themeMode');
 
     notifyListeners();
   }

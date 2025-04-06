@@ -128,5 +128,12 @@
   "enableInSettingsTab": "Activează din setări",
   "settingsTab": "Setări",
   "enableAccurateMode": "Activează modul precis",
-  "accuracyWarning": "Îmbunătățește acuratețea detecției, dar poate reduce viteza de procesare"
+  "accuracyWarning": "Îmbunătățește acuratețea detecției, dar poate reduce viteza de procesare",
+  "language": "Limbă",
+  "theme": "Temă",
+  "faqs": "Întrebări frecvente",
+  "contactUs": "Contactează-ne",
+  "lightTheme": "Luminoasă",
+  "darkTheme": "Întunecată",
+  "systemDefaultTheme": "Implicit"
 }

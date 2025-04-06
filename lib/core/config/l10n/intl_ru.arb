@@ -128,5 +128,12 @@
   "enableInSettingsTab": "Включить в настройках",
   "settingsTab": "Настройки",
   "enableAccurateMode": "Улучшенный режим",
-  "accuracyWarning": "Повышает точность распознавания, но может замедлить обработку"
+  "accuracyWarning": "Повышает точность распознавания, но может замедлить обработку",
+  "language": "Язык",
+  "theme": "Тема",
+  "faqs": "Частые вопросы",
+  "contactUs": "Связаться с нами",
+  "lightTheme": "Светлая",
+  "darkTheme": "Тёмная",
+  "systemDefaultTheme": "По умолчанию"
 }

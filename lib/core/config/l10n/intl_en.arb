@@ -471,5 +471,19 @@
   "enableAccurateMode": "Enable accurate mode",
   "@enableAccurateMode": {},
   "accuracyWarning": "Improves detection accuracy, but may reduce processing speed",
-  "@accuracyWarning": {}
+  "@accuracyWarning": {},
+  "language": "Language",
+  "@language": {},
+  "theme": "Theme",
+  "@theme": {},
+  "faqs": "FAQs",
+  "@faqs": {},
+  "contactUs": "Contact Us",
+  "@contactUs": {},
+  "lightTheme": "Light",
+  "@lightTheme": {},
+  "darkTheme": "Dark",
+  "@darkTheme": {},
+  "systemDefaultTheme": "Default",
+  "@systemDefaultTheme": {}
 }

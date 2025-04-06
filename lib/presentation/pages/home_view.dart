@@ -1,6 +1,4 @@
 import 'package:driver_monitoring/core/constants/app_spaceses.dart';
-import 'package:driver_monitoring/presentation/widgets/language_selector.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
 import 'package:driver_monitoring/presentation/providers/session_manager.dart';
 import 'package:driver_monitoring/presentation/providers/settings_provider.dart';
@@ -8,7 +6,9 @@ import 'package:driver_monitoring/presentation/widgets/app_bar.dart';
 import 'package:driver_monitoring/presentation/widgets/buttons/arrow_button.dart';
 import 'package:driver_monitoring/presentation/widgets/buttons/main_monitoring_button.dart';
 import 'package:driver_monitoring/presentation/widgets/sensibility_slider.dart';
+import 'package:driver_monitoring/presentation/widgets/settings_menu_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -27,7 +27,7 @@ class HomeView extends StatelessWidget {
       appBar: CustomAppBar(
         title: tr.homeTitle,
         actions: [
-          LanguageSelector(),
+          SettingsMenuButton(),
         ],
       ),
       body: Padding(
