@@ -133,7 +133,15 @@
   "theme": "Temă",
   "faqs": "Întrebări frecvente",
   "contactUs": "Contactează-ne",
+  "contactUsDescription": "Dacă ai întrebări sau sugestii, nu ezita să ne contactezi:",
   "lightTheme": "Luminoasă",
   "darkTheme": "Întunecată",
-  "systemDefaultTheme": "Implicit"
+  "systemDefaultTheme": "Implicit",
+  "aboutUs": "Despre noi",
+  "aboutAppTitle": "Despre Aplicație",
+  "aboutAuthorTitle": "Despre autor",
+  "allRightsReserved": "Toate drepturile rezervate.",
+  "aboutAppContent": "Driver Guard este o aplicație mobilă dezvoltată în cadrul lucrării de licență la Universitatea Tehnică a Moldovei. Scopul principal al aplicației este de a monitoriza în timp real nivelul de oboseală al șoferului și de a reduce riscul de accidente provocate de epuizare, prin emiterea de alerte imediate. Driver Guard utilizează recunoașterea facială pentru a identifica semnele de oboseală și generează notificări preventive pentru a crește siguranța la volan.",
+  "aboutAuthorContent": "Mă numesc Muntean Mihai și sunt student în anul IV la Universitatea Tehnică a Moldovei, Facultatea Calculatoare, Informatică și Microelectronică (CIM), specializarea Tehnologia Informației. Sunt pasionat de soluții inovatoare în domeniul tehnologiilor informaționale, având ca obiectiv dezvoltarea de aplicații utile și eficiente pentru siguranța utilizatorilor.",
+  "contactContent": "mihai.muntean@isa.utm.md\nmihai.muntean.002@gmail.com"
 }

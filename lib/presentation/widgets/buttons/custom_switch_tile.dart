@@ -1,5 +1,4 @@
 import 'package:driver_monitoring/core/constants/app_text_styles.dart';
-import 'package:driver_monitoring/core/theme/color_scheme_extensions.dart';
 import 'package:flutter/material.dart';
 
 class CustomSwitchTile extends StatelessWidget {
@@ -41,9 +40,9 @@ class CustomSwitchTile extends StatelessWidget {
         ),
         Switch(
           value: value,
-          activeColor: Theme.of(context).colorScheme.primaryButton,
           thumbColor: const WidgetStatePropertyAll<Color>(Colors.white),
           inactiveTrackColor: Theme.of(context).colorScheme.primary,
+          activeTrackColor: Theme.of(context).colorScheme.secondary,
           trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
           onChanged: onChanged,
         ),

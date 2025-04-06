@@ -21,7 +21,7 @@ class SettingsMenuButton extends StatelessWidget {
           _toggleTheme(context);
         } else if (value == 'faq') {
           _openFaqPage(context);
-        } else if (value == 'contact') {
+        } else if (value == 'about us') {
           _openContactPage(context);
         }
       },
@@ -49,10 +49,10 @@ class SettingsMenuButton extends StatelessWidget {
           ),
         ),
         PopupMenuItem<String>(
-          value: 'contact',
+          value: 'about us',
           child: ListTile(
-            leading: Icon(Icons.contact_mail),
-            title: Text(tr.contactUs),
+            leading: Icon(Icons.info_outline),
+            title: Text(tr.aboutUs),
           ),
         ),
       ],
@@ -92,6 +92,7 @@ class SettingsMenuButton extends StatelessWidget {
   }
 
   static void _toggleTheme(BuildContext context) {
+    final tr = AppLocalizations.of(context)!;
     final RenderBox overlay =
         Overlay.of(context).context.findRenderObject()! as RenderBox;
     showMenu<ThemeMode>(
@@ -102,25 +103,25 @@ class SettingsMenuButton extends StatelessWidget {
         0,
       ),
       items: [
-        const PopupMenuItem<ThemeMode>(
+        PopupMenuItem<ThemeMode>(
           value: ThemeMode.light,
           child: ListTile(
             leading: Icon(Icons.light_mode),
-            title: Text('Light'),
+            title: Text(tr.lightTheme),
           ),
         ),
-        const PopupMenuItem<ThemeMode>(
+        PopupMenuItem<ThemeMode>(
           value: ThemeMode.dark,
           child: ListTile(
             leading: Icon(Icons.dark_mode),
-            title: Text('Dark'),
+            title: Text(tr.darkTheme),
           ),
         ),
-        const PopupMenuItem<ThemeMode>(
+        PopupMenuItem<ThemeMode>(
           value: ThemeMode.system,
           child: ListTile(
             leading: Icon(Icons.settings),
-            title: Text('System Default'),
+            title: Text(tr.systemDefaultTheme),
           ),
         ),
       ],
@@ -137,6 +138,6 @@ class SettingsMenuButton extends StatelessWidget {
   }
 
   static void _openContactPage(BuildContext context) {
-    context.push('/contact');
+    context.push('/aboutUs');
   }
 }

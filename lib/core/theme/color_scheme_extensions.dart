@@ -21,7 +21,7 @@ extension MyColorScheme on ColorScheme {
 
   Color get inactiveIcon => brightness == Brightness.dark
       ? const Color(0xFF90A4AE)
-      : const Color(0xFF607D8B);
+      : const Color.fromARGB(255, 226, 245, 255);
 
   Color get activeIcon => brightness == Brightness.dark
       ? Colors.white

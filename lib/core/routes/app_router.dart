@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:driver_monitoring/presentation/pages/about_us.dart';
 import 'package:driver_monitoring/presentation/providers/session_manager.dart';
 import 'package:driver_monitoring/core/utils/page_transitions.dart';
 import 'package:driver_monitoring/presentation/pages/all_session_reports_page.dart';
@@ -25,9 +26,13 @@ class AppRouter {
       path: '/',
       builder: (context, state) => const IdleWrapper(),
     ),
-     GoRoute(
+    GoRoute(
       path: '/faqs',
       builder: (context, state) => const FaqPage(),
+    ),
+    GoRoute(
+      path: '/aboutUs',
+      builder: (context, state) => const AboutUsPage(),
     ),
     GoRoute(
       path: '/allSessions',
@@ -66,7 +71,7 @@ class AppRouter {
           sessionManager: context.read<SessionManager>(),
           sessionReportProvider: context.read<SessionReportProvider>(),
           scoreProvider: context.read<ScoreProvider>(),
-          context: context, 
+          context: context,
         ),
         child: const ActiveMonitoringWrapperPage(),
       ),
