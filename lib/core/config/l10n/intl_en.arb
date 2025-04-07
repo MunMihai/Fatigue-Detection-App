@@ -501,5 +501,14 @@
   "aboutAuthorContent": "My name is Mihai Muntean and I am a fourth-year student at the Technical University of Moldova, Faculty of Computers, Informatics, and Microelectronics (CIM), specializing in Information Technology. I am passionate about innovative solutions in information technology, aiming to develop useful and efficient applications for user safety.",
   "@aboutAuthorContent": {},
   "contactContent": "mihai.muntean@isa.utm.md\nmihai.muntean.002@gmail.com",
-  "@contactContent": {}
+  "@contactContent": {},
+  "enableNightLight": "Enable Night Light",
+  "@enableNightLight": {
+    "description": "Lights up your face during night monitoring."
+  },
+  "nightLightSubtitle": "Lights up your face during low-light driving sessions.",
+  "@nightLightSubtitle": {}
+
+  
+
 }

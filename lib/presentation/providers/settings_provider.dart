@@ -15,6 +15,7 @@ class SettingsProvider extends ChangeNotifier {
   String _languageCode = 'en';
   FaceDetectorMode _faceDetectorMode = FaceDetectorMode.accurate;
   ThemeMode _themeMode = ThemeMode.system;
+  bool _isNightLightEnabled = false;
 
   bool get isCounterEnabled => _isCounterEnabled;
   bool get isReportsSectionEnabled => _isReportsSectionEnabled;
@@ -25,6 +26,7 @@ class SettingsProvider extends ChangeNotifier {
   String get languageCode => _languageCode;
   FaceDetectorMode get faceDetectorMode => _faceDetectorMode;
   ThemeMode get themeMode => _themeMode;
+  bool get isNightLightEnabled => _isNightLightEnabled;
 
   Future<void> loadSettings() async {
     _prefs = await SharedPreferences.getInstance();
@@ -36,6 +38,8 @@ class SettingsProvider extends ChangeNotifier {
     _savedMinutes = _prefs.getInt('alarm_time_minutes') ?? 0;
     _sessionSensitivity = _prefs.getInt('_session_sensibility') ?? 5;
     _languageCode = _prefs.getString('language_code') ?? 'en';
+    _isNightLightEnabled =
+        _prefs.getBool('enable_night_light') ?? false; // ➡️ aici
     final modeString = _prefs.getString('face_detector_mode') ?? 'fast';
     _faceDetectorMode = FaceDetectorMode.values.firstWhere(
       (e) => e.name == modeString,
@@ -54,8 +58,18 @@ class SettingsProvider extends ChangeNotifier {
     appLogger.i('   ▸ Alarm time: $_savedHours h $_savedMinutes min');
     appLogger.i('   ▸ Sensibility: $_sessionSensitivity');
     appLogger.i('   ▸ Language code: $_languageCode');
+    appLogger.i('   ▸ Night light: $_isNightLightEnabled');
     appLogger.i('   ▸ Performance mode: $_faceDetectorMode');
     appLogger.i('   ▸ Theme: $_themeMode');
+
+    notifyListeners();
+  }
+
+  Future<void> toggleNightLight(bool value) async {
+    _isNightLightEnabled = value;
+    await _prefs.setBool('enable_night_light', value);
+
+    appLogger.i('🌙 Night light toggled → $_isNightLightEnabled');
 
     notifyListeners();
   }

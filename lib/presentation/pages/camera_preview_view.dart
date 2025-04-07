@@ -1,3 +1,4 @@
+import 'package:driver_monitoring/presentation/providers/settings_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:driver_monitoring/presentation/providers/camera_provider.dart';
@@ -10,6 +11,8 @@ class CameraPreviewView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cameraProvider = context.watch<CameraProvider>();
+    final settingsProvider = context.watch<SettingsProvider>();
+
     final tr = AppLocalizations.of(context)!;
 
     final customPaint = cameraProvider.customPaint;
@@ -33,7 +36,28 @@ class CameraPreviewView extends StatelessWidget {
           return Stack(
             fit: StackFit.expand,
             children: [
-              preview,
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.white,
+                    width: 5,
+                  ),
+                ),
+                child: preview,
+              ),
+              if (settingsProvider.isNightLightEnabled)
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      colors: [
+                        Colors.transparent,
+                        Colors.white.withValues(alpha: 0.5),
+                      ],
+                      center: Alignment.center,
+                      radius: 0.8,
+                    ),
+                  ),
+                ),
               if (customPaint != null) customPaint,
               _buildOverlayText(detectionText),
               _zoomSlider(tr, cameraProvider),

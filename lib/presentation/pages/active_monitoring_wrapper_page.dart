@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:driver_monitoring/presentation/pages/camera_preview_view.dart';
@@ -20,19 +19,16 @@ class ActiveMonitoringWrapperPage extends StatefulWidget {
 class _ActiveMonitoringWrapperPageState
     extends State<ActiveMonitoringWrapperPage> {
   bool _showUIBars = true;
-  Timer? _hideTimer;
   late PageController _pageController;
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: 2);
-    _startHideTimer();
   }
 
   @override
   void dispose() {
-    _hideTimer?.cancel();
     _pageController.dispose();
     super.dispose();
   }
@@ -40,7 +36,6 @@ class _ActiveMonitoringWrapperPageState
   @override
   Widget build(BuildContext context) {
     final activeSessionProvider = context.watch<ActiveSessionProvider>();
-    
     final index = activeSessionProvider.selectedIndex;
     final pageIndex = index == 1 ? 2 : index;
 
@@ -50,17 +45,24 @@ class _ActiveMonitoringWrapperPageState
     ];
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (_pageController.hasClients && _pageController.page?.round() != index) {
-      _pageController.jumpToPage(index);
-    }
-  });
+      if (_pageController.hasClients &&
+          _pageController.page?.round() != index) {
+        _pageController.jumpToPage(index);
+      }
+    });
 
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onTap: _onUserInteraction,
-      onPanDown: (_) => _onUserInteraction(),
+      onDoubleTap: _toggleUIBars,
       child: Scaffold(
-        appBar: _showUIBars ? _buildAppBar(pageIndex) : null,
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight),
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child:
+                _showUIBars ? _buildAppBar(pageIndex) : const SizedBox.shrink(),
+          ),
+        ),
         body: PageView(
           controller: _pageController,
           children: pages,
@@ -68,29 +70,20 @@ class _ActiveMonitoringWrapperPageState
             activeSessionProvider.selectedIndex = pageIndex;
           },
         ),
-        bottomNavigationBar: _showUIBars
-            ? BottomNavBarActive(
-                currentIndex: pageIndex,
-              )
-            : null,
+        bottomNavigationBar: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: _showUIBars
+              ? BottomNavBarActive(currentIndex: pageIndex)
+              : const SizedBox.shrink(),
+        ),
       ),
     );
   }
 
-  void _startHideTimer() {
-    _hideTimer?.cancel();
-    _hideTimer = Timer(const Duration(seconds: 10), () {
-      if (mounted) {
-        setState(() => _showUIBars = false);
-      }
+  void _toggleUIBars() {
+    setState(() {
+      _showUIBars = !_showUIBars;
     });
-  }
-
-  void _onUserInteraction() {
-    if (!_showUIBars) {
-      setState(() => _showUIBars = true);
-    }
-    _startHideTimer();
   }
 
   PreferredSizeWidget? _buildAppBar(int index) {

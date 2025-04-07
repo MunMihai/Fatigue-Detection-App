@@ -36,13 +36,13 @@ class SettingsView extends StatelessWidget {
               value: settingsProvider.isCounterEnabled,
               onChanged: settingsProvider.toggleCounter,
             ),
-            settingsProvider.isCounterEnabled ? 
-              TimePicker(
-                hours: settingsProvider.savedHours,
-                minutes: settingsProvider.savedMinutes,
-                onChanged: settingsProvider.updateTime,
-              ) :             AppSpaceses.verticalLarge,
-
+            settingsProvider.isCounterEnabled
+                ? TimePicker(
+                    hours: settingsProvider.savedHours,
+                    minutes: settingsProvider.savedMinutes,
+                    onChanged: settingsProvider.updateTime,
+                  )
+                : AppSpaceses.verticalLarge,
             Text(tr.preferences, style: AppTextStyles.h2(context)),
             AppSpaceses.verticalMedium,
             CustomSwitchTile(
@@ -55,6 +55,13 @@ class SettingsView extends StatelessWidget {
                     value ? FaceDetectorMode.accurate : FaceDetectorMode.fast,
                   );
                 }),
+            AppSpaceses.verticalMedium,
+            CustomSwitchTile(
+              title: tr.enableNightLight, 
+              subtitle: tr.nightLightSubtitle,
+              value: settingsProvider.isNightLightEnabled,
+              onChanged: settingsProvider.toggleNightLight,
+            ),
             AppSpaceses.verticalMedium,
             CustomSwitchTile(
               title: tr.showReportsSection,
