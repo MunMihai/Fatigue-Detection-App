@@ -272,6 +272,10 @@
   "@faq9A": {
     "description": "FAQ answer 9"
   },
+  "faq10Q": "What is Night Light mode and how does it work?",
+  "@faq10Q": {},
+  "faq10A": "Night Light mode adds a subtle white overlay to improve face visibility in low-light conditions, helping the face detection system work better. It can be enabled from Settings.",
+  "@faq10A": {},
   "monitoringStatus": "Monitoring Status",
   "@monitoringStatus": {
     "description": "Title of the app bar during monitoring view"
@@ -508,7 +512,4 @@
   },
   "nightLightSubtitle": "Lights up your face during low-light driving sessions.",
   "@nightLightSubtitle": {}
-
-  
-
-}
+  }

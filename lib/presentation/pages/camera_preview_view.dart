@@ -36,15 +36,7 @@ class CameraPreviewView extends StatelessWidget {
           return Stack(
             fit: StackFit.expand,
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.white,
-                    width: 5,
-                  ),
-                ),
-                child: preview,
-              ),
+              preview,
               if (settingsProvider.isNightLightEnabled)
                 Container(
                   decoration: BoxDecoration(

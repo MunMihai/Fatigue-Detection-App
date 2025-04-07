@@ -68,6 +68,8 @@
   "faq8A": "Datele sesiunii sunt stocate local pe dispozitiv. Nicio informație nu este partajată extern. Poți configura perioada de păstrare din aplicație.",
   "faq9Q": "Pe ce se bazează recomandările de pauză?",
   "faq9A": "Recomandările de pauză sunt declanșate de scorurile de oboseală sau expirarea sesiunii. Poți personaliza intervalele din Setări.",
+  "faq10Q": "Ce este modul „Iluminare de noapte” și cum funcționează?",
+  "faq10A": "Modul „Iluminare de noapte” adaugă automat o lumină albă discretă pentru a îmbunătăți vizibilitatea feței în condiții de lumină scăzută, ajutând sistemul de detectare facială să funcționeze mai bine. Se poate activa din Setări.",
   "monitoringStatus": "Stare monitorizare",
   "cameraPreview": "Vizualizare cadre",
   "warningAlert": "🚨 ALERTĂ! 🚨",
@@ -146,6 +148,4 @@
   "contactContent": "mihai.muntean@isa.utm.md\nmihai.muntean.002@gmail.com",
   "enableNightLight": "Iluminarea de noapte",
   "nightLightSubtitle": "Iluminează fața ta în timpul sesiunilor de conducere în lumină scăzută."
-
-
-}
+ }

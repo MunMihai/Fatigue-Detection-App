@@ -58,6 +58,10 @@ class FaqPage extends StatelessWidget {
             question: tr.faq9Q,
             answer: tr.faq9A,
           ),
+          FaqItem(
+            question: tr.faq10Q,
+            answer: tr.faq10A,
+          ),
         ],
       ),
     );
