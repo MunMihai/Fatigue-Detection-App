@@ -194,10 +194,10 @@ class SessionManager extends ChangeNotifier {
       onTimeRemainingNotification?.call(30);
     }
 
-    if (!_notifiedFifteenMinutes && remaining.inMinutes == 15) {
+    if (!_notifiedFifteenMinutes && remaining.inMinutes == 10) {
       _notifiedFifteenMinutes = true;
-      appLogger.i('[SessionManager] 15 minutes remaining');
-      onTimeRemainingNotification?.call(15);
+      appLogger.i('[SessionManager] 10 minutes remaining');
+      onTimeRemainingNotification?.call(10);
     }
     if (sessionTimer.countdownFinished && settingsProvider.isCounterEnabled) {
       _handleSessionTimeout();

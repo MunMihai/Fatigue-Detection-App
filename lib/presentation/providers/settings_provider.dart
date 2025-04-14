@@ -1,6 +1,7 @@
 import 'package:driver_monitoring/core/utils/app_logger.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
+import 'package:screen_brightness/screen_brightness.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsProvider extends ChangeNotifier {
@@ -66,13 +67,29 @@ class SettingsProvider extends ChangeNotifier {
   }
 
   Future<void> toggleNightLight(bool value) async {
-    _isNightLightEnabled = value;
-    await _prefs.setBool('enable_night_light', value);
+  _isNightLightEnabled = value;
+  await _prefs.setBool('enable_night_light', value);
 
-    appLogger.i('🌙 Night light toggled → $_isNightLightEnabled');
-
-    notifyListeners();
+  if (value) {
+    try {
+      await ScreenBrightness.instance.setApplicationScreenBrightness(1.0);
+      appLogger.i('🔆 Brightness set to maximum.');
+    } catch (e) {
+      appLogger.e('Failed to set brightness: $e');
+    }
+  } else {
+    try {
+      await ScreenBrightness.instance.resetApplicationScreenBrightness();
+      appLogger.i('🔅 Brightness reset to default.');
+    } catch (e) {
+      appLogger.e('Failed to reset brightness: $e');
+    }
   }
+
+  appLogger.i('🌙 Night light toggled → $_isNightLightEnabled');
+
+  notifyListeners();
+}
 
   Future<void> updateThemeMode(ThemeMode mode) async {
     _themeMode = mode;
